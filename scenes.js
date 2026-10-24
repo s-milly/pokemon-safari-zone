@@ -168,8 +168,7 @@
     },
 
     sea: {
-      // Not too far out, so swimmers stay big enough to recognise
-      ground: [8, 28], tint: "#1f6fa0",
+      ground: [8, 34], fly: 0.25, tint: "#1f6fa0",
       // Where the water is, in drawing units of a layer: here, everything below the horizon
       water: { top: 414, bottom: 900, layer: 0 }, haze: ["#e2f4fb", 420, 0.35],
       back: layered(

@@ -269,7 +269,8 @@
     const pad = floats ? -0.12 : ART_PAD[p.id] || 0;
     el.style.cssText = `--k:${size.toFixed(2)};--pad:${pad}`;
     place(el, x, y);
-    el.innerHTML = `<img alt="${shiny ? "Shiny " : ""}${p.name}" src="${(shiny ? ART.shiny : ART.normal)(p.id)}" draggable="false"><span class="mon__shadow"></span>`;
+    // The body holds the picture so swimmers can be cut off at the waterline
+    el.innerHTML = `<span class="mon__body"><img alt="${shiny ? "Shiny " : ""}${p.name}" src="${(shiny ? ART.shiny : ART.normal)(p.id)}" draggable="false"></span><span class="mon__shadow"></span>`;
     const visitor = { ...p, shiny, el, x, y };
     const img = el.querySelector("img");
     img.addEventListener("load", () => {
@@ -420,8 +421,9 @@
     if (v.y <= top && v.y >= bottom) {
       // Shallow enough that you can always tell who it is
       // A share of the body, so a flat fish is not swallowed whole
+      // Further out they are smaller, so they ride higher to stay easy to see
       const deep = DEEP_SWIMMERS.has(v.id) ? 0.05 : 0;
-      const share = Math.random() < 0.2 ? 0.06 : 0.12 + deep + Math.random() * 0.12;
+      const share = (Math.random() < 0.2 ? 0.06 : 0.12 + deep + Math.random() * 0.12) * Math.min(1, depthScale(v.y));
       const sink = share * (ART_FILL[v.id] || 1);
       v.el.classList.add("is-swimming");
       v.el.style.setProperty("--sink", sink.toFixed(2));
