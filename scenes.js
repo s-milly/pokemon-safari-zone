@@ -174,7 +174,21 @@
         `<rect width="${W}" height="420" fill="url(#se)"/><rect y="414" width="${W}" height="${H - 414}" fill="url(#sw)"/>` +
         `<circle cx="1300" cy="150" r="200" fill="url(#sesun)"/><circle cx="1300" cy="150" r="58" fill="#fffbe0"/>` +
         cloud(320, 150, 1.1, "#ffffff") + cloud(880, 220, 0.8, "#ffffff") +
-        `<path d="M1120 416 Q1200 370 1290 380 Q1360 388 1420 416 Z" fill="#6f9c7a"/><path d="M1240 384 Q1250 330 1262 300 M1262 300 q-30 -6 -48 12 M1262 300 q26 -12 50 2 M1262 300 q-10 -24 -36 -30 M1262 300 q14 -26 40 -26" stroke="#3f6b4a" stroke-width="7" fill="none" stroke-linecap="round"/>` +
+        // The S.S. Anne at anchor on the horizon, near the middle so phones see it too
+        `<g transform="translate(-480 0)">` +
+        `<g class="fx-drift" fill="#c9ced6" opacity=".7"><ellipse cx="1290" cy="200" rx="34" ry="16"/><ellipse cx="1260" cy="176" rx="42" ry="18"/><ellipse cx="1350" cy="212" rx="28" ry="13"/></g>` +
+        `<g><rect x="1296" y="228" width="34" height="64" fill="#d9534a"/><rect x="1296" y="228" width="34" height="12" fill="#1e2230"/>` +
+        `<rect x="1356" y="238" width="34" height="54" fill="#d9534a"/><rect x="1356" y="238" width="34" height="12" fill="#1e2230"/>` +
+        `<path d="M1160 318 L1160 238" stroke="#4a5568" stroke-width="4"/><path d="M1160 240 L1300 232 M1390 244 L1470 300" stroke="#4a5568" stroke-width="2" fill="none"/>` +
+        `<g fill="#ffcb05"><path d="M1190 238 l6 10 l6 -10 Z"/><path d="M1240 235 l6 10 l6 -10 Z"/></g><g fill="#2a75bb"><path d="M1215 236 l6 10 l6 -10 Z"/><path d="M1265 234 l6 10 l6 -10 Z"/></g>` +
+        `<rect x="1180" y="286" width="230" height="34" rx="3" fill="#f4f4f0"/><rect x="1196" y="266" width="80" height="22" rx="3" fill="#f4f4f0"/>` +
+        `<rect x="1120" y="318" width="330" height="36" rx="3" fill="#ffffff"/>` +
+        `<g fill="#5aa8d6">${Array.from({ length: 9 }, (_, i) => `<rect x="${1196 + i * 24}" y="296" width="14" height="10" rx="2"/>`).join("")}${Array.from({ length: 13 }, (_, i) => `<rect x="${1134 + i * 24}" y="328" width="14" height="12" rx="2"/>`).join("")}<rect x="1206" y="272" width="60" height="8" rx="2"/></g>` +
+        `<path d="M1030 352 L1520 352 L1486 418 L1074 418 Z" fill="#f4f4f0"/>` +
+        `<path d="M1052 384 L1505 384 L1486 418 L1074 418 Z" fill="#24375f"/><path d="M1050 384 L1506 384" stroke="#d9534a" stroke-width="5"/>` +
+        `<g fill="#24375f">${Array.from({ length: 16 }, (_, i) => `<circle cx="${1090 + i * 26}" cy="368" r="4"/>`).join("")}</g>` +
+        `<text x="1290" y="410" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="22" letter-spacing="3" fill="#ffffff">S.S. ANNE</text></g>` +
+        `<path d="M1040 418 Q1280 426 1520 418" stroke="#ffffff" stroke-width="4" opacity=".7" fill="none"/></g>` +
         `<rect y="412" width="${W}" height="4" fill="#ffffff" opacity=".5"/>` +
         L + `<g class="fx-shimmer" fill="#fffbe0">${Array.from({ length: 12 }, (_, i) => `<rect x="${1240 + ((i * 37) % 120)}" y="${430 + i * 22}" width="${40 - i * 2}" height="4" rx="2" opacity="${(0.9 - i * 0.06).toFixed(2)}"/>`).join("")}</g>` +
         `<g class="fx-wave" stroke="#ffffff" stroke-opacity=".35" stroke-width="4" fill="none" stroke-linecap="round">` +

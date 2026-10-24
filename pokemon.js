@@ -31,19 +31,19 @@ window.HABITATS = [
     ]
   },
   {
-    key: "cave", name: "Mt. Moon Cave", blurb: "Dark tunnels and glowing rocks",
-    pokemon: [
-      [35, "Clefairy", "common", 6], [41, "Zubat", "common", 8], [46, "Paras", "common", 3], [74, "Geodude", "common", 4],
-      [36, "Clefable", "uncommon", 13], [42, "Golbat", "uncommon", 16], [47, "Parasect", "uncommon", 10], [75, "Graveler", "uncommon", 10],
-      [76, "Golem", "rare", 14]
-    ]
-  },
-  {
-    key: "fossil", name: "Fossil Dig", blurb: "Pokémon from long ago",
+    key: "fossil", name: "Pewter City", blurb: "Rock types and museum fossils",
     pokemon: [
       [27, "Sandshrew", "common", 6], [50, "Diglett", "common", 2], [138, "Omanyte", "common", 4], [140, "Kabuto", "common", 5],
       [28, "Sandslash", "uncommon", 10], [51, "Dugtrio", "uncommon", 7], [139, "Omastar", "uncommon", 10], [141, "Kabutops", "uncommon", 13],
       [142, "Aerodactyl", "rare", 18]
+    ]
+  },
+  {
+    key: "cave", name: "Mt. Moon", blurb: "Dark tunnels and glowing rocks",
+    pokemon: [
+      [35, "Clefairy", "common", 6], [41, "Zubat", "common", 8], [46, "Paras", "common", 3], [74, "Geodude", "common", 4],
+      [36, "Clefable", "uncommon", 13], [42, "Golbat", "uncommon", 16], [47, "Parasect", "uncommon", 10], [75, "Graveler", "uncommon", 10],
+      [76, "Golem", "rare", 14]
     ]
   },
   {
@@ -67,7 +67,7 @@ window.HABITATS = [
     ]
   },
   {
-    key: "space", name: "Night Sky", blurb: "Stars, moons and meteors",
+    key: "space", name: "Saffron City", blurb: "Psychic Pokémon under the stars",
     pokemon: [
       [63, "Abra", "common", 9], [96, "Drowzee", "common", 10], [120, "Staryu", "common", 8],
       [64, "Kadabra", "uncommon", 13], [97, "Hypno", "uncommon", 16], [121, "Starmie", "uncommon", 11], [122, "Mr. Mime", "uncommon", 13],
@@ -94,7 +94,7 @@ window.HABITATS = [
     ]
   },
   {
-    key: "snow", name: "Frozen Peak", blurb: "Snowdrifts and icy wind",
+    key: "snow", name: "Seafoam Islands", blurb: "Snowdrifts and icy wind",
     pokemon: [
       [54, "Psyduck", "common", 8], [79, "Slowpoke", "common", 12], [86, "Seel", "common", 11], [90, "Shellder", "common", 3],
       [55, "Golduck", "uncommon", 17], [80, "Slowbro", "uncommon", 16], [87, "Dewgong", "uncommon", 17], [91, "Cloyster", "uncommon", 15],
@@ -103,7 +103,7 @@ window.HABITATS = [
     ]
   },
   {
-    key: "volcano", name: "Volcano", blurb: "Hot rocks and lava pools",
+    key: "volcano", name: "Cinnabar Island", blurb: "Hot rocks and lava pools",
     pokemon: [
       [4, "Charmander", "common", 6], [37, "Vulpix", "common", 6], [58, "Growlithe", "common", 7], [77, "Ponyta", "common", 10],
       [5, "Charmeleon", "uncommon", 11], [78, "Rapidash", "uncommon", 17], [126, "Magmar", "uncommon", 13],
