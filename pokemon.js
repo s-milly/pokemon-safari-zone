@@ -131,10 +131,14 @@ window.ART = {
 // against PokeAPI). In Victory Road they sometimes push a boulder.
 window.STRENGTH = new Set([66, 67, 68, 95, 106, 107, 111, 112, 150]);
 
-// Water Pokémon that swim, half under the surface, in the Open Sea and in the
-// sea channel at Seafoam Islands. Fish and jellyfish sit lower in the water.
+// Water Pokémon that swim, partly under the surface, in the Open Sea. Fish
+// and jellyfish sit a little lower in the water.
 window.SWIMMERS = new Set([7, 8, 9, 54, 55, 60, 61, 62, 72, 73, 79, 80, 86, 87, 90, 91, 98, 99, 116, 117, 118, 119, 129, 130, 131, 134]);
 window.DEEP_SWIMMERS = new Set([72, 73, 116, 117, 118, 119, 129, 130]);
+// How much of its artwork's height each swimmer's body fills. A wide, flat
+// fish like Goldeen fills about half, so it sinks by a share of its body,
+// not of the whole picture.
+window.ART_FILL = {7: 0.91, 8: 0.91, 9: 0.91, 54: 0.91, 55: 0.89, 60: 0.71, 61: 0.79, 62: 0.62, 72: 0.74, 73: 0.7, 79: 0.73, 80: 0.91, 86: 0.83, 87: 0.9, 90: 0.88, 91: 0.87, 98: 0.55, 99: 0.56, 116: 0.91, 117: 0.79, 118: 0.51, 119: 0.85, 129: 0.91, 130: 0.91, 131: 0.87, 134: 0.91};
 
 // Pokémon whose artwork shows them in the air. They hover over their shadow;
 // everyone else stands on the ground.

@@ -409,7 +409,7 @@
       { x: Math.max(8, Math.min(86, foot.x + (Math.random() - 0.5) * 40)), y: lo + Math.random() * (hi - lo), zone: "ground" }];
   }
 
-  // ---------- Swimming (Open Sea, Seafoam Islands) ----------
+  // ---------- Swimming (Open Sea) ----------
   // In water, a water Pokémon sinks part way below the surface, and bobs a
   // little higher or lower each time it moves.
   function setSwim(v) {
@@ -418,8 +418,11 @@
     const top = svgToStage(800, w.top, w.layer).y, bottom = svgToStage(800, w.bottom, w.layer).y;
     clearTimeout(v.swimTimer);
     if (v.y <= top && v.y >= bottom) {
-      const deep = DEEP_SWIMMERS.has(v.id) ? 0.15 : 0;
-      const sink = Math.random() < 0.15 ? 0.08 : 0.2 + deep + Math.random() * 0.25;
+      // Shallow enough that you can always tell who it is
+      // A share of the body, so a flat fish is not swallowed whole
+      const deep = DEEP_SWIMMERS.has(v.id) ? 0.05 : 0;
+      const share = Math.random() < 0.2 ? 0.06 : 0.12 + deep + Math.random() * 0.12;
+      const sink = share * (ART_FILL[v.id] || 1);
       v.el.classList.add("is-swimming");
       v.el.style.setProperty("--sink", sink.toFixed(2));
     } else {

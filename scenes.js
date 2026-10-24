@@ -168,7 +168,8 @@
     },
 
     sea: {
-      ground: [8, 34], fly: 0.25, tint: "#1f6fa0",
+      // Not too far out, so swimmers stay big enough to recognise
+      ground: [8, 28], tint: "#1f6fa0",
       // Where the water is, in drawing units of a layer: here, everything below the horizon
       water: { top: 414, bottom: 900, layer: 0 }, haze: ["#e2f4fb", 420, 0.35],
       back: layered(
@@ -336,8 +337,7 @@
 
     snow: {
       ground: [6, 24], tint: "#2f6d8f",
-      // The channel of sea water running through the cave
-      water: { top: 688, bottom: 758, layer: 2 }, haze: ["#bfe3f2", 600, 0.35],
+      haze: ["#bfe3f2", 600, 0.35],
       back: layered(
         sky("sf", [[0, "#10324a"], [1, "#1d5372"]]) + sky("sfout", [[0, "#9fd6f2"], [0.55, "#dff4fc"], [0.56, "#4aa8d4"], [1, "#2a7fb0"]]) +
         glow("sflight", "#e8f8ff") + sky("ice", [[0, "#e6f6fd"], [1, "#a9d4ea"]]),
@@ -357,8 +357,9 @@
         `<path d="M1300 150 Q1280 360 1320 590 L1380 590 Q1400 360 1370 150 Z" fill="#bfe6f6" opacity=".85"/>` +
         `<g fill="#ffffff">${dots(40, 503, "#ffffff", 140, 620, 2, "fx-twinkle")}</g>` +
         ridge(640, 24, 5, "#3f86a8", 505) +
-        L + `<path d="M0 700 Q400 670 800 690 T1600 680 L1600 900 L0 900 Z" fill="#2f7fae"/>` +
-        `<g fill="url(#ice)"><path d="M380 712 l70 -10 l40 18 l-90 10 Z"/><path d="M980 730 l90 -12 l50 20 l-110 12 Z"/><path d="M640 760 l60 -8 l30 14 l-80 8 Z"/></g>` +
+        // A frozen cave floor, with cracks in the ice
+        L + `<path d="M0 700 Q400 670 800 690 T1600 680 L1600 900 L0 900 Z" fill="url(#ice)"/>` +
+        `<g fill="none" stroke="#9cc8de" stroke-width="3" stroke-linecap="round" opacity=".8"><path d="M300 720 l60 14 l40 -10 l50 18"/><path d="M900 712 l-40 16 l30 14"/><path d="M1180 730 l70 -8 l30 16"/></g>` +
         ridge(760, 16, 4, "#e9f6fc", 507) +
         `<g class="fx-drift" fill="#e8f8ff" opacity=".25"><ellipse cx="500" cy="740" rx="300" ry="24"/><ellipse cx="1150" cy="760" rx="340" ry="26"/></g>`
       ),

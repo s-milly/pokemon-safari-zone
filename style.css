@@ -198,18 +198,21 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
 @keyframes twinkle { 50% { opacity: .3; } }
 
 /* Swimming: the lower part of the Pokémon sits below the waterline, which
-   is the bottom edge of its box, with a ripple ring around it */
+   is the bottom edge of its box. A strip of moving water with a foam edge
+   laps against it there. */
 .mon { --sink: 0; --pad: 0; }
 /* --pad moves the art down past the empty space under its feet, so it stands on its shadow */
 .mon img { translate: 0 calc((var(--pad) + var(--sink)) * 100%); }
 .mon.is-swimming { clip-path: inset(-60% -60% 0 -60%); }
 .mon.is-swimming .mon__shadow { display: none; }
 .mon.is-swimming::after {
-  content: ""; position: absolute; left: 4%; right: 4%; bottom: -5%; height: 10%; z-index: 2;
-  border-radius: 50%; border: 3px solid rgba(255, 255, 255, .75); background: rgba(255, 255, 255, .15);
-  animation: ripple 2.8s ease-in-out infinite;
+  content: ""; position: absolute; left: -8%; right: -8%; bottom: 0; height: 12%; z-index: 2;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20' preserveAspectRatio='none'%3E%3Cpath d='M0 7 Q10 1 20 7 T40 7 V20 H0 Z' fill='%232b8cc4' fill-opacity='.92'/%3E%3Cpath d='M0 7 Q10 1 20 7 T40 7' fill='none' stroke='%23ffffff' stroke-opacity='.9' stroke-width='2.4'/%3E%3C/svg%3E") 0 100% / 34px 100% repeat-x, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20' preserveAspectRatio='none'%3E%3Cpath d='M0 9 Q10 4 20 9 T40 9 V20 H0 Z' fill='%234fb4de' fill-opacity='.6'/%3E%3Cpath d='M0 9 Q10 4 20 9 T40 9' fill='none' stroke='%23e8f7ff' stroke-opacity='.7' stroke-width='1.6'/%3E%3C/svg%3E") 0 100% / 26px 80% repeat-x;
+  -webkit-mask: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+  mask: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+  animation: lap 2.4s linear infinite;
 }
-@keyframes ripple { 50% { transform: scaleX(1.08); opacity: .7; } }
+@keyframes lap { to { background-position: 34px 100%, -26px 100%; } }
 
 /* Strength boulders in Victory Road */
 .boulder { position: absolute; width: calc(min(15vh, 11vw) * var(--s)); transform: translate(-50%, 0); }
