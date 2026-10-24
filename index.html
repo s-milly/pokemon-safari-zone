@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quiet Safari Zone</title>
+  <meta name="description" content="A classroom volume game. Keep the room quiet and wild Pokémon come out one at a time. Get too loud and they run away.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Home: pick a habitat -->
+  <main class="home" id="home">
+    <header class="home__head">
+      <div class="logo" aria-hidden="true"><span class="ball-icon"></span></div>
+      <h1>Quiet Safari Zone</h1>
+      <p>Keep the room quiet and wild Pokémon come out one at a time. Get too loud and they run away.</p>
+    </header>
+
+    <h2 class="home__label">Pick a habitat</h2>
+    <ul class="habitats" id="habitats" role="list"></ul>
+
+    <div class="home__actions">
+      <button class="btn btn--ghost" type="button" data-open="dex">Pokédex <span class="pill" id="home-dex-count"></span></button>
+      <button class="btn btn--ghost" type="button" data-open="settings">Settings</button>
+    </div>
+
+    <p class="fine">An unofficial fan project for classrooms. Pokémon and all related names and art belong to Nintendo, Creatures Inc. and GAME FREAK. Artwork loads from <a href="https://github.com/PokeAPI/sprites" target="_blank" rel="noopener">PokeAPI</a>. The microphone only measures how loud the room is. Nothing is recorded or sent anywhere.</p>
+  </main>
+
+  <!-- Scene -->
+  <section class="scene" id="scene" hidden aria-label="Habitat">
+    <div class="scene__back" id="scene-back" aria-hidden="true"></div>
+    <div class="scene__stage" id="stage"></div>
+    <div class="scene__front" id="scene-front" aria-hidden="true"></div>
+    <div class="scene__hush" id="hush" hidden>
+      <p class="hush__big">Shh...</p>
+      <p>The Pokémon are hiding until it is quiet again.</p>
+    </div>
+
+    <div class="hud hud--top">
+      <button class="btn btn--small" type="button" id="back-home">← Habitats</button>
+      <p class="hud__title" id="scene-title"></p>
+      <div class="hud__right">
+        <span class="hud__count" id="scene-count" title="Spotted in this habitat"></span>
+        <button class="btn btn--small" type="button" data-open="dex">Pokédex</button>
+        <button class="btn btn--small" type="button" data-open="settings">Settings</button>
+        <button class="btn btn--small btn--icon" type="button" id="fullscreen" aria-label="Full screen">⛶</button>
+      </div>
+    </div>
+
+    <div class="meter" id="meter" role="meter" aria-label="Room volume" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+      <div class="meter__fill" id="meter-fill"></div>
+      <div class="meter__goal" id="meter-goal"><span>Goal</span></div>
+    </div>
+
+    <div class="hud hud--bottom">
+      <div class="next" id="next" aria-hidden="true">
+        <svg viewBox="0 0 44 44"><circle class="next__track" cx="22" cy="22" r="19"/><circle class="next__ring" id="next-ring" cx="22" cy="22" r="19" pathLength="100"/></svg>
+        <span class="ball-icon"></span>
+      </div>
+      <div class="dialog" id="dialog" aria-live="polite"></div>
+      <div class="hud__controls">
+        <label class="practice" id="practice" hidden>
+          <span>Practice noise</span>
+          <input type="range" id="practice-level" min="0" max="100" value="10">
+        </label>
+        <button class="btn btn--solid" type="button" id="playpause">Pause</button>
+      </div>
+    </div>
+
+    <div class="start" id="start">
+      <div class="start__card">
+        <h2 id="start-title"></h2>
+        <p id="start-text">Press Start, then stay quiet. A wild Pokémon comes out each time the class stays under the volume goal long enough.</p>
+        <button class="btn btn--solid btn--big" type="button" id="start-btn">Start</button>
+        <p class="start__error" id="start-error" hidden></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pokédex -->
+  <dialog class="sheet" id="dex" aria-labelledby="dex-title">
+    <div class="sheet__head">
+      <h2 id="dex-title">Class Pokédex</h2>
+      <p class="sheet__sub" id="dex-sub"></p>
+      <button class="btn btn--small" type="button" data-close>Close</button>
+    </div>
+    <div class="tabs" id="dex-tabs" role="tablist"></div>
+    <ul class="dex" id="dex-grid" role="list"></ul>
+  </dialog>
+
+  <!-- Settings -->
+  <dialog class="sheet sheet--narrow" id="settings" aria-labelledby="settings-title">
+    <div class="sheet__head">
+      <h2 id="settings-title">Settings</h2>
+      <button class="btn btn--small" type="button" data-close>Close</button>
+    </div>
+    <form class="form" id="settings-form" method="dialog">
+      <fieldset>
+        <legend>When it gets too loud</legend>
+        <label class="choice"><input type="radio" name="loudMode" value="flee"> <span><b>The Pokémon run away.</b> Everyone on screen flees and the wait starts over.</span></label>
+        <label class="choice"><input type="radio" name="loudMode" value="pause"> <span><b>The scene pauses.</b> The Pokémon hide and wait until it is quiet again.</span></label>
+      </fieldset>
+
+      <label class="field">
+        <span>Volume goal <output id="goal-out"></output></span>
+        <input type="range" name="goal" min="10" max="90" step="1">
+        <small>Lower is stricter. Watch the meter for a minute to find a good level for your room.</small>
+      </label>
+
+      <label class="field">
+        <span>Microphone sensitivity <output id="sens-out"></output></span>
+        <input type="range" name="sensitivity" min="1" max="10" step="1">
+        <small>Turn this up if the meter barely moves, down if it jumps at small sounds.</small>
+      </label>
+
+      <label class="field">
+        <span>Quiet time for each Pokémon</span>
+        <select name="spawnSeconds">
+          <option value="10">10 seconds</option>
+          <option value="20">20 seconds</option>
+          <option value="30">30 seconds</option>
+          <option value="60">1 minute</option>
+          <option value="120">2 minutes</option>
+        </select>
+      </label>
+
+      <label class="toggle"><input type="checkbox" name="shiny"> <span>Shiny Pokémon (about 1 in 40)</span></label>
+      <label class="toggle"><input type="checkbox" name="showMeter"> <span>Show the volume meter</span></label>
+      <label class="toggle"><input type="checkbox" name="practice"> <span>Practice mode (no microphone, use a slider)</span></label>
+
+      <div class="form__danger">
+        <button class="btn btn--small btn--danger" type="button" id="reset-dex">Clear the Pokédex</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="pokemon.js"></script>
+  <script src="scenes.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
