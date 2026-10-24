@@ -1,5 +1,6 @@
 /*
-  Habitats and the Pokémon that live in each one.
+  Habitats and the Pokémon that live in each one: all 151 from the first
+  generation (Red, Blue and Yellow), each in exactly one habitat.
   id is the National Pokédex number, used to load the artwork from PokeAPI.
   rarity: "common", "uncommon" or "rare". Weights for each are in app.js.
   height: the Pokédex height in tenths of a meter (Caterpie is 3, Onix is 88),
@@ -9,92 +10,108 @@ window.HABITATS = [
   {
     key: "forest", name: "Viridian Forest", blurb: "Bug catchers welcome",
     pokemon: [
-      [10, "Caterpie", "common", 3], [13, "Weedle", "common", 3], [16, "Pidgey", "common", 3],
-      [43, "Oddish", "common", 5], [163, "Hoothoot", "common", 7],
-      [25, "Pikachu", "uncommon", 4], [12, "Butterfree", "uncommon", 11], [15, "Beedrill", "uncommon", 10],
-      [214, "Heracross", "uncommon", 15], [252, "Treecko", "uncommon", 5],
-      [123, "Scyther", "rare", 15], [470, "Leafeon", "rare", 10], [251, "Celebi", "rare", 6]
+      [1, "Bulbasaur", "common", 7], [10, "Caterpie", "common", 3], [11, "Metapod", "common", 7], [13, "Weedle", "common", 3],
+      [14, "Kakuna", "common", 6], [43, "Oddish", "common", 5], [48, "Venonat", "common", 10], [69, "Bellsprout", "common", 7],
+      [2, "Ivysaur", "uncommon", 10], [12, "Butterfree", "uncommon", 11], [15, "Beedrill", "uncommon", 10], [44, "Gloom", "uncommon", 8],
+      [45, "Vileplume", "uncommon", 12], [49, "Venomoth", "uncommon", 15], [70, "Weepinbell", "uncommon", 10], [71, "Victreebel", "uncommon", 17],
+      [114, "Tangela", "uncommon", 10],
+      [3, "Venusaur", "rare", 20]
+    ]
+  },
+  {
+    key: "route", name: "Route 1", blurb: "Tall grass outside Pallet Town",
+    pokemon: [
+      [16, "Pidgey", "common", 3], [19, "Rattata", "common", 3], [21, "Spearow", "common", 3], [39, "Jigglypuff", "common", 5],
+      [52, "Meowth", "common", 4], [56, "Mankey", "common", 5],
+      [17, "Pidgeotto", "uncommon", 11], [18, "Pidgeot", "uncommon", 15], [20, "Raticate", "uncommon", 7], [22, "Fearow", "uncommon", 12],
+      [40, "Wigglytuff", "uncommon", 10], [53, "Persian", "uncommon", 10], [57, "Primeape", "uncommon", 10], [83, "Farfetch’d", "uncommon", 8],
+      [108, "Lickitung", "uncommon", 12], [133, "Eevee", "uncommon", 3],
+      [143, "Snorlax", "rare", 21]
     ]
   },
   {
     key: "safari", name: "Safari Zone", blurb: "Tall grass and wide plains",
     pokemon: [
-      [29, "Nidoran♀", "common", 4], [32, "Nidoran♂", "common", 5], [84, "Doduo", "common", 14],
-      [102, "Exeggcute", "common", 4], [111, "Rhyhorn", "common", 10], [48, "Venonat", "common", 10],
-      [128, "Tauros", "uncommon", 14], [115, "Kangaskhan", "uncommon", 22], [127, "Pinsir", "uncommon", 15],
-      [203, "Girafarig", "uncommon", 15],
-      [113, "Chansey", "rare", 11], [147, "Dratini", "rare", 18], [243, "Raikou", "rare", 19]
+      [29, "Nidoran♀", "common", 4], [32, "Nidoran♂", "common", 5], [84, "Doduo", "common", 14], [102, "Exeggcute", "common", 4],
+      [30, "Nidorina", "uncommon", 8], [33, "Nidorino", "uncommon", 9], [85, "Dodrio", "uncommon", 18], [103, "Exeggutor", "uncommon", 20],
+      [115, "Kangaskhan", "uncommon", 22], [123, "Scyther", "uncommon", 15], [127, "Pinsir", "uncommon", 15], [128, "Tauros", "uncommon", 14],
+      [31, "Nidoqueen", "rare", 13], [34, "Nidoking", "rare", 14], [113, "Chansey", "rare", 11], [147, "Dratini", "rare", 18],
+      [148, "Dragonair", "rare", 40], [149, "Dragonite", "rare", 22]
     ]
   },
   {
     key: "sea", name: "Open Sea", blurb: "Waves, reefs and sea spray",
     pokemon: [
-      [129, "Magikarp", "common", 9], [72, "Tentacool", "common", 9], [54, "Psyduck", "common", 8],
-      [116, "Horsea", "common", 4], [118, "Goldeen", "common", 6], [278, "Wingull", "common", 6],
-      [7, "Squirtle", "uncommon", 5], [120, "Staryu", "uncommon", 8], [222, "Corsola", "uncommon", 6],
-      [226, "Mantine", "uncommon", 21], [393, "Piplup", "uncommon", 4],
-      [131, "Lapras", "rare", 25], [130, "Gyarados", "rare", 65], [382, "Kyogre", "rare", 45]
+      [7, "Squirtle", "common", 5], [60, "Poliwag", "common", 6], [72, "Tentacool", "common", 9], [98, "Krabby", "common", 4],
+      [116, "Horsea", "common", 4], [118, "Goldeen", "common", 6], [129, "Magikarp", "common", 9],
+      [8, "Wartortle", "uncommon", 10], [61, "Poliwhirl", "uncommon", 10], [73, "Tentacruel", "uncommon", 16], [99, "Kingler", "uncommon", 13],
+      [117, "Seadra", "uncommon", 12], [119, "Seaking", "uncommon", 13],
+      [9, "Blastoise", "rare", 16], [62, "Poliwrath", "rare", 13], [130, "Gyarados", "rare", 65], [134, "Vaporeon", "rare", 10]
     ]
   },
   {
     key: "cave", name: "Mt. Moon Cave", blurb: "Dark tunnels and glowing rocks",
     pokemon: [
-      [41, "Zubat", "common", 8], [74, "Geodude", "common", 4], [46, "Paras", "common", 3],
-      [50, "Diglett", "common", 2], [27, "Sandshrew", "common", 6],
-      [95, "Onix", "uncommon", 88], [66, "Machop", "uncommon", 8], [304, "Aron", "uncommon", 4],
-      [302, "Sableye", "uncommon", 5], [42, "Golbat", "uncommon", 16],
-      [443, "Gible", "rare", 7], [246, "Larvitar", "rare", 6], [150, "Mewtwo", "rare", 20]
+      [35, "Clefairy", "common", 6], [41, "Zubat", "common", 8], [46, "Paras", "common", 3], [66, "Machop", "common", 8],
+      [74, "Geodude", "common", 4],
+      [36, "Clefable", "uncommon", 13], [42, "Golbat", "uncommon", 16], [47, "Parasect", "uncommon", 10], [67, "Machoke", "uncommon", 15],
+      [75, "Graveler", "uncommon", 10], [95, "Onix", "uncommon", 88], [106, "Hitmonlee", "uncommon", 15], [107, "Hitmonchan", "uncommon", 14],
+      [68, "Machamp", "rare", 16], [76, "Golem", "rare", 14], [150, "Mewtwo", "rare", 20]
     ]
   },
   {
     key: "fossil", name: "Fossil Dig", blurb: "Pokémon from long ago",
     pokemon: [
-      [138, "Omanyte", "common", 4], [140, "Kabuto", "common", 5], [345, "Lileep", "common", 10],
-      [347, "Anorith", "common", 7], [408, "Cranidos", "common", 9], [410, "Shieldon", "common", 5],
-      [696, "Tyrunt", "uncommon", 8], [698, "Amaura", "uncommon", 13], [566, "Archen", "uncommon", 5],
-      [564, "Tirtouga", "uncommon", 7], [139, "Omastar", "uncommon", 10],
-      [142, "Aerodactyl", "rare", 18], [697, "Tyrantrum", "rare", 25], [409, "Rampardos", "rare", 16]
+      [27, "Sandshrew", "common", 6], [50, "Diglett", "common", 2], [111, "Rhyhorn", "common", 10], [138, "Omanyte", "common", 4],
+      [140, "Kabuto", "common", 5],
+      [28, "Sandslash", "uncommon", 10], [51, "Dugtrio", "uncommon", 7], [112, "Rhydon", "uncommon", 19], [139, "Omastar", "uncommon", 10],
+      [141, "Kabutops", "uncommon", 13],
+      [142, "Aerodactyl", "rare", 18]
     ]
   },
   {
     key: "volcano", name: "Volcano", blurb: "Hot rocks and lava pools",
     pokemon: [
-      [37, "Vulpix", "common", 6], [77, "Ponyta", "common", 10], [218, "Slugma", "common", 7],
-      [322, "Numel", "common", 7], [58, "Growlithe", "common", 7],
-      [4, "Charmander", "uncommon", 6], [126, "Magmar", "uncommon", 13], [324, "Torkoal", "uncommon", 5],
-      [228, "Houndour", "uncommon", 6], [155, "Cyndaquil", "uncommon", 5],
-      [6, "Charizard", "rare", 17], [146, "Moltres", "rare", 20], [383, "Groudon", "rare", 35]
+      [4, "Charmander", "common", 6], [37, "Vulpix", "common", 6], [58, "Growlithe", "common", 7], [77, "Ponyta", "common", 10],
+      [5, "Charmeleon", "uncommon", 11], [78, "Rapidash", "uncommon", 17], [126, "Magmar", "uncommon", 13],
+      [6, "Charizard", "rare", 17], [38, "Ninetales", "rare", 11], [59, "Arcanine", "rare", 19], [136, "Flareon", "rare", 9],
+      [146, "Moltres", "rare", 20]
+    ]
+  },
+  {
+    key: "power", name: "Power Plant", blurb: "Humming wires and sparks",
+    pokemon: [
+      [25, "Pikachu", "common", 4], [81, "Magnemite", "common", 3], [100, "Voltorb", "common", 5],
+      [26, "Raichu", "uncommon", 8], [82, "Magneton", "uncommon", 10], [101, "Electrode", "uncommon", 12], [125, "Electabuzz", "uncommon", 11],
+      [135, "Jolteon", "rare", 8], [145, "Zapdos", "rare", 16]
     ]
   },
   {
     key: "snow", name: "Frozen Peak", blurb: "Snowdrifts and icy wind",
     pokemon: [
-      [220, "Swinub", "common", 4], [361, "Snorunt", "common", 7], [363, "Spheal", "common", 8],
-      [86, "Seel", "common", 11], [459, "Snover", "common", 10],
-      [215, "Sneasel", "uncommon", 9], [225, "Delibird", "uncommon", 9], [124, "Jynx", "uncommon", 14],
-      [471, "Glaceon", "uncommon", 8], [613, "Cubchoo", "uncommon", 5],
-      [144, "Articuno", "rare", 17], [478, "Froslass", "rare", 13], [378, "Regice", "rare", 18]
+      [54, "Psyduck", "common", 8], [79, "Slowpoke", "common", 12], [86, "Seel", "common", 11], [90, "Shellder", "common", 3],
+      [55, "Golduck", "uncommon", 17], [80, "Slowbro", "uncommon", 16], [87, "Dewgong", "uncommon", 17], [91, "Cloyster", "uncommon", 15],
+      [124, "Jynx", "uncommon", 14],
+      [131, "Lapras", "rare", 25], [144, "Articuno", "rare", 17]
     ]
   },
   {
     key: "haunted", name: "Lavender Town", blurb: "Home of the Pokémon Tower",
     pokemon: [
-      [92, "Gastly", "common", 13], [200, "Misdreavus", "common", 7], [353, "Shuppet", "common", 6],
-      [355, "Duskull", "common", 8], [607, "Litwick", "common", 3],
-      [93, "Haunter", "uncommon", 16], [425, "Drifloon", "uncommon", 4], [708, "Phantump", "uncommon", 4],
-      [778, "Mimikyu", "uncommon", 2],
-      [94, "Gengar", "rare", 15], [442, "Spiritomb", "rare", 10], [487, "Giratina", "rare", 45]
+      [23, "Ekans", "common", 20], [88, "Grimer", "common", 9], [92, "Gastly", "common", 13], [104, "Cubone", "common", 4],
+      [109, "Koffing", "common", 6],
+      [24, "Arbok", "uncommon", 35], [89, "Muk", "uncommon", 12], [93, "Haunter", "uncommon", 16], [105, "Marowak", "uncommon", 10],
+      [110, "Weezing", "uncommon", 12],
+      [94, "Gengar", "rare", 15]
     ]
   },
   {
     key: "space", name: "Night Sky", blurb: "Stars, moons and meteors",
     pokemon: [
-      [35, "Clefairy", "common", 6], [173, "Cleffa", "common", 3], [774, "Minior", "common", 3],
-      [605, "Elgyem", "common", 5], [177, "Natu", "common", 2], [337, "Lunatone", "common", 10],
-      [338, "Solrock", "common", 12],
-      [36, "Clefable", "uncommon", 13], [374, "Beldum", "uncommon", 6], [436, "Bronzor", "uncommon", 5],
-      [178, "Xatu", "uncommon", 15],
-      [385, "Jirachi", "rare", 3], [386, "Deoxys", "rare", 17], [384, "Rayquaza", "rare", 70]
+      [63, "Abra", "common", 9], [96, "Drowzee", "common", 10], [120, "Staryu", "common", 8],
+      [64, "Kadabra", "uncommon", 13], [97, "Hypno", "uncommon", 16], [121, "Starmie", "uncommon", 11], [122, "Mr. Mime", "uncommon", 13],
+      [132, "Ditto", "uncommon", 3],
+      [65, "Alakazam", "rare", 15], [137, "Porygon", "rare", 8], [151, "Mew", "rare", 4]
     ]
   }
 ].map(h => ({ ...h, pokemon: h.pokemon.map(([id, name, rarity, height]) => ({ id, name, rarity, height })) }));

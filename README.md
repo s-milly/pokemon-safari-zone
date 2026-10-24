@@ -6,12 +6,12 @@ A classroom volume game. Put a habitat up on the board and press Start. While th
 
 ## How it works
 
-- **Nine habitats:** Viridian Forest, Safari Zone, Open Sea, Mt. Moon Cave, Fossil Dig, Volcano, Frozen Peak, Lavender Town and Night Sky. Each has 12 to 14 Pokémon.
+- **All 151 original Pokémon:** every Pokémon from Red, Blue and Yellow lives in exactly one of eleven habitats: Viridian Forest, Route 1, Safari Zone, Open Sea, Mt. Moon Cave, Fossil Dig, Volcano, Power Plant, Frozen Peak, Lavender Town and Night Sky.
 - **Quiet time:** the microphone measures how loud the room is. While the class stays under the goal, a new Pokémon appears about every 1 to 2 minutes of quiet (the exact wait is random each time, and Settings can make it faster or slower).
 - **Too loud:** if the room stays over the goal for more than half a second, every Pokémon on screen flees and the wait starts over. In Settings you can switch this so the scene pauses instead, and the Pokémon come back once it is quiet again.
 - **Wandering:** Pokémon walk slowly around the habitat and turn to face the way they are going. Their size comes from their Pokédex height, scaled down so a 9 meter Onix still fits on screen next to a 30 centimeter Caterpie.
 - **Depth:** each background has far, middle and near layers. Far layers are hazier and drift more slowly, like a slow camera pan.
-- **Rarity:** most Pokémon are common, some are uncommon and a few are rare. About 1 in 40 is shiny, and you can turn shinies off.
+- **Rarity:** most Pokémon are common, some are uncommon and a few are rare (final evolutions, legendaries, Snorlax, Lapras, the Eevee evolutions and others). About 1 in 40 is shiny, and you can turn shinies off.
 - **Class Pokédex:** every Pokémon the class has spotted is saved, with how many times it was seen. Ones not found yet show as silhouettes. Flip the **Shiny forms** switch to see the shiny Pokédex.
 - **Practice mode:** without a microphone, a slider stands in for the room so you can try everything.
 

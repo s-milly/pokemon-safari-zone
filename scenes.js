@@ -115,6 +115,37 @@
         `<g fill="#e23b3b"><circle cx="40" cy="840" r="7"/><circle cx="110" cy="855" r="7"/><circle cx="1520" cy="845" r="7"/><circle cx="1580" cy="860" r="7"/></g>`)
     },
 
+    route: {
+      ground: [6, 26], tint: "#3f8f4a", haze: ["#e6f6ff", 540, 0.4],
+      back: layered(
+        sky("rt", [[0, "#7cc6f2"], [0.6, "#dff3fd"], [1, "#e9f7fd"]]) + glow("rsun", "#fffbe0") +
+        sky("rpath", [[0, "#ead6a4"], [1, "#d1b47a"]]),
+        fill("rt") +
+        `<circle cx="1320" cy="140" r="200" fill="url(#rsun)"/><circle cx="1320" cy="140" r="54" fill="#fffde8"/>` +
+        cloud(300, 130, 1.1, "#ffffff") + cloud(860, 200, 0.8, "#ffffff") +
+        ridge(470, 40, 4, "#b5dcc0", 201) +
+        // Pallet Town on the far hill: little houses and Professor Oak's lab
+        `<g transform="translate(980 452)"><rect x="0" y="0" width="54" height="36" fill="#f4efe4"/><path d="M-6 2 L27 -22 L60 2 Z" fill="#d9534a"/><rect x="20" y="16" width="12" height="20" fill="#8a6440"/>` +
+        `<rect x="80" y="4" width="50" height="32" fill="#f4efe4"/><path d="M74 6 L105 -16 L136 6 Z" fill="#d9534a"/><rect x="98" y="18" width="12" height="18" fill="#8a6440"/>` +
+        `<rect x="160" y="-8" width="96" height="44" fill="#e8ecef"/><path d="M152 -6 L208 -30 L264 -6 Z" fill="#8f9aa6"/><g fill="#9fd4f0"><rect x="172" y="6" width="16" height="12"/><rect x="228" y="6" width="16" height="12"/></g><rect x="200" y="16" width="16" height="20" fill="#6b7a88"/></g>` +
+        ridge(540, 26, 6, "#93cc95", 203) +
+        L + tree(140, 640, 0.7, "#3b8a4a", "#4fa25c", "#6b4a32") + tree(300, 630, 0.55, "#3b8a4a", "#4fa25c", "#6b4a32") +
+        tree(1460, 640, 0.75, "#3b8a4a", "#4fa25c", "#6b4a32") + tree(1300, 628, 0.5, "#3b8a4a", "#4fa25c", "#6b4a32") +
+        ridge(620, 18, 5, "#7cc274", 207) +
+        `<g fill="#ffffff">${Array.from({ length: 12 }, (_, i) => `<rect x="${430 + i * 24}" y="600" width="8" height="34" rx="3"/>`).join("")}<rect x="426" y="608" width="290" height="6" rx="3"/><rect x="426" y="622" width="290" height="6" rx="3"/></g>` +
+        `<g><rect x="1066" y="590" width="8" height="54" fill="#7a5236"/><rect x="1030" y="566" width="80" height="34" rx="5" fill="#a0734a" stroke="#7a5236" stroke-width="4"/><text x="1070" y="590" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="18" fill="#fff4dc">ROUTE 1</text></g>` +
+        L + ridge(700, 16, 4, "#86cf6b", 211) +
+        `<path d="M720 900 C760 820 820 760 790 690 L840 690 C880 760 900 830 980 900 Z" fill="url(#rpath)"/>` +
+        // A one-way ledge across the meadow
+        `<path d="M0 742 Q300 730 600 744 L600 756 Q300 744 0 756 Z" fill="#4f9a4a"/><path d="M1000 748 Q1300 736 1600 748 L1600 760 Q1300 750 1000 762 Z" fill="#4f9a4a"/>` +
+        // Patches of tall grass where wild Pokémon hide
+        `<g fill="#2f7f3a">${Array.from({ length: 2 }, (_, k) => Array.from({ length: 9 }, (_, i) => `<path d="M${(k ? 1120 : 180) + i * 34} ${790} l14 -34 l14 34 Z"/>`).join("")).join("")}</g>` +
+        dots(30, 213, "#ffffff", 700, 880, 3) + dots(24, 215, "#ffd84a", 700, 880, 3) + dots(14, 217, "#ff8fb1", 700, 880, 3)
+      ),
+      front: svg("", tufts(900, "#3f9a49", 60, 219, 90) + tufts(900, "#5cb85c", 40, 221, 60) +
+        `<g fill="#2b7a36">${Array.from({ length: 14 }, (_, i) => `<path d="M${-20 + i * 30} 900 l15 -60 l15 60 Z"/><path d="M${1200 + i * 30} 900 l15 -54 l15 54 Z"/>`).join("")}</g>`)
+    },
+
     safari: {
       ground: [6, 26], tint: "#8a6a24", haze: ["#fde3b0", 560, 0.45],
       back: layered(
@@ -224,6 +255,36 @@
       ),
       front: svg("", `<g fill="#241615"><ellipse cx="110" cy="900" rx="230" ry="100"/><ellipse cx="1500" cy="900" rx="230" ry="110"/></g>` +
         `<g fill="none" stroke="#ff7a2a" stroke-width="5" stroke-linecap="round" opacity=".7"><path d="M-20 810 Q100 790 220 812"/><path d="M1380 806 Q1500 784 1620 806"/></g>`)
+    },
+
+    power: {
+      ground: [6, 26], fly: 0.15, tint: "#2c4a63", haze: ["#a9b8c9", 560, 0.3],
+      back: layered(
+        sky("pw", [[0, "#17243d"], [0.55, "#4d6584"], [0.85, "#d8a35e"], [1, "#e9bb72"]]) + glow("pglow", "#ffe066"),
+        fill("pw") +
+        dots(40, 301, "#ffffff", 0, 300, 1.3, "fx-twinkle") +
+        ridge(560, 24, 5, "#3c4a5c", 303) +
+        // The plant: main hall, turbine house and two chimneys
+        `<g fill="#26323f"><rect x="520" y="330" width="520" height="250"/><rect x="1040" y="400" width="220" height="180"/><rect x="600" y="210" width="44" height="130"/><rect x="690" y="240" width="40" height="100"/><path d="M500 340 L780 280 L1060 340 Z"/></g>` +
+        `<g fill="#3a4757"><rect x="600" y="210" width="44" height="12"/><rect x="690" y="240" width="40" height="12"/></g>` +
+        `<g class="fx-drift" fill="#8f9bb0" opacity=".35"><ellipse cx="630" cy="180" rx="60" ry="24"/><ellipse cx="700" cy="150" rx="70" ry="26"/><ellipse cx="720" cy="210" rx="40" ry="16"/></g>` +
+        `<g fill="#ffd84a">${Array.from({ length: 16 }, (_, i) => `<rect${i % 5 === 2 ? ' class="fx-flicker"' : ""} x="${550 + (i % 8) * 58}" y="${380 + Math.floor(i / 8) * 70}" width="30" height="34" rx="3" opacity="${i % 3 ? 0.9 : 0.55}"/>`).join("")}</g>` +
+        `<g fill="#ffd84a" opacity=".8"><rect x="1070" y="440" width="40" height="24" rx="3"/><rect x="1150" y="440" width="40" height="24" rx="3" class="fx-flicker" style="animation-delay:-1.7s"/></g>` +
+        `<path d="M820 330 l-24 44 h20 l-16 40 l40 -54 h-22 l18 -30 Z" fill="#ffd84a"/>` +
+        L + ridge(600, 20, 5, "#46586a", 307) +
+        // Pylons with sagging wires
+        `<g fill="none" stroke="#1d2833" stroke-width="6" stroke-linejoin="round"><path d="M210 640 L250 360 L290 640 M226 520 L274 520 M236 440 L264 440 M190 380 L310 380"/><path d="M1380 640 L1416 380 L1452 640 M1394 530 L1438 530 M1402 450 L1430 450 M1360 400 L1472 400"/></g>` +
+        `<g fill="none" stroke="#1d2833" stroke-width="3"><path d="M190 380 Q800 480 1360 400"/><path d="M310 380 Q900 470 1472 400"/><path d="M-60 400 Q80 430 190 380"/><path d="M1472 400 Q1560 420 1680 390"/></g>` +
+        `<circle class="fx-pulse" cx="800" cy="440" r="160" fill="url(#pglow)" opacity=".25"/>` +
+        L + ridge(690, 16, 4, "#566a5a", 311) +
+        `<g fill="#3f5060" opacity=".8"><ellipse cx="420" cy="770" rx="120" ry="16"/><ellipse cx="1180" cy="790" rx="150" ry="18"/></g>` +
+        `<g fill="#ffd84a" opacity=".35"><ellipse cx="420" cy="768" rx="60" ry="5"/><ellipse cx="1180" cy="788" rx="70" ry="6"/></g>` +
+        `<g fill="none" stroke="#ffe066" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path class="fx-flicker" d="M560 720 l12 -16 l-8 -4 l14 -18"/><path class="fx-flicker" style="animation-delay:-2.1s" d="M1020 740 l10 -14 l-8 -4 l12 -16"/></g>` +
+        dots(10, 313, "#ffe066", 620, 860, 2, "fx-rise")
+      ),
+      front: svg("", `<g fill="#2e3a44"><ellipse cx="100" cy="900" rx="220" ry="90"/><ellipse cx="1500" cy="900" rx="230" ry="100"/></g>` +
+        `<g transform="translate(1440 790)"><rect x="-4" y="0" width="8" height="70" fill="#5a6470"/><path d="M0 -44 L40 26 L-40 26 Z" fill="#ffcb05" stroke="#1e2230" stroke-width="5" stroke-linejoin="round"/><path d="M4 -18 l-10 16 h8 l-6 16 l14 -20 h-8 l6 -12 Z" fill="#1e2230"/></g>` +
+        `<rect x="120" y="840" width="260" height="30" rx="15" fill="#5a6470"/><rect x="120" y="840" width="260" height="10" rx="5" fill="#76808c"/>`)
     },
 
     snow: {
