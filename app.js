@@ -229,11 +229,14 @@
   }
 
   // How far up the screen a Pokémon may stand. Ones that cannot swim stay
-  // out of the water (in the sea channel at Seafoam Islands).
+  // out of the water (in the sea channel at Seafoam Islands), and only
+  // flyers and swimmers go beyond the ground into the band behind it.
   function heightRange(p) {
     const scene = SCENES[habitat.key];
     const [lo, hi] = scene.ground;
-    let top = scene.fly ? hi + 40 * scene.fly : hi;
+    // Only flyers (and swimmers, out on open water) use the band above the ground
+    const upHigh = scene.fly && (FLOATERS.has(p.id) || (scene.water && SWIMMERS.has(p.id)));
+    let top = upHigh ? hi + 40 * scene.fly : hi;
     if (scene.water && !SWIMMERS.has(p.id)) top = Math.min(top, svgToStage(800, scene.water.bottom, scene.water.layer).y - 1);
     return [lo, Math.max(lo, top)];
   }
@@ -257,11 +260,14 @@
     const shiny = settings.shiny && Math.random() < 1 / SHINY_ODDS;
     const { x, y } = placeFor(p);
     const el = document.createElement("div");
-    el.className = `mon mon--${p.rarity}${shiny ? " mon--shiny" : ""}`;
+    const floats = FLOATERS.has(p.id);
+    el.className = `mon mon--${p.rarity}${shiny ? " mon--shiny" : ""}${floats ? " mon--float" : ""}`;
     // Bigger Pokémon look bigger: Pokédex height, squashed so a 9 meter Onix
     // still fits next to a 30 centimeter Caterpie
     const size = Math.max(0.6, Math.min(2, Math.pow(p.height / 10, 0.45)));
-    el.style.cssText = `--k:${size.toFixed(2)}`;
+    // Flyers hover a little above their shadow, everyone else stands on it
+    const pad = floats ? -0.12 : ART_PAD[p.id] || 0;
+    el.style.cssText = `--k:${size.toFixed(2)};--pad:${pad}`;
     place(el, x, y);
     el.innerHTML = `<img alt="${shiny ? "Shiny " : ""}${p.name}" src="${(shiny ? ART.shiny : ART.normal)(p.id)}" draggable="false"><span class="mon__shadow"></span>`;
     const visitor = { ...p, shiny, el, x, y };
@@ -281,12 +287,15 @@
     img.addEventListener("error", () => { quietMs = nextMs * 0.75; }, { once: true });
   }
 
-  // Position on the stage. Further back (higher up) looks smaller and hazier.
-  // far shrinks it more, for spots set back from the ground, like a ledge.
+  // Position on the stage, with perspective: full size at the front of the
+  // scene, shrinking steadily (and getting hazier) the further back it stands.
+  function depthScale(y) {
+    return Math.max(0.42, Math.min(1.15, 1.15 - (y - 5) * 0.022));
+  }
   function place(el, x, y, far = 1) {
     el.style.left = `${x}%`;
     el.style.bottom = `${y}%`;
-    el.style.setProperty("--s", ((1.15 - (y / 100) * 0.9) * far).toFixed(2));
+    el.style.setProperty("--s", (depthScale(y) * far).toFixed(2));
     el.style.setProperty("--f", (y / 100).toFixed(2));
     el.style.zIndex = 100 - Math.round(y);
   }
@@ -360,7 +369,6 @@
   // looking smaller because it is further back. Later it climbs down again.
   const CLIMB_CHANCE = 0.12; // chance on each walk
   const CLIMB_SPEED = 3;     // a bit slower than walking
-  const LEDGE_FAR = 0.78;    // extra shrink while up on the ledge
   // Height of the ledge's top at x, in the drawing (feet sit a little in from the edge)
   function ledgeY(x) {
     const [x0, y0, x1, y1] = SCENES[habitat.key].ledge.edge;
@@ -384,20 +392,20 @@
       spot = svgToStage(sx, ledgeY(sx), L.layer);
       if (spot.x > 4 && spot.x < 86 && Math.abs(spot.x - v.x) > 6) break; // on screen, clear of the meter
     }
-    return { ...spot, far: LEDGE_FAR, zone: "ledge" };
+    return { ...spot, zone: "ledge" };
   }
 
   function climbUp(v) {
     const L = SCENES[habitat.key].ledge;
     const foot = svgToStage(L.ladderX, L.ladderBottom, L.layer), top = svgToStage(L.ladderX, L.ladderTop, L.layer);
-    return [{ ...foot, zone: "ground" }, { ...top, speed: CLIMB_SPEED, far: LEDGE_FAR, zone: "ledge" }, ledgeSpot(v)];
+    return [{ ...foot, zone: "ground" }, { ...top, speed: CLIMB_SPEED, zone: "ledge" }, ledgeSpot(v)];
   }
 
   function climbDown(v) {
     const L = SCENES[habitat.key].ledge;
     const foot = svgToStage(L.ladderX, L.ladderBottom, L.layer), top = svgToStage(L.ladderX, L.ladderTop, L.layer);
     const [lo, hi] = SCENES[habitat.key].ground;
-    return [{ ...top, far: LEDGE_FAR }, { ...foot, speed: CLIMB_SPEED, zone: "ground" },
+    return [{ ...top }, { ...foot, speed: CLIMB_SPEED, zone: "ground" },
       { x: Math.max(8, Math.min(86, foot.x + (Math.random() - 0.5) * 40)), y: lo + Math.random() * (hi - lo), zone: "ground" }];
   }
 

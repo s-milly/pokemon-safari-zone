@@ -171,7 +171,9 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
   opacity: 0; transform: translateY(18%) scale(.6);
   transition: opacity .5s ease, transform .6s cubic-bezier(.3, 1.6, .5, 1), translate 1.4s ease-in-out;
 }
-.mon.is-in img { opacity: 1; transform: none; animation: bob 2.8s ease-in-out .6s infinite; }
+.mon.is-in img { opacity: 1; transform: none; animation: breathe 3.2s ease-in-out .6s infinite; }
+.mon--float.is-in img { animation: bob 2.8s ease-in-out .6s infinite; }
+.mon--float .mon__shadow { left: 25%; right: 25%; opacity: .6; }
 .mon.is-flipped img { scale: -1 1; }
 .mon__shadow {
   position: absolute; left: 15%; right: 15%; bottom: -4%; height: 10%;
@@ -190,14 +192,16 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
   animation: twinkle 1.4s ease-in-out infinite;
 }
 @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3%); } }
+@keyframes breathe { 0%, 100% { transform: none; } 50% { transform: scale(1.015, .985); } }
 @keyframes shiver { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(2%); } }
 @keyframes flee { 0% { transform: none; } 25% { transform: translateY(-20%); } 100% { transform: translateY(-10%); opacity: 0; } }
 @keyframes twinkle { 50% { opacity: .3; } }
 
 /* Swimming: the lower part of the Pokémon sits below the waterline, which
    is the bottom edge of its box, with a ripple ring around it */
-.mon { --sink: 0; }
-.mon img { translate: 0 calc(var(--sink) * 100%); }
+.mon { --sink: 0; --pad: 0; }
+/* --pad moves the art down past the empty space under its feet, so it stands on its shadow */
+.mon img { translate: 0 calc((var(--pad) + var(--sink)) * 100%); }
 .mon.is-swimming { clip-path: inset(-60% -60% 0 -60%); }
 .mon.is-swimming .mon__shadow { display: none; }
 .mon.is-swimming::after {
