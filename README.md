@@ -11,6 +11,19 @@ A classroom volume game. Put a habitat up on the board and press Start. While th
 - **Too loud:** if the room stays over the goal for more than half a second, every Pokémon on screen flees and the wait starts over. In Settings you can switch this so the scene pauses instead, and the Pokémon come back once it is quiet again.
 - **Wandering:** Pokémon walk slowly around the habitat and turn to face the way they are going. Their size comes from their Pokédex height, scaled down so a 9 meter Onix still fits on screen next to a 30 centimeter Caterpie.
 - **Perspective:** Pokémon are full size at the front of the scene and shrink steadily the further back they go. They stand on their shadows, except the ones whose artwork shows them flying (like Pidgeot, Zubat, Gastly, Magnemite and the legendary birds), which hover above theirs.
+- **Habitat activities:** now and then, instead of a walk, a Pokémon does something that fits where it lives:
+  - Route 1: ducks into the tall grass and peeks out. Snorlax lies down for a nap.
+  - Viridian Forest: Caterpie, Weedle and Venonat climb a tree; Caterpie, Metapod, Weedle and Kakuna hang from a branch on a silk thread.
+  - Pewter City: Sandshrew, Sandslash, Diglett and Dugtrio dig into the ground and pop up somewhere else.
+  - Mt. Moon: Clefairy and Clefable dance around the Moon Stone. Zubat and Golbat roost upside down on the ceiling and swoop back down.
+  - Lavender Town: ghosts turn see-through and drift through the gravestones. Gastly and Haunter float into the Pokémon Tower windows.
+  - Saffron City: Pokémon that can learn Teleport in Red and Blue (everyone here but Ditto) teleport in a purple flash, or go into the Pokémon Center or Poké Mart for a while.
+  - Safari Zone: Tauros, Doduo and Dodrio break into a run. Pokémon eat bait that appears on the ground.
+  - Power Plant: electric Pokémon charge up at a pylon. Voltorb and Electrode roll instead of walking.
+  - Seafoam Islands: Pokémon slide across the ice, Seel and Dewgong most of all.
+  - Cinnabar Island: fire Pokémon warm up by a lava pool.
+  - Open Sea: swimmers dive and come up somewhere else with a splash. Magikarp flops out of the water.
+  - Add `?busy` to the address (for example `.../pokemon-safari-zone/?busy`) to see the activities much more often, for a demo.
 - **Strength boulders:** in Victory Road, Pokémon that can learn HM04 Strength in Red and Blue now and then walk up to a boulder and push it a short way.
 - **Ladder and ledge:** in Victory Road, Pokémon sometimes climb the ladder and roam the rock ledge above, looking smaller up there because they are further back. Later they climb back down.
 - **Swimming:** in the Open Sea, water Pokémon swim with their lower part under the surface, sitting a little higher or lower each time they move, with the water lapping at them. Further out they get smaller and ride higher in the water so they stay easy to see.

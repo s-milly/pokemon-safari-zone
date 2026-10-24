@@ -202,9 +202,9 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
 .mon { --sink: 0; --pad: 0; }
 /* --pad moves the art down past the empty space under its feet, so it stands on its shadow */
 .mon img { translate: 0 calc((var(--pad) + var(--sink)) * 100%); }
-.mon__body { display: block; position: relative; z-index: 1; }
-.mon.is-swimming .mon__body { clip-path: inset(-60% -60% 8.5% -60%); }
-.mon.is-swimming .mon__shadow { display: none; }
+.mon__body { display: block; position: relative; z-index: 1; transition: opacity .8s ease, scale .8s ease, rotate .8s ease; }
+.mon.is-swimming .mon__body, .mon.is-in-grass .mon__body, .mon.is-burrowing .mon__body { clip-path: inset(-60% -60% 8.5% -60%); }
+.mon.is-swimming .mon__shadow, .mon.is-in-grass .mon__shadow, .mon.is-burrowing .mon__shadow { display: none; }
 .mon.is-swimming::after {
   content: ""; position: absolute; left: -8%; right: -8%; bottom: 0; height: 12%; z-index: 2;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20' preserveAspectRatio='none'%3E%3Cpath d='M0 7 Q10 1 20 7 T40 7 V20 H0 Z' fill='%232b8cc4' fill-opacity='.92'/%3E%3Cpath d='M0 7 Q10 1 20 7 T40 7' fill='none' stroke='%23ffffff' stroke-opacity='.9' stroke-width='2.4'/%3E%3C/svg%3E") 0 100% / 34px 100% repeat-x, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20' preserveAspectRatio='none'%3E%3Cpath d='M0 9 Q10 4 20 9 T40 9 V20 H0 Z' fill='%234fb4de' fill-opacity='.6'/%3E%3Cpath d='M0 9 Q10 4 20 9 T40 9' fill='none' stroke='%23e8f7ff' stroke-opacity='.7' stroke-width='1.6'/%3E%3C/svg%3E") 0 100% / 26px 80% repeat-x;
@@ -213,6 +213,115 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
   animation: lap 2.4s linear infinite;
 }
 @keyframes lap { to { background-position: 34px 100%, -26px 100%; } }
+
+/* ---------- Habitat activities ---------- */
+.mon__fx { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
+
+/* Route 1: hiding in tall grass (the picture sinks, blades of grass cover it) */
+.mon.is-in-grass::after {
+  content: ""; position: absolute; left: -10%; right: -10%; bottom: 0; height: 32%; z-index: 2;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 30' preserveAspectRatio='none'%3E%3Cpath d='M0 30 L4 8 L8 30 Z M8 30 L13 2 L18 30 Z M17 30 L21 10 L25 30 Z M24 30 L29 4 L34 30 Z M33 30 L37 12 L40 30 Z' fill='%232f7f3a'/%3E%3C/svg%3E") 0 100% / 26px 100% repeat-x, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 30' preserveAspectRatio='none'%3E%3Cpath d='M2 30 L7 12 L11 30 Z M12 30 L17 6 L21 30 Z M22 30 L26 14 L30 30 Z M30 30 L35 8 L39 30 Z' fill='%235cb85c'/%3E%3C/svg%3E") 8px 100% / 22px 80% repeat-x;
+  -webkit-mask: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
+  mask: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
+  animation: rustle 1.6s ease-in-out infinite;
+}
+@keyframes rustle { 50% { background-position: 3px 100%, 5px 100%; } }
+
+/* Snorlax naps: floating Zs */
+.mon.is-napping img { animation: breathe 5s ease-in-out infinite; }
+.mon.is-napping .mon__fx::before, .mon.is-napping .mon__fx::after {
+  content: "Z"; position: absolute; right: 12%; top: 8%; font-weight: 700; color: #fff;
+  font-size: calc(2.2rem * var(--s)); text-shadow: 0 2px 6px rgba(0, 0, 0, .4);
+  animation: zzz 3.4s ease-out infinite; opacity: 0;
+}
+.mon.is-napping .mon__fx::after { animation-delay: 1.7s; font-size: calc(1.6rem * var(--s)); }
+@keyframes zzz { 0% { opacity: 0; transform: translate(0, 0); } 20% { opacity: 1; } 100% { opacity: 0; transform: translate(30%, -160%); } }
+
+/* Viridian Forest: hanging from a branch on a silk thread */
+.mon.is-hanging .mon__shadow { opacity: 0; }
+.mon.is-hanging .mon__body { transform-origin: 50% 0; animation: sway 3.2s ease-in-out infinite; }
+.mon.is-hanging .mon__fx::before {
+  content: ""; position: absolute; left: 50%; bottom: 85%; width: 2px; height: 140%;
+  background: linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, .85));
+}
+@keyframes sway { 0%, 100% { rotate: -4deg; } 50% { rotate: 4deg; } }
+
+/* Pewter City: digging (a dirt mound covers the hole and moves underground) */
+.mon.is-burrowing::after {
+  content: ""; position: absolute; left: 4%; right: 4%; bottom: -2%; height: 20%; z-index: 2;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 20' preserveAspectRatio='none'%3E%3Cpath d='M0 20 Q8 7 30 5 Q52 7 60 20 Z' fill='%238a6440'/%3E%3Cpath d='M10 14 Q30 6 50 14' fill='none' stroke='%23a98256' stroke-width='2'/%3E%3Ccircle cx='14' cy='17' r='2' fill='%236b4a32'/%3E%3Ccircle cx='44' cy='16' r='2.4' fill='%236b4a32'/%3E%3Ccircle cx='30' cy='12' r='1.6' fill='%23c9a676'/%3E%3C/svg%3E") center bottom / 100% 100% no-repeat;
+}
+.mon.is-under .mon__body { opacity: 0; transition: opacity .3s ease; }
+
+/* Mt. Moon: the Moon Stone, dancing Clefairy, Zubat roosting upside down */
+.moonstone { position: absolute; width: calc(min(7vh, 5vw) * var(--s)); transform: translate(-50%, 0); }
+.moonstone svg { display: block; width: 100%; height: auto; filter: drop-shadow(0 0 6px rgba(200, 190, 255, .5)); transition: filter 1s ease; }
+.moonstone.is-glowing svg { filter: drop-shadow(0 0 18px rgba(210, 200, 255, 1)) drop-shadow(0 0 40px rgba(170, 150, 255, .8)) brightness(1.2); }
+.mon.is-dancing img { animation: dance .45s ease-in-out infinite alternate; }
+@keyframes dance { to { transform: translateY(-12%); } }
+.mon.is-roosting .mon__body { scale: 1 -1; }
+.mon.is-roosting img { animation: none; }
+.mon.is-roosting .mon__shadow { opacity: 0; }
+
+/* Lavender Town: see-through ghosts, and going into a window (also Saffron City doors) */
+.mon.is-ghostly .mon__body { opacity: .3; }
+.mon.is-inside .mon__body { opacity: 0; scale: .6; }
+.mon.is-inside .mon__shadow { opacity: 0; transition: opacity .8s ease; }
+
+/* Saffron City: teleporting in a purple flash */
+.mon.tp-out .mon__body { animation: tp-out .5s ease-in forwards; }
+.mon.tp-in .mon__body { animation: tp-out .6s ease-out reverse; }
+@keyframes tp-out { to { opacity: 0; scale: .2 1.6; filter: brightness(3) saturate(0); } }
+.mon.fx-flash .mon__fx::before {
+  content: ""; position: absolute; left: -30%; right: -30%; top: -10%; bottom: -10%;
+  background: radial-gradient(closest-side, rgba(230, 200, 255, .95), rgba(160, 90, 255, .6) 45%, transparent);
+  animation: flash .7s ease-out forwards;
+}
+@keyframes flash { from { opacity: 1; transform: scale(.3); } to { opacity: 0; transform: scale(1.4); } }
+
+/* Safari Zone: running in a cloud of dust, and eating bait */
+.mon.is-running .mon__fx::after {
+  content: ""; position: absolute; left: 10%; right: 10%; bottom: -6%; height: 22%;
+  background: radial-gradient(closest-side, rgba(200, 180, 140, .75), transparent) 0 0 / 40% 100% repeat-x;
+  animation: dust .5s linear infinite;
+}
+@keyframes dust { to { background-position: 40% 0; opacity: .6; } }
+.mon.is-eating img { animation: nibble .7s ease-in-out infinite; }
+@keyframes nibble { 50% { transform: translateY(5%) rotate(-3deg); } }
+.bait { position: absolute; width: calc(min(6vh, 4.5vw) * var(--s)); transform: translate(-50%, 0); transition: opacity .8s ease, scale .8s ease; }
+.bait svg { display: block; width: 100%; height: auto; }
+.bait.is-gone { opacity: 0; scale: .4; }
+
+/* Power Plant: charging up with sparks */
+.mon.is-charged img { filter: drop-shadow(0 0 10px rgba(255, 224, 102, .95)) brightness(1.12); }
+.mon.is-charged .mon__fx::before {
+  content: ""; position: absolute; inset: -15%; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg fill='none' stroke='%23ffe066' stroke-width='3' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M12 30 l8 -6 l-2 8 l8 -6'/%3E%3Cpath d='M84 22 l-6 8 l7 -1 l-6 9'/%3E%3Cpath d='M8 70 l9 -3 l-5 7 l9 -3'/%3E%3Cpath d='M90 66 l-8 4 l6 3 l-9 4'/%3E%3Cpath d='M48 6 l-4 8 l6 -2 l-4 8'/%3E%3C/g%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  animation: crackle .5s steps(2) infinite;
+}
+@keyframes crackle { 50% { opacity: .2; transform: rotate(8deg) scale(1.05); } }
+
+/* Seafoam Islands: sliding on the ice */
+.mon.is-sliding .mon__body { rotate: calc(var(--lean, 0) * 1deg); }
+.mon.is-sliding .mon__fx::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -4%; height: 12%;
+  background: radial-gradient(closest-side, rgba(255, 255, 255, .9), transparent) 0 0 / 18% 100% repeat-x;
+  animation: dust .4s linear infinite;
+}
+
+/* Cinnabar Island: warming up by the lava */
+.mon.is-warming img { filter: drop-shadow(0 0 14px rgba(255, 140, 40, .95)) brightness(1.15) saturate(1.25); animation: warm 2.4s ease-in-out infinite; }
+@keyframes warm { 50% { filter: drop-shadow(0 0 24px rgba(255, 170, 60, 1)) brightness(1.25) saturate(1.3); } }
+
+/* Open Sea: splashes, diving and Magikarp flopping */
+.mon.fx-splash .mon__fx::before {
+  content: ""; position: absolute; left: -10%; right: -10%; bottom: 4%; height: 45%;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60'%3E%3Cg fill='%23e8f7ff'%3E%3Cellipse cx='20' cy='40' rx='5' ry='7'/%3E%3Cellipse cx='38' cy='22' rx='4' ry='6'/%3E%3Cellipse cx='50' cy='12' rx='5' ry='7'/%3E%3Cellipse cx='63' cy='24' rx='4' ry='6'/%3E%3Cellipse cx='80' cy='40' rx='5' ry='7'/%3E%3C/g%3E%3Cpath d='M8 60 Q20 36 32 52 Q50 30 68 52 Q80 36 92 60 Z' fill='%23ffffff' fill-opacity='.85'/%3E%3C/svg%3E") center bottom / 100% 100% no-repeat;
+  transform-origin: 50% 100%; animation: splash .9s ease-out forwards;
+}
+@keyframes splash { from { opacity: 1; transform: scaleY(.2); } 60% { opacity: 1; } to { opacity: 0; transform: scaleY(1.1) translateY(-10%); } }
+.mon.is-swimming.is-under::after { opacity: .5; }
+.mon.is-flopping .mon__body { clip-path: none !important; animation: flop 1.3s ease-in-out; }
+@keyframes flop { 0% { translate: 0 0; rotate: 0deg; } 45% { translate: 0 -80%; rotate: -25deg; } 100% { translate: 0 0; rotate: 0deg; } }
 
 /* Strength boulders in Victory Road */
 .boulder { position: absolute; width: calc(min(15vh, 11vw) * var(--s)); transform: translate(-50%, 0); }

@@ -206,7 +206,9 @@
     },
 
     cave: {
-      ground: [6, 24], tint: "#4b3a6b", haze: ["#6d5a9a", 560, 0.3],
+      ground: [6, 24], tint: "#4b3a6b",
+      // Where the Moon Stone sits on the cave floor (x and y in percent)
+      moonstone: [52, 13], haze: ["#6d5a9a", 560, 0.3],
       back: layered(
         sky("cv", [[0, "#17122a"], [1, "#3c3150"]]) + glow("cgl", "#8fe3ff") + glow("ctn", "#6d8fd6"),
         fill("cv") +
