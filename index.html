@@ -35,6 +35,7 @@
     <div class="scene__back" id="scene-back" aria-hidden="true"></div>
     <div class="scene__stage" id="stage"></div>
     <div class="scene__front" id="scene-front" aria-hidden="true"></div>
+    <div class="scene__vignette" aria-hidden="true"></div>
     <div class="scene__hush" id="hush" hidden>
       <p class="hush__big">Shh...</p>
       <p>The Pokémon are hiding until it is quiet again.</p>
@@ -74,7 +75,7 @@
     <div class="start" id="start">
       <div class="start__card">
         <h2 id="start-title"></h2>
-        <p id="start-text">Press Start, then stay quiet. A wild Pokémon comes out each time the class stays under the volume goal long enough.</p>
+        <p id="start-text">Press Start, then stay quiet. While the class stays under the volume goal, a wild Pokémon comes out about every 1 to 2 minutes.</p>
         <button class="btn btn--solid btn--big" type="button" id="start-btn">Start</button>
         <p class="start__error" id="start-error" hidden></p>
       </div>
@@ -119,13 +120,12 @@
       </label>
 
       <label class="field">
-        <span>Quiet time for each Pokémon</span>
-        <select name="spawnSeconds">
-          <option value="10">10 seconds</option>
-          <option value="20">20 seconds</option>
-          <option value="30">30 seconds</option>
-          <option value="60">1 minute</option>
-          <option value="120">2 minutes</option>
+        <span>How often a Pokémon appears</span>
+        <select name="spawnMin">
+          <option value="10">Every 10 to 20 seconds of quiet (to try it out)</option>
+          <option value="30">Every 30 seconds to 1 minute of quiet</option>
+          <option value="60">Every 1 to 2 minutes of quiet</option>
+          <option value="120">Every 2 to 4 minutes of quiet</option>
         </select>
       </label>
 

@@ -82,12 +82,16 @@
   const snowfall = (flakes, cls) => `<g class="snowfall${cls}"><g>${flakes}</g><g transform="translate(0 -900)">${flakes}</g></g>`;
 
   const svg = (defs, inner) => `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg"><defs>${defs}</defs>${inner}</svg>`;
+  // Splits a background into far, middle and near layers (see layered below)
+  const L = "\u0000";
+  const layered = (defs, inner) => ({ defs, parts: inner.split(L) });
+
   const fill = id => `<rect width="${W}" height="${H}" fill="url(#${id})"/>`;
 
   window.SCENES = {
     forest: {
-      ground: [6, 26], tint: "#2f6b3a",
-      back: svg(
+      ground: [6, 26], tint: "#2f6b3a", haze: ["#e9f3d6", 560, 0.45],
+      back: layered(
         sky("fs", [[0, "#a9dccb"], [0.55, "#eef4cf"], [1, "#eef4cf"]]) + glow("fsun", "#fff6c4") +
         sky("fpath", [[0, "#d9c08f"], [1, "#b99566"]]),
         fill("fs") +
@@ -97,10 +101,10 @@
         ridge(470, 50, 4, "#b9d9c4", 2) +
         pines(530, 26, "#94c3a0", 3, 240) +
         ridge(545, 30, 6, "#7db58a", 5) +
-        pines(605, 15, "#4b8f5d", 7, 320) +
+        L + pines(605, 15, "#4b8f5d", 7, 320) +
         ridge(625, 24, 5, "#5aa365", 11) +
         tree(180, 690, 1.2, "#2f7a45", "#3f9455", "#6b4a32") + tree(1420, 680, 1.35, "#2f7a45", "#3f9455", "#6b4a32") +
-        ridge(700, 18, 4, "#7cc46a", 13) +
+        L + ridge(700, 18, 4, "#7cc46a", 13) +
         `<path d="M700 900 C760 820 820 760 790 700 L830 700 C880 760 900 830 960 900 Z" fill="url(#fpath)" opacity=".8"/>` +
         dots(40, 15, "#ffffff", 720, 860, 3) + dots(30, 16, "#ffd84a", 720, 860, 3) + dots(20, 18, "#ff9ec4", 720, 860, 3) +
         `<g fill="#fff3a0">${dots(18, 21, "#fff3a0", 420, 760, 3, "fx-float")}</g>`
@@ -112,8 +116,8 @@
     },
 
     safari: {
-      ground: [6, 26], tint: "#8a6a24",
-      back: svg(
+      ground: [6, 26], tint: "#8a6a24", haze: ["#fde3b0", 560, 0.45],
+      back: layered(
         sky("ss", [[0, "#f3a76d"], [0.5, "#fde0a8"], [1, "#fde7b5"]]) + glow("ssun", "#fff0b8"),
         fill("ss") +
         `<circle cx="420" cy="320" r="260" fill="url(#ssun)"/><circle cx="420" cy="320" r="100" fill="#fff2c2"/>` +
@@ -121,11 +125,11 @@
         `<g class="fx-drift" fill="none" stroke="#7a5236" stroke-width="4" stroke-linecap="round"><path d="M900 230 q12 -10 24 0 q12 -10 24 0"/><path d="M960 260 q9 -8 18 0 q9 -8 18 0"/><path d="M1010 220 q10 -9 20 0 q10 -9 20 0"/></g>` +
         `<path d="M880 560 L950 430 L1190 430 L1250 560 Z" fill="#d79e66"/><path d="M1190 430 L1250 560 L1150 560 Z" fill="#c2854f"/>` +
         `<path d="M1250 560 L1295 475 L1430 475 L1470 560 Z" fill="#dcaa74"/><path d="M1430 475 L1470 560 L1400 560 Z" fill="#c99260"/>` +
-        ridge(560, 20, 6, "#d8c07a", 23) +
+        L + ridge(560, 20, 6, "#d8c07a", 23) +
         `<g fill="#6f5a35"><path d="M286 610 L290 500 L250 470 M290 500 L330 468" stroke="#6f5a35" stroke-width="12" fill="none" stroke-linecap="round"/><ellipse cx="290" cy="465" rx="130" ry="26"/><ellipse cx="300" cy="452" rx="90" ry="18" fill="#857043"/>` +
         `<path d="M1126 610 L1128 520 L1100 500 M1128 520 L1156 498" stroke="#6f5a35" stroke-width="9" fill="none" stroke-linecap="round"/><ellipse cx="1128" cy="496" rx="95" ry="20"/><ellipse cx="1136" cy="486" rx="64" ry="13" fill="#857043"/></g>` +
         ridge(640, 20, 5, "#c9b766", 29) +
-        `<g fill="#8a6440">${Array.from({ length: 14 }, (_, i) => `<rect x="${560 + i * 40}" y="610" width="10" height="56" rx="3"/>`).join("")}<rect x="555" y="622" width="540" height="8" rx="3"/><rect x="555" y="646" width="540" height="8" rx="3"/></g>` +
+        L + `<g fill="#8a6440">${Array.from({ length: 14 }, (_, i) => `<rect x="${560 + i * 40}" y="610" width="10" height="56" rx="3"/>`).join("")}<rect x="555" y="622" width="540" height="8" rx="3"/><rect x="555" y="646" width="540" height="8" rx="3"/></g>` +
         ridge(720, 14, 4, "#b7ad5a", 31) +
         `<g fill="#a99a73"><ellipse cx="300" cy="760" rx="60" ry="24"/><ellipse cx="1300" cy="770" rx="44" ry="18"/></g>`
       ),
@@ -133,18 +137,18 @@
     },
 
     sea: {
-      ground: [8, 34], fly: 0.25, tint: "#1f6fa0",
-      back: svg(
+      ground: [8, 34], fly: 0.25, tint: "#1f6fa0", haze: ["#e2f4fb", 420, 0.35],
+      back: layered(
         sky("se", [[0, "#7fc8ee"], [1, "#e2f4fb"]]) + sky("sw", [[0, "#4fb4de"], [0.4, "#2b8cc4"], [1, "#165a93"]]) + glow("sesun", "#fff6cc"),
         `<rect width="${W}" height="420" fill="url(#se)"/><rect y="414" width="${W}" height="${H - 414}" fill="url(#sw)"/>` +
         `<circle cx="1300" cy="150" r="200" fill="url(#sesun)"/><circle cx="1300" cy="150" r="58" fill="#fffbe0"/>` +
         cloud(320, 150, 1.1, "#ffffff") + cloud(880, 220, 0.8, "#ffffff") +
         `<path d="M1120 416 Q1200 370 1290 380 Q1360 388 1420 416 Z" fill="#6f9c7a"/><path d="M1240 384 Q1250 330 1262 300 M1262 300 q-30 -6 -48 12 M1262 300 q26 -12 50 2 M1262 300 q-10 -24 -36 -30 M1262 300 q14 -26 40 -26" stroke="#3f6b4a" stroke-width="7" fill="none" stroke-linecap="round"/>` +
         `<rect y="412" width="${W}" height="4" fill="#ffffff" opacity=".5"/>` +
-        `<g class="fx-shimmer" fill="#fffbe0">${Array.from({ length: 12 }, (_, i) => `<rect x="${1240 + ((i * 37) % 120)}" y="${430 + i * 22}" width="${40 - i * 2}" height="4" rx="2" opacity="${(0.9 - i * 0.06).toFixed(2)}"/>`).join("")}</g>` +
+        L + `<g class="fx-shimmer" fill="#fffbe0">${Array.from({ length: 12 }, (_, i) => `<rect x="${1240 + ((i * 37) % 120)}" y="${430 + i * 22}" width="${40 - i * 2}" height="4" rx="2" opacity="${(0.9 - i * 0.06).toFixed(2)}"/>`).join("")}</g>` +
         `<g class="fx-wave" stroke="#ffffff" stroke-opacity=".35" stroke-width="4" fill="none" stroke-linecap="round">` +
         Array.from({ length: 10 }, (_, i) => `<path d="M${(i * 197) % 1500} ${470 + i * 42} q30 -12 60 0 t60 0"/>`).join("") + `</g>` +
-        `<g fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" class="fx-drift"><path d="M560 260 q14 -12 28 0 q14 -12 28 0"/><path d="M620 300 q10 -9 20 0 q10 -9 20 0"/></g>`
+        L + `<g fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" class="fx-drift"><path d="M560 260 q14 -12 28 0 q14 -12 28 0"/><path d="M620 300 q10 -9 20 0 q10 -9 20 0"/></g>`
       ),
       front: svg(sky("sand", [[0, "#f3dca6"], [1, "#e2c387"]]),
         `<path class="fx-foam" d="M-100 860 Q0 820 100 860 T300 860 T500 860 T700 860 T900 860 T1100 860 T1300 860 T1500 860 T1700 860 L1700 900 L-100 900 Z" fill="#e8f7ff" opacity=".85"/>` +
@@ -155,19 +159,19 @@
     },
 
     cave: {
-      ground: [6, 24], tint: "#4b3a6b",
-      back: svg(
+      ground: [6, 24], tint: "#4b3a6b", haze: ["#6d5a9a", 560, 0.3],
+      back: layered(
         sky("cv", [[0, "#17122a"], [1, "#3c3150"]]) + glow("cgl", "#8fe3ff") + glow("ctn", "#6d8fd6"),
         fill("cv") +
         `<ellipse cx="800" cy="500" rx="200" ry="150" fill="url(#ctn)" opacity=".5"/><path d="M640 640 Q650 400 800 380 Q950 400 960 640 Z" fill="#0f0b1d" opacity=".6"/>` +
         ridge(470, 70, 4, "#2b2342", 41) +
         `<g fill="#2a2240">` + Array.from({ length: 16 }, (_, i) => { const x = i * 105 + 20, h = 60 + ((i * 53) % 150); return `<path d="M${x - 34} 0 L${x + 34} 0 L${x} ${h} Z"/><path d="M${x + 6} 0 L${x + 34} 0 L${x + 3} ${h * 0.92} Z" fill="#3a3058"/>`; }).join("") + `</g>` +
-        ridge(560, 60, 5, "#3a2f52", 43) +
+        L + ridge(560, 60, 5, "#3a2f52", 43) +
         `<g fill="#2f2747"><path d="M480 600 L505 500 L530 600 Z"/><path d="M1060 610 L1080 530 L1100 610 Z"/><path d="M1110 610 L1124 560 L1138 610 Z"/></g>` +
         `<circle class="fx-pulse" cx="280" cy="570" r="140" fill="url(#cgl)" opacity=".45"/><circle class="fx-pulse" cx="1272" cy="560" r="160" fill="url(#cgl)" opacity=".45" style="animation-delay:-2s"/>` +
         `<g fill="#9ee7ff"><path d="M260 600 l20 -70 l20 70 Z"/><path d="M300 605 l14 -46 l14 46 Z"/><path d="M236 604 l12 -34 l12 34 Z"/><path d="M1250 590 l22 -80 l22 80 Z"/><path d="M1300 600 l14 -50 l14 50 Z"/><path d="M1222 598 l12 -36 l12 36 Z"/></g>` +
         `<g fill="#e4faff" opacity=".8"><path d="M270 590 l10 -50 l4 50 Z"/><path d="M1262 580 l10 -58 l4 58 Z"/></g>` +
-        ridge(680, 20, 4, "#56486e", 47) +
+        L + ridge(680, 20, 4, "#56486e", 47) +
         `<ellipse cx="800" cy="760" rx="170" ry="26" fill="#2c2a55"/><ellipse class="fx-pulse" cx="800" cy="756" rx="120" ry="10" fill="#9ee7ff" opacity=".25"/>` +
         dots(30, 49, "#cfe9ff", 120, 700, 1.6, "fx-float")
       ),
@@ -176,21 +180,21 @@
     },
 
     fossil: {
-      ground: [6, 24], tint: "#8a4f2a",
-      back: svg(
+      ground: [6, 24], tint: "#8a4f2a", haze: ["#fbe3c0", 520, 0.4],
+      back: layered(
         sky("fo", [[0, "#f3c48e"], [1, "#fbe9cc"]]) + glow("fosun", "#fff2cc"),
         fill("fo") +
         `<circle cx="1180" cy="140" r="180" fill="url(#fosun)"/><circle cx="1180" cy="140" r="50" fill="#fff6dc"/>` +
         ridge(360, 40, 4, "#d7925e", 53) +
         `<g stroke="#c47c4b" stroke-width="3" opacity=".6">${Array.from({ length: 6 }, (_, i) => `<path d="M0 ${400 + i * 16} Q400 ${390 + i * 16} 800 ${404 + i * 16} T1600 ${398 + i * 16}"/>`).join("")}</g>` +
-        ridge(440, 30, 5, "#c47c4b", 59) + ridge(520, 26, 5, "#b46c3e", 61) +
+        ridge(440, 30, 5, "#c47c4b", 59) + L + ridge(520, 26, 5, "#b46c3e", 61) +
         `<g stroke="#a35f34" stroke-width="3" opacity=".6">${Array.from({ length: 5 }, (_, i) => `<path d="M0 ${560 + i * 14} Q400 ${552 + i * 14} 800 ${566 + i * 14} T1600 ${558 + i * 14}"/>`).join("")}</g>` +
         `<g fill="none" stroke="#f3dcc0" stroke-width="10" stroke-linecap="round" opacity=".85">` +
         `<path d="M300 480 a26 26 0 1 1 -26 -26 a40 40 0 1 1 40 40"/>` +
         `<path d="M900 470 L1180 470"/>${Array.from({ length: 6 }, (_, i) => `<path d="M${940 + i * 40} 470 q-12 40 0 70"/>`).join("")}` +
         `<path d="M1180 470 q40 -30 80 -10 q20 20 -10 30 q-30 6 -70 -20"/>` +
         `<path d="M900 470 q-60 -10 -110 20"/></g>` +
-        ridge(640, 18, 4, "#d9a777", 67) +
+        L + ridge(640, 18, 4, "#d9a777", 67) +
         `<g stroke="#7a4a2a" stroke-width="5"><path d="M420 690 L420 640 M620 690 L620 640 M420 650 L620 650" fill="none"/></g>` +
         `<path d="M1250 660 L1310 600 L1370 660 Z" fill="#e8d6b0"/><path d="M1310 600 L1370 660 L1330 660 Z" fill="#cdb98f"/><path d="M1310 600 L1310 560" stroke="#7a4a2a" stroke-width="4"/><path d="M1310 562 l30 8 l-30 8 Z" fill="#e3350d"/>` +
         ridge(720, 12, 4, "#e2b98c", 71)
@@ -202,8 +206,8 @@
     },
 
     volcano: {
-      ground: [6, 24], tint: "#8a2d1d",
-      back: svg(
+      ground: [6, 24], tint: "#8a2d1d", haze: ["#e8853a", 600, 0.3],
+      back: layered(
         sky("vo", [[0, "#2b1622"], [0.55, "#a23f2a"], [1, "#e8853a"]]) + glow("vgl", "#ff9a3a") +
         sky("vside", [[0, "#4a302c"], [1, "#2e1d1c"]]),
         fill("vo") +
@@ -213,8 +217,8 @@
         `<path d="M740 220 L880 220 L860 260 L830 330 L800 270 L770 300 Z" fill="#ffb24a"/>` +
         `<path d="M800 270 L780 380 L810 460 L790 560 L800 640" stroke="#ff7a2a" stroke-width="14" fill="none" stroke-linecap="round"/><path d="M800 270 L780 380 L810 460 L790 560" stroke="#ffd27a" stroke-width="5" fill="none" stroke-linecap="round"/>` +
         `<path d="M850 300 L880 400 L870 470" stroke="#ff7a2a" stroke-width="9" fill="none" stroke-linecap="round"/>` +
-        ridge(620, 30, 5, "#4a2c28", 79) + ridge(700, 18, 4, "#3a2422", 83) +
-        `<ellipse class="fx-pulse" cx="350" cy="760" rx="160" ry="40" fill="url(#vgl)"/><ellipse cx="350" cy="760" rx="110" ry="16" fill="#ff9a3a"/><ellipse cx="350" cy="757" rx="70" ry="7" fill="#ffd27a"/>` +
+        L + ridge(620, 30, 5, "#4a2c28", 79) + ridge(700, 18, 4, "#3a2422", 83) +
+        L + `<ellipse class="fx-pulse" cx="350" cy="760" rx="160" ry="40" fill="url(#vgl)"/><ellipse cx="350" cy="760" rx="110" ry="16" fill="#ff9a3a"/><ellipse cx="350" cy="757" rx="70" ry="7" fill="#ffd27a"/>` +
         `<ellipse class="fx-pulse" cx="1250" cy="790" rx="190" ry="44" fill="url(#vgl)" style="animation-delay:-1.5s"/><ellipse cx="1250" cy="790" rx="140" ry="18" fill="#ff9a3a"/><ellipse cx="1250" cy="787" rx="90" ry="8" fill="#ffd27a"/>` +
         `<g>${dots(40, 87, "#ffb24a", 350, 880, 2.6, "fx-rise")}</g>`
       ),
@@ -223,8 +227,8 @@
     },
 
     snow: {
-      ground: [6, 24], tint: "#3d6d96",
-      back: svg(
+      ground: [6, 24], tint: "#3d6d96", haze: ["#f2dce8", 620, 0.4],
+      back: layered(
         sky("sn", [[0, "#2c3f74"], [0.5, "#8fa6d6"], [0.75, "#f2d6e2"], [1, "#f6eef4"]]) +
         sky("au", [[0, "#7affc8"], [1, "#7affc8"]]) + sky("ice", [[0, "#cfe6f5"], [1, "#a9cbe6"]]),
         fill("sn") +
@@ -233,10 +237,10 @@
         `<path d="M0 560 L260 260 L420 420 L640 180 L880 460 L1060 300 L1300 520 L1460 340 L1600 480 L1600 640 L0 640 Z" fill="#a9b9dd"/>` +
         `<path d="M640 180 L880 460 L760 460 Z M260 260 L420 420 L330 420 Z M1060 300 L1300 520 L1160 520 Z" fill="#8798c4"/>` +
         `<path d="M260 260 L310 320 L290 340 L270 320 L240 300 Z M640 180 L700 250 L680 262 L660 250 L630 270 L610 230 Z M1060 300 L1110 350 L1090 362 L1070 352 L1030 340 Z M1460 340 L1500 380 L1470 390 L1440 365 Z" fill="#ffffff"/>` +
-        pines(640, 12, "#3f6690", 89, 180, "#ffffff") +
+        L + pines(640, 12, "#3f6690", 89, 180, "#ffffff") +
         ridge(650, 22, 5, "#e3eef7", 97) +
         `<ellipse cx="800" cy="720" rx="420" ry="40" fill="url(#ice)"/><path d="M560 712 L700 728 M860 708 L1000 724" stroke="#ffffff" stroke-width="4" opacity=".7" stroke-linecap="round"/>` +
-        ridge(760, 16, 4, "#f4f9fd", 101) +
+        L + ridge(760, 16, 4, "#f4f9fd", 101) +
         snowfall(dots(70, 103, "#ffffff", 0, 900, 3.4), "") + snowfall(dots(50, 105, "#ffffff", 0, 900, 1.8), " snowfall--slow")
       ),
       front: svg("", `<g fill="#ffffff"><ellipse cx="120" cy="900" rx="260" ry="90"/><ellipse cx="1500" cy="900" rx="260" ry="100"/><ellipse cx="800" cy="935" rx="420" ry="60"/></g>` +
@@ -244,8 +248,8 @@
     },
 
     haunted: {
-      ground: [6, 26], fly: 0.3, tint: "#3e2a5c",
-      back: svg(
+      ground: [6, 26], fly: 0.3, tint: "#3e2a5c", haze: ["#6b5a9a", 640, 0.3],
+      back: layered(
         sky("ha", [[0, "#0f0b20"], [1, "#3b2a5a"]]) + glow("hmoon", "#f4eccc") + glow("hwisp", "#8fd8ff"),
         fill("ha") +
         dots(60, 107, "#d9d0ff", 0, 420, 1.6, "fx-twinkle") +
@@ -254,10 +258,10 @@
         `<g fill="#241a3a"><rect x="640" y="200" width="160" height="460"/><path d="M620 210 L720 80 L820 210 Z"/><rect x="560" y="420" width="320" height="240"/><path d="M545 430 L600 360 L655 430 Z M785 430 L840 360 L895 430 Z"/></g>` +
         `<g stroke="#1a1230" stroke-width="3" opacity=".7">${Array.from({ length: 8 }, (_, i) => `<path d="M640 ${240 + i * 50} H800"/>`).join("")}</g>` +
         `<g fill="#ffd36b"><rect class="fx-flicker" x="700" y="260" width="20" height="34" rx="10"/><rect x="740" y="330" width="20" height="34" rx="10" opacity=".85"/><rect class="fx-flicker" style="animation-delay:-1.3s" x="610" y="480" width="22" height="36" rx="11"/><rect x="820" y="500" width="22" height="36" rx="11" opacity=".85"/><circle cx="720" cy="150" r="12" opacity=".7"/></g>` +
-        ridge(640, 20, 5, "#2a1f44", 109) +
+        L + ridge(640, 20, 5, "#2a1f44", 109) +
         `<g fill="none" stroke="#1d1530" stroke-width="10" stroke-linecap="round"><path d="M180 660 L190 520 M190 560 L150 520 M188 590 L230 540 M190 520 L170 480 M190 520 L215 490"/><path d="M1440 660 L1430 540 M1432 580 L1470 545 M1430 540 L1400 500"/></g>` +
         `<g fill="#4a3e66"><path d="M260 700 v-60 a30 30 0 0 1 60 0 v60 Z"/><path d="M380 710 v-44 a24 24 0 0 1 48 0 v44 Z"/><path d="M1150 705 v-56 a28 28 0 0 1 56 0 v56 Z"/><rect x="1330" y="650" width="12" height="60"/><rect x="1312" y="664" width="48" height="12"/></g>` +
-        ridge(720, 14, 4, "#33284f", 113) +
+        L + ridge(720, 14, 4, "#33284f", 113) +
         `<circle class="fx-float" cx="460" cy="560" r="40" fill="url(#hwisp)"/><circle class="fx-float" style="animation-delay:-3s" cx="1060" cy="520" r="34" fill="url(#hwisp)"/><circle class="fx-float" style="animation-delay:-5s" cx="1500" cy="600" r="30" fill="url(#hwisp)"/>`
       ),
       front: svg("", `<g class="fx-drift" fill="#d6cff0" opacity=".2"><ellipse cx="300" cy="870" rx="460" ry="70"/><ellipse cx="1200" cy="880" rx="520" ry="80"/></g>` +
@@ -266,8 +270,8 @@
     },
 
     space: {
-      ground: [8, 30], fly: 0.5, tint: "#2a2b6b",
-      back: svg(
+      ground: [8, 30], fly: 0.5, tint: "#2a2b6b", haze: ["#3a3c7a", 700, 0.2],
+      back: layered(
         sky("sp", [[0, "#05061a"], [1, "#1b1d4a"]]) +
         `<radialGradient id="neb1"><stop offset="0" stop-color="#9a5fe0" stop-opacity=".55"/><stop offset="1" stop-color="#9a5fe0" stop-opacity="0"/></radialGradient>` +
         `<radialGradient id="neb2"><stop offset="0" stop-color="#3fc1d6" stop-opacity=".4"/><stop offset="1" stop-color="#3fc1d6" stop-opacity="0"/></radialGradient>` +
@@ -282,8 +286,8 @@
         `<circle cx="1260" cy="230" r="110" fill="url(#planet)"/>` +
         `<path d="M1448 194 A190 34 -18 0 1 1072 266" fill="none" stroke="#f3c79a" stroke-width="10"/>` +
         `<circle cx="300" cy="520" r="34" fill="url(#earth)"/><path d="M286 506 q10 -6 18 4 q-4 10 -14 8 Z M300 530 q12 -2 14 8 q-8 4 -14 -2 Z" fill="#6fcf8a"/>` +
-        ridge(700, 26, 5, "url(#moon)", 131) +
-        `<g><ellipse cx="420" cy="780" rx="90" ry="20" fill="#6a6a82"/><path d="M332 776 A90 20 0 0 1 508 776" stroke="#b9b9cf" stroke-width="4" fill="none"/>` +
+        L + ridge(700, 26, 5, "url(#moon)", 131) +
+        L + `<g><ellipse cx="420" cy="780" rx="90" ry="20" fill="#6a6a82"/><path d="M332 776 A90 20 0 0 1 508 776" stroke="#b9b9cf" stroke-width="4" fill="none"/>` +
         `<ellipse cx="1100" cy="760" rx="70" ry="16" fill="#6a6a82"/><path d="M1032 757 A70 16 0 0 1 1168 757" stroke="#b9b9cf" stroke-width="4" fill="none"/>` +
         `<ellipse cx="760" cy="840" rx="110" ry="22" fill="#6a6a82"/><path d="M652 836 A110 22 0 0 1 868 836" stroke="#b9b9cf" stroke-width="4" fill="none"/></g>`
       ),
@@ -291,4 +295,16 @@
         `<g fill="#c4c4d6"><circle cx="300" cy="880" r="14"/><circle cx="1290" cy="886" r="10"/></g>`)
     }
   };
+
+  // Build each scene's layers. Far layers get a band of haze in the scene's air
+  // colour, so they fade into the distance; style.css also blurs them slightly.
+  for (const [key, scene] of Object.entries(window.SCENES)) {
+    const { defs, parts } = scene.back;
+    const [color, y, strength] = scene.haze;
+    const id = "hz" + key;
+    const hazeDef = `<linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity="0"/><stop offset="${(y - 260) / H}" stop-color="${color}" stop-opacity="0"/><stop offset="${y / H}" stop-color="${color}" stop-opacity="${strength}"/><stop offset="1" stop-color="${color}" stop-opacity="${strength * 0.2}"/></linearGradient>`;
+    const haze = `<rect width="${W}" height="${H}" fill="url(#${id})"/>`;
+    scene.layers = parts.map((part, i) => svg(defs + hazeDef, part + (i < parts.length - 1 ? haze : "")));
+    scene.thumb = svg(defs + hazeDef, parts.join(haze));
+  }
 })();

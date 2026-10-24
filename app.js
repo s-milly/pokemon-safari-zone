@@ -14,7 +14,7 @@
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
   // ---------- Saved settings and Pokédex (per browser) ----------
-  const DEFAULTS = { loudMode: "flee", goal: 45, sensitivity: 5, spawnSeconds: 20, shiny: true, showMeter: true, practice: false };
+  const DEFAULTS = { loudMode: "flee", goal: 45, sensitivity: 5, spawnMin: 60, shiny: true, showMeter: true, practice: false };
   function load(key, fallback) {
     try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; }
   }
@@ -22,6 +22,7 @@
     try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* storage blocked: keep going in memory */ }
   }
   const settings = { ...DEFAULTS, ...load("qsz-settings", {}) };
+  delete settings.spawnSeconds; // replaced by spawnMin
   let dex = load("qsz-dex", {});
 
   const byId = {};
@@ -33,7 +34,7 @@
     habitatList.innerHTML = HABITATS.map(h => {
       const seen = h.pokemon.filter(p => dex[p.id]).length;
       return `<li><button class="habitat" type="button" data-habitat="${h.key}" style="--tint:${SCENES[h.key].tint}">
-        <span class="habitat__art">${SCENES[h.key].back.replace(/(id="|url\(#)(\w+)/g, "$1$2-thumb")}</span>
+        <span class="habitat__art">${SCENES[h.key].thumb.replace(/(id="|url\(#)(\w+)/g, "$1$2-thumb")}</span>
         <span class="habitat__text"><b>${h.name}</b><small>${h.blurb}</small></span>
         <span class="habitat__seen">${seen} of ${h.pokemon.length}</span>
       </button></li>`;
@@ -49,11 +50,14 @@
   // ---------- Scene ----------
   const scene = $("#scene"), stage = $("#stage"), dialogBox = $("#dialog");
   let habitat = null, running = false, paused = false, hushed = false, scared = false;
-  let quietMs = 0, loudMs = 0, calmMs = 0, lastFrame = 0, visitors = [];
+  let quietMs = 0, loudMs = 0, calmMs = 0, lastFrame = 0, visitors = [], nextMs = 0;
+
+  // Quiet time needed for the next Pokémon: somewhere between the setting and twice it
+  const waitFor = () => (settings.spawnMin + Math.random() * settings.spawnMin) * 1000;
 
   function openScene(key) {
     habitat = HABITATS.find(h => h.key === key);
-    $("#scene-back").innerHTML = SCENES[key].back;
+    $("#scene-back").innerHTML = SCENES[key].layers.map((svg, i) => `<div class="layer layer--${i}">${svg}</div>`).join("");
     $("#scene-front").innerHTML = SCENES[key].front;
     $("#scene-title").textContent = habitat.name;
     $("#start-title").textContent = habitat.name;
@@ -62,6 +66,7 @@
     stage.innerHTML = "";
     visitors = [];
     quietMs = loudMs = calmMs = 0;
+    nextMs = waitFor();
     running = false; paused = false; scared = false; setHush(false);
     updateCount();
     $("#home").hidden = true;
@@ -94,6 +99,7 @@
     paused = !paused;
     $("#playpause").textContent = paused ? "Resume" : "Pause";
     scene.classList.toggle("is-paused", paused);
+    paused ? freezeAll() : visitors.forEach(v => wander(v, 600));
     say(paused ? "Paused." : "Back to watching.");
     lastFrame = performance.now();
   });
@@ -165,6 +171,9 @@
       stage.classList.toggle("is-nervous", !over && lvl > settings.goal * 0.8);
       if (over) { loudMs += dt; calmMs = 0; } else { loudMs = Math.max(0, loudMs - dt); calmMs += dt; }
 
+      // Loud time only counts toward a new warning once the last one is over
+      if (hushed || scared) loudMs = 0;
+
       if (hushed) {
         if (calmMs > CALM_MS) { setHush(false); say("It is quiet again. The Pokémon are coming back out."); }
       } else if (scared) {
@@ -174,10 +183,10 @@
         tooLoud();
       } else if (!over) {
         quietMs += dt;
-        if (quietMs >= settings.spawnSeconds * 1000) { quietMs = 0; spawn(); }
+        if (quietMs >= nextMs) { quietMs = 0; nextMs = waitFor(); spawn(); }
       }
     }
-    ring.style.strokeDashoffset = 100 - Math.min(100, quietMs / (settings.spawnSeconds * 10));
+    ring.style.strokeDashoffset = 100 - Math.min(100, quietMs / nextMs * 100);
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(t => { lastFrame = t; frame(t); });
@@ -201,6 +210,7 @@
   }
 
   function setHush(on) {
+    if (on !== hushed) on ? freezeAll() : visitors.forEach(v => wander(v, 600));
     hushed = on;
     $("#hush").hidden = !on;
     scene.classList.toggle("is-hushed", on);
@@ -238,9 +248,11 @@
     const { x, y } = placeFor();
     const el = document.createElement("div");
     el.className = `mon mon--${p.rarity}${shiny ? " mon--shiny" : ""}`;
-    // Further back (higher up) looks smaller
-    const scale = 1.15 - (y / 100) * 0.9;
-    el.style.cssText = `left:${x}%;bottom:${y}%;--s:${scale.toFixed(2)};z-index:${100 - Math.round(y)}`;
+    // Bigger Pokémon look bigger: Pokédex height, squashed so a 9 meter Onix
+    // still fits next to a 30 centimeter Caterpie
+    const size = Math.max(0.6, Math.min(2, Math.pow(p.height / 10, 0.45)));
+    el.style.cssText = `--k:${size.toFixed(2)}`;
+    place(el, x, y);
     el.innerHTML = `<img alt="${shiny ? "Shiny " : ""}${p.name}" src="${(shiny ? ART.shiny : ART.normal)(p.id)}" draggable="false"><span class="mon__shadow"></span>`;
     const visitor = { ...p, shiny, el, x, y };
     const img = el.querySelector("img");
@@ -255,26 +267,55 @@
       const tag = p.rarity === "rare" ? " A rare find!" : "";
       say(shiny ? `Whoa! A shiny ${p.name} appeared!` : `A wild ${p.name} appeared!${tag}`, p.rarity === "rare" || shiny);
     }, { once: true });
-    img.addEventListener("error", () => { quietMs = settings.spawnSeconds * 1000 * 0.75; }, { once: true });
+    img.addEventListener("error", () => { quietMs = nextMs * 0.75; }, { once: true });
   }
 
-  function wander(v) {
+  // Position on the stage. Further back (higher up) looks smaller and hazier.
+  function place(el, x, y) {
+    el.style.left = `${x}%`;
+    el.style.bottom = `${y}%`;
+    el.style.setProperty("--s", (1.15 - (y / 100) * 0.9).toFixed(2));
+    el.style.setProperty("--f", (y / 100).toFixed(2));
+    el.style.zIndex = 100 - Math.round(y);
+  }
+
+  // Walk to a new spot at a steady pace, facing the way it is going, then rest
+  const WALK_SPEED = 3.5; // percent of the screen width per second
+  function wander(v, delay = 2500 + Math.random() * 3000) {
+    clearTimeout(v.timer);
     v.timer = setTimeout(function step() {
       if (!v.el.isConnected) return;
-      if (running && !paused && !hushed && !reduceMotion.matches) {
-        const dx = (Math.random() - 0.5) * 10;
-        v.x = Math.max(8, Math.min(86, v.x + dx));
-        v.el.style.left = `${v.x}%`;
-        v.el.classList.toggle("is-flipped", dx > 0);
-        v.el.classList.remove("is-hop"); void v.el.offsetWidth; v.el.classList.add("is-hop");
-      }
-      v.timer = setTimeout(step, 3500 + Math.random() * 5000);
-    }, 2500 + Math.random() * 3000);
+      if (!running || paused || hushed || reduceMotion.matches) return;
+      const [lo, hi] = SCENES[habitat.key].ground;
+      const top = SCENES[habitat.key].fly ? hi + 40 * SCENES[habitat.key].fly : hi;
+      let x;
+      do { x = 8 + Math.random() * 78; } while (Math.abs(x - v.x) < 15);
+      const y = Math.max(lo, Math.min(top, v.y + (Math.random() - 0.5) * 10));
+      const seconds = Math.hypot(x - v.x, (y - v.y) * 2) / WALK_SPEED;
+      v.el.style.transition = `left ${seconds}s linear, bottom ${seconds}s linear, --s ${seconds}s linear`;
+      v.el.classList.toggle("is-flipped", x > v.x);
+      place(v.el, x, y);
+      v.x = x; v.y = y;
+      v.timer = setTimeout(step, seconds * 1000 + 2000 + Math.random() * 5000);
+    }, delay);
+  }
+
+  // Stop every walker where it is right now
+  function freezeAll() {
+    for (const v of visitors) {
+      clearTimeout(v.timer);
+      const box = v.el.getBoundingClientRect(), area = stage.getBoundingClientRect();
+      v.el.style.transition = "none";
+      v.x = (box.left + box.width / 2 - area.left) / area.width * 100;
+      v.y = (area.bottom - box.bottom) / area.height * 100;
+      place(v.el, v.x, v.y);
+    }
   }
 
   function leave(v, fled) {
     clearTimeout(v.timer);
     visitors = visitors.filter(o => o !== v);
+    v.el.style.transition = "";
     v.el.style.setProperty("--dir", v.x < 50 ? -1 : 1);
     v.el.classList.add(fled ? "is-fleeing" : "is-leaving");
     setTimeout(() => v.el.remove(), reduceMotion.matches ? 400 : 1100);
@@ -350,7 +391,7 @@
     form.loudMode.value = settings.loudMode;
     form.goal.value = settings.goal;
     form.sensitivity.value = settings.sensitivity;
-    form.spawnSeconds.value = String(settings.spawnSeconds);
+    form.spawnMin.value = String(settings.spawnMin);
     form.shiny.checked = settings.shiny;
     form.showMeter.checked = settings.showMeter;
     form.practice.checked = settings.practice;
@@ -361,7 +402,9 @@
     settings.loudMode = form.loudMode.value;
     settings.goal = Number(form.goal.value);
     settings.sensitivity = Number(form.sensitivity.value);
-    settings.spawnSeconds = Number(form.spawnSeconds.value);
+    const before = settings.spawnMin;
+    settings.spawnMin = Number(form.spawnMin.value);
+    if (settings.spawnMin !== before) nextMs = Math.min(nextMs, waitFor());
     settings.shiny = form.shiny.checked;
     settings.showMeter = form.showMeter.checked;
     settings.practice = form.practice.checked;
