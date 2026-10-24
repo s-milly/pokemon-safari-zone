@@ -283,6 +283,7 @@
   function record(p, shiny) {
     const entry = dex[p.id] || { seen: 0, shiny: false, first: new Date().toISOString() };
     entry.seen += 1;
+    if (shiny) entry.shinySeen = shinyCount(entry) + 1;
     entry.shiny = entry.shiny || shiny;
     dex[p.id] = entry;
     save("qsz-dex", dex);
@@ -306,21 +307,38 @@
 
   // ---------- Pokédex ----------
   const dexDialog = $("#dex"), tabs = $("#dex-tabs"), grid = $("#dex-grid");
-  let dexTab = "all";
+  let dexTab = "all", dexShiny = false;
+  // Older saves only kept a yes or no for shiny
+  const shinyCount = e => e.shinySeen ?? (e.shiny ? 1 : 0);
+  const times = n => `${n} ${n === 1 ? "time" : "times"}`;
+
   function renderDex() {
-    const all = Object.keys(byId).length, seen = Object.keys(dex).filter(id => byId[id]).length;
-    const shinies = Object.values(dex).filter(e => e.shiny).length;
-    $("#dex-sub").textContent = `${seen} of ${all} spotted` + (shinies ? `, ${shinies} shiny` : "");
+    const all = Object.keys(byId).length;
+    const entries = Object.keys(dex).filter(id => byId[id]).map(id => dex[id]);
+    const seen = entries.length, shinies = entries.filter(e => shinyCount(e)).length;
+    $("#dex-sub").textContent = dexShiny ? `${shinies} of ${all} shiny forms found` : `${seen} of ${all} spotted`;
+    $("#dex").classList.toggle("is-shiny", dexShiny);
     tabs.innerHTML = [["all", "All"], ...HABITATS.map(h => [h.key, h.name])]
       .map(([k, n]) => `<button type="button" role="tab" aria-selected="${k === dexTab}" data-tab="${k}">${n}</button>`).join("");
     const list = dexTab === "all" ? HABITATS.flatMap(h => h.pokemon) : HABITATS.find(h => h.key === dexTab).pokemon;
     grid.innerHTML = list.map(p => {
       const e = dex[p.id];
-      const num = String(p.id).padStart(4, "0");
-      if (!e) return `<li class="dex__card is-unseen"><img src="${ART.normal(p.id)}" alt="" loading="lazy" draggable="false"><span class="dex__num">#${num}</span><b>???</b><span class="dex__rar dex__rar--${p.rarity}">${p.rarity}</span></li>`;
-      return `<li class="dex__card"><img src="${(e.shiny ? ART.shiny : ART.normal)(p.id)}" alt="${p.name}" loading="lazy" draggable="false"><span class="dex__num">#${num}</span><b>${p.name}${e.shiny ? ' <span class="dex__shiny" title="Shiny spotted">✦</span>' : ""}</b><span class="dex__rar dex__rar--${p.rarity}">${p.rarity}</span><small>Seen ${e.seen} ${e.seen === 1 ? "time" : "times"}</small></li>`;
+      const num = `<span class="dex__num">#${String(p.id).padStart(4, "0")}</span>`;
+      const rar = `<span class="dex__rar dex__rar--${p.rarity}">${p.rarity}</span>`;
+      const art = dexShiny ? ART.shiny : ART.normal;
+      const found = dexShiny ? e && shinyCount(e) : e;
+      if (!found) {
+        // In the shiny view, a Pokémon seen only in its normal form keeps its name
+        const name = e ? p.name : "???";
+        const note = dexShiny && e ? "<small>Shiny not found yet</small>" : "";
+        return `<li class="dex__card is-unseen"><img src="${art(p.id)}" alt="" loading="lazy" draggable="false">${num}<b>${name}</b>${rar}${note}</li>`;
+      }
+      const star = shinyCount(e) ? ' <span class="dex__shiny" title="Shiny form found">✦</span>' : "";
+      const count = dexShiny ? `Shiny seen ${times(shinyCount(e))}` : `Seen ${times(e.seen)}`;
+      return `<li class="dex__card"><img src="${art(p.id)}" alt="${dexShiny ? "Shiny " : ""}${p.name}" loading="lazy" draggable="false">${num}<b>${p.name}${star}</b>${rar}<small>${count}</small></li>`;
     }).join("");
   }
+  $("#dex-shiny").addEventListener("change", e => { dexShiny = e.target.checked; renderDex(); });
   tabs.addEventListener("click", e => {
     const t = e.target.closest("[data-tab]");
     if (t) { dexTab = t.dataset.tab; renderDex(); }

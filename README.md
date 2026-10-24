@@ -10,7 +10,7 @@ A classroom volume game. Put a habitat up on the board and press Start. While th
 - **Quiet time:** the microphone measures how loud the room is. Every time the class stays under the goal for the quiet time (20 seconds by default), a new Pokémon appears.
 - **Too loud:** if the room stays over the goal for more than half a second, every Pokémon on screen flees and the wait starts over. In Settings you can switch this so the scene pauses instead, and the Pokémon come back once it is quiet again.
 - **Rarity:** most Pokémon are common, some are uncommon and a few are rare. About 1 in 40 is shiny, and you can turn shinies off.
-- **Class Pokédex:** every Pokémon the class has spotted is saved, with how many times it was seen. Ones not found yet show as silhouettes.
+- **Class Pokédex:** every Pokémon the class has spotted is saved, with how many times it was seen. Ones not found yet show as silhouettes. Flip the **Shiny forms** switch to see the shiny Pokédex.
 - **Practice mode:** without a microphone, a slider stands in for the room so you can try everything.
 
 The microphone only measures volume, inside the browser. Nothing is recorded or sent anywhere. Settings and the Pokédex are saved in the browser on that computer.
