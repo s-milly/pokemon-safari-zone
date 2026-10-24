@@ -1,4 +1,4 @@
-# Quiet Safari Zone
+# Pokémon Safari Zone
 
 A classroom volume game. Put a habitat up on the board and press Start. While the class stays under the volume goal, wild Pokémon come out one at a time. If it gets too loud, they run away.
 
