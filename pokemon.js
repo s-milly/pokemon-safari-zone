@@ -77,7 +77,7 @@ window.HABITATS = [
     ]
   },
   {
-    key: "haunted", name: "Haunted Tower", blurb: "Spooky, but only a little",
+    key: "haunted", name: "Lavender Town", blurb: "Home of the Pokémon Tower",
     pokemon: [
       [92, "Gastly", "common", 13], [200, "Misdreavus", "common", 7], [353, "Shuppet", "common", 6],
       [355, "Duskull", "common", 8], [607, "Litwick", "common", 3],
