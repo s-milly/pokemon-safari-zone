@@ -287,6 +287,36 @@
         `<rect x="120" y="840" width="260" height="30" rx="15" fill="#5a6470"/><rect x="120" y="840" width="260" height="10" rx="5" fill="#76808c"/>`)
     },
 
+    victory: {
+      ground: [6, 24], tint: "#6b4a2e", haze: ["#c99a64", 560, 0.3],
+      back: layered(
+        sky("vr", [[0, "#24180f"], [1, "#4a3220"]]) + glow("vexit", "#fff1c8") + glow("vtorch", "#ffb347") +
+        sky("vrock", [[0, "#7a5a3c"], [1, "#5a4029"]]),
+        fill("vr") +
+        // Daylight from the exit at the far end, toward the Pokémon League
+        `<ellipse cx="800" cy="470" rx="260" ry="200" fill="url(#vexit)" opacity=".55"/><path d="M700 600 Q705 430 800 410 Q895 430 900 600 Z" fill="#fff4d6"/>` +
+        `<g fill="#3a2818">` + Array.from({ length: 14 }, (_, i) => { const x = i * 120 + 40, h = 50 + ((i * 47) % 120); return `<path d="M${x - 40} 0 L${x + 40} 0 L${x} ${h} Z"/>`; }).join("") + `</g>` +
+        ridge(480, 80, 4, "#3e2b1b", 401) +
+        L + ridge(560, 50, 5, "url(#vrock)", 403) +
+        // A rock ledge with a ladder up to it
+        `<path d="M1040 470 L1600 450 L1600 560 L1060 560 Z" fill="#6a4c32"/><path d="M1040 470 L1600 450 L1600 466 L1050 484 Z" fill="#8a6644"/>` +
+        `<g stroke="#a07a4c" stroke-width="7" stroke-linecap="round"><path d="M1110 478 L1110 600 M1150 476 L1150 600"/>${Array.from({ length: 5 }, (_, i) => `<path d="M1110 ${496 + i * 22} H1150"/>`).join("")}</g>` +
+        // Torches on the walls
+        `<g><rect x="356" y="430" width="10" height="44" fill="#4a3220"/><circle class="fx-pulse" cx="361" cy="420" r="70" fill="url(#vtorch)" opacity=".7"/><path class="fx-flicker" d="M361 398 q12 14 0 26 q-12 -12 0 -26 Z" fill="#ffcf5a"/></g>` +
+        `<g><rect x="1296" y="400" width="10" height="44" fill="#4a3220"/><circle class="fx-pulse" style="animation-delay:-2s" cx="1301" cy="390" r="70" fill="url(#vtorch)" opacity=".7"/><path class="fx-flicker" style="animation-delay:-1.1s" d="M1301 368 q12 14 0 26 q-12 -12 0 -26 Z" fill="#ffcf5a"/></g>` +
+        ridge(640, 20, 5, "#6e5035", 405) +
+        L + ridge(700, 16, 4, "#8a6844", 407) +
+        // Round boulders, the kind you push with Strength
+        `<g><circle cx="300" cy="700" r="62" fill="#8d8a84"/><circle cx="282" cy="682" r="30" fill="#a8a59e"/><path d="M262 712 q30 14 64 -6" stroke="#6f6c66" stroke-width="5" fill="none"/></g>` +
+        `<g><circle cx="1240" cy="720" r="50" fill="#8d8a84"/><circle cx="1226" cy="706" r="24" fill="#a8a59e"/></g>` +
+        `<g fill="#6a4c32"><path d="M520 740 L540 690 L560 740 Z"/><path d="M1000 760 L1016 720 L1032 760 Z"/></g>` +
+        dots(24, 409, "#ffd9a0", 380, 760, 1.4, "fx-float")
+      ),
+      front: svg("", `<g fill="#3e2b1b"><ellipse cx="110" cy="900" rx="230" ry="100"/><ellipse cx="1500" cy="900" rx="240" ry="110"/></g>` +
+        `<g><circle cx="1420" cy="830" r="70" fill="#76736d"/><circle cx="1400" cy="810" r="34" fill="#8f8c85"/></g>` +
+        `<g fill="none" stroke="#7a5a3c" stroke-width="6" stroke-linecap="round"><path d="M-40 806 Q90 780 230 800"/></g>`)
+    },
+
     snow: {
       ground: [6, 24], tint: "#3d6d96", haze: ["#f2dce8", 620, 0.4],
       back: layered(

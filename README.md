@@ -6,7 +6,7 @@ A classroom volume game. Put a habitat up on the board and press Start. While th
 
 ## How it works
 
-- **All 151 original Pokémon:** every Pokémon from Red, Blue and Yellow lives in exactly one of eleven habitats: Viridian Forest, Route 1, Safari Zone, Open Sea, Mt. Moon Cave, Fossil Dig, Volcano, Power Plant, Frozen Peak, Lavender Town and Night Sky.
+- **All 151 original Pokémon:** every Pokémon from Red, Blue and Yellow lives in exactly one of twelve habitats, listed in the order you reach them in Red and Blue: Route 1, Viridian Forest, Mt. Moon Cave, Fossil Dig, Open Sea, Lavender Town, Night Sky, Safari Zone, Power Plant, Frozen Peak, Volcano and Victory Road.
 - **Quiet time:** the microphone measures how loud the room is. While the class stays under the goal, a new Pokémon appears about every 1 to 2 minutes of quiet (the exact wait is random each time, and Settings can make it faster or slower).
 - **Too loud:** if the room stays over the goal for more than half a second, every Pokémon on screen flees and the wait starts over. In Settings you can switch this so the scene pauses instead, and the Pokémon come back once it is quiet again.
 - **Wandering:** Pokémon walk slowly around the habitat and turn to face the way they are going. Their size comes from their Pokédex height, scaled down so a 9 meter Onix still fits on screen next to a 30 centimeter Caterpie.
