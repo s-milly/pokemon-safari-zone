@@ -361,7 +361,10 @@
     $("#dex").classList.toggle("is-shiny", dexShiny);
     tabs.innerHTML = [["all", "All"], ...HABITATS.map(h => [h.key, h.name])]
       .map(([k, n]) => `<button type="button" role="tab" aria-selected="${k === dexTab}" data-tab="${k}">${n}</button>`).join("");
-    const list = dexTab === "all" ? HABITATS.flatMap(h => h.pokemon) : HABITATS.find(h => h.key === dexTab).pokemon;
+    // The main view lists all 151 in Pokédex number order
+    const list = dexTab === "all"
+      ? HABITATS.flatMap(h => h.pokemon).sort((a, b) => a.id - b.id)
+      : HABITATS.find(h => h.key === dexTab).pokemon;
     grid.innerHTML = list.map(p => {
       const e = dex[p.id];
       const num = `<span class="dex__num">#${String(p.id).padStart(4, "0")}</span>`;
