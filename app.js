@@ -8,7 +8,7 @@
   const $ = sel => document.querySelector(sel);
   const RARITY_WEIGHT = { common: 70, uncommon: 25, rare: 5 };
   const SHINY_ODDS = 40;
-  const maxOnScreen = () => (innerWidth < 760 ? 4 : 6);
+  const MAX_ON_SCREEN = 4;
   const LOUD_MS = 600;     // how long the room must stay over the goal to count as loud
   const CALM_MS = 1200;    // how long it must be quiet again before the scene resumes
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
@@ -228,9 +228,18 @@
     return pool[0];
   }
 
-  function placeFor() {
-    const [lo, hi] = SCENES[habitat.key].ground;
-    const flyMax = SCENES[habitat.key].fly ? hi + 40 * SCENES[habitat.key].fly : hi;
+  // How far up the screen a Pokémon may stand. Ones that cannot swim stay
+  // out of the water (in the sea channel at Seafoam Islands).
+  function heightRange(p) {
+    const scene = SCENES[habitat.key];
+    const [lo, hi] = scene.ground;
+    let top = scene.fly ? hi + 40 * scene.fly : hi;
+    if (scene.water && !SWIMMERS.has(p.id)) top = Math.min(top, svgToStage(800, scene.water.bottom, scene.water.layer).y - 1);
+    return [lo, Math.max(lo, top)];
+  }
+
+  function placeFor(p) {
+    const [lo, flyMax] = heightRange(p);
     let best = null, bestGap = -1;
     for (let i = 0; i < 24; i++) {
       const x = 10 + Math.random() * 76;
@@ -243,10 +252,10 @@
   }
 
   function spawn() {
-    if (visitors.length >= maxOnScreen()) leave(visitors[0], false);
+    if (visitors.length >= MAX_ON_SCREEN) leave(visitors[0], false);
     const p = pick(), key = habitat.key;
     const shiny = settings.shiny && Math.random() < 1 / SHINY_ODDS;
-    const { x, y } = placeFor();
+    const { x, y } = placeFor(p);
     const el = document.createElement("div");
     el.className = `mon mon--${p.rarity}${shiny ? " mon--shiny" : ""}`;
     // Bigger Pokémon look bigger: Pokédex height, squashed so a 9 meter Onix
@@ -263,6 +272,7 @@
       stage.appendChild(el);
       requestAnimationFrame(() => el.classList.add("is-in"));
       visitors.push(visitor);
+      setSwim(visitor);
       wander(visitor);
       record(p, shiny);
       const tag = p.rarity === "rare" ? " A rare find!" : "";
@@ -272,37 +282,142 @@
   }
 
   // Position on the stage. Further back (higher up) looks smaller and hazier.
-  function place(el, x, y) {
+  // far shrinks it more, for spots set back from the ground, like a ledge.
+  function place(el, x, y, far = 1) {
     el.style.left = `${x}%`;
     el.style.bottom = `${y}%`;
-    el.style.setProperty("--s", (1.15 - (y / 100) * 0.9).toFixed(2));
+    el.style.setProperty("--s", ((1.15 - (y / 100) * 0.9) * far).toFixed(2));
     el.style.setProperty("--f", (y / 100).toFixed(2));
     el.style.zIndex = 100 - Math.round(y);
   }
 
-  // Walk to a new spot at a steady pace, facing the way it is going, then rest
+  // Walk to a new spot at a steady pace, facing the way it is going, then rest.
+  // Now and then a Pokémon does something special instead: pushes a boulder
+  // or climbs the ladder in Victory Road.
   const WALK_SPEED = 3.5; // percent of the screen width per second
   function wander(v, delay = 2500 + Math.random() * 3000) {
     clearTimeout(v.timer);
     v.timer = setTimeout(function step() {
       if (!v.el.isConnected) return;
       if (!running || paused || hushed || reduceMotion.matches) return;
-      if (canPush(v) && Math.random() < PUSH_CHANCE) {
-        push(v, () => { v.timer = setTimeout(step, 2000 + Math.random() * 4000); });
-        return;
+      const rest = () => { v.timer = setTimeout(step, 2000 + Math.random() * 5000); };
+      // Finish a route that a pause cut short
+      if (v.path && v.path.length) return follow(v, rest);
+      if (v.zone === "ledge") {
+        v.path = Math.random() < 0.35 ? climbDown(v) : [ledgeSpot(v)];
+        return follow(v, rest);
       }
-      const [lo, hi] = SCENES[habitat.key].ground;
-      const top = SCENES[habitat.key].fly ? hi + 40 * SCENES[habitat.key].fly : hi;
-      let x;
-      do { x = 8 + Math.random() * 78; } while (Math.abs(x - v.x) < 15);
-      const y = Math.max(lo, Math.min(top, v.y + (Math.random() - 0.5) * 10));
-      const seconds = Math.hypot(x - v.x, (y - v.y) * 2) / WALK_SPEED;
-      v.el.style.transition = `left ${seconds}s linear, bottom ${seconds}s linear, --s ${seconds}s linear`;
-      v.el.classList.toggle("is-flipped", x > v.x);
-      place(v.el, x, y);
-      v.x = x; v.y = y;
-      v.timer = setTimeout(step, seconds * 1000 + 2000 + Math.random() * 5000);
+      if (canPush(v) && Math.random() < PUSH_CHANCE) return push(v, rest);
+      if (canClimb(v) && Math.random() < CLIMB_CHANCE) {
+        v.path = climbUp(v);
+        return follow(v, rest);
+      }
+      v.path = [groundSpot(v)];
+      follow(v, rest);
     }, delay);
+  }
+
+  function groundSpot(v) {
+    const [lo, top] = heightRange(v);
+    let x;
+    do { x = 8 + Math.random() * 78; } while (Math.abs(x - v.x) < 15);
+    return { x, y: Math.max(lo, Math.min(top, v.y + (Math.random() - 0.5) * 10)), zone: "ground" };
+  }
+
+  // Go through a list of stops one at a time. A stop is { x, y } plus, if
+  // needed, speed, far (extra shrink) and zone. The first stop is only
+  // dropped once reached, so a pause can pick the route back up.
+  function follow(v, done) {
+    const w = v.path[0];
+    if (!w) { v.path = null; return done(); }
+    const seconds = Math.max(0.3, Math.hypot(w.x - v.x, (w.y - v.y) * 2) / (w.speed || WALK_SPEED));
+    v.el.style.transition = `left ${seconds}s linear, bottom ${seconds}s linear, --s ${seconds}s linear`;
+    if (Math.abs(w.x - v.x) > 0.5) v.el.classList.toggle("is-flipped", w.x > v.x);
+    place(v.el, w.x, w.y, w.far || 1);
+    v.x = w.x; v.y = w.y; v.far = w.far || 1;
+    clearTimeout(v.swimTimer);
+    v.swimTimer = setTimeout(() => setSwim(v), seconds * 500);
+    v.timer = setTimeout(() => {
+      if (w.zone) v.zone = w.zone;
+      v.path.shift();
+      if (!v.path.length) { v.path = null; return done(); }
+      follow(v, done);
+    }, seconds * 1000 + 150);
+  }
+
+  // Turn a point in a background drawing (1600 by 900 units) into a spot on the stage
+  function svgToStage(x, y, layer) {
+    const box = document.querySelector(`#scene-back .layer--${layer}`).getBoundingClientRect();
+    const area = stage.getBoundingClientRect();
+    const k = Math.max(box.width / 1600, box.height / 900);
+    const px = box.left + (box.width - 1600 * k) / 2 + x * k;
+    const py = box.top + (box.height - 900 * k) + y * k;
+    return { x: (px - area.left) / area.width * 100, y: (area.bottom - py) / area.height * 100 };
+  }
+
+  // ---------- The ladder and ledge (Victory Road) ----------
+  // A Pokémon sometimes walks to the ladder, climbs up and roams the ledge,
+  // looking smaller because it is further back. Later it climbs down again.
+  const CLIMB_CHANCE = 0.12; // chance on each walk
+  const CLIMB_SPEED = 3;     // a bit slower than walking
+  const LEDGE_FAR = 0.78;    // extra shrink while up on the ledge
+  // Height of the ledge's top at x, in the drawing (feet sit a little in from the edge)
+  function ledgeY(x) {
+    const [x0, y0, x1, y1] = SCENES[habitat.key].ledge.edge;
+    return y0 + (x - x0) * (y1 - y0) / (x1 - x0) + 8;
+  }
+
+  function canClimb(v) {
+    const L = SCENES[habitat.key].ledge;
+    if (!L || v.height > 25) return false; // Onix is too big for a ladder
+    if (visitors.filter(o => o.zone === "ledge" || (o.path && o.path.some(w => w.zone === "ledge"))).length >= 2) return false;
+    const mid = (L.x1 + L.x2) / 2;
+    const foot = svgToStage(L.ladderX, L.ladderBottom, L.layer), middle = svgToStage(mid, ledgeY(mid), L.layer);
+    return foot.x > 4 && foot.x < 88 && middle.x > 4 && middle.x < 86; // ladder and ledge on screen (not on a narrow phone)
+  }
+
+  function ledgeSpot(v) {
+    const L = SCENES[habitat.key].ledge;
+    let sx, spot;
+    for (let i = 0; i < 12; i++) {
+      sx = L.x1 + Math.random() * (L.x2 - L.x1);
+      spot = svgToStage(sx, ledgeY(sx), L.layer);
+      if (spot.x > 4 && spot.x < 86 && Math.abs(spot.x - v.x) > 6) break; // on screen, clear of the meter
+    }
+    return { ...spot, far: LEDGE_FAR, zone: "ledge" };
+  }
+
+  function climbUp(v) {
+    const L = SCENES[habitat.key].ledge;
+    const foot = svgToStage(L.ladderX, L.ladderBottom, L.layer), top = svgToStage(L.ladderX, L.ladderTop, L.layer);
+    return [{ ...foot, zone: "ground" }, { ...top, speed: CLIMB_SPEED, far: LEDGE_FAR, zone: "ledge" }, ledgeSpot(v)];
+  }
+
+  function climbDown(v) {
+    const L = SCENES[habitat.key].ledge;
+    const foot = svgToStage(L.ladderX, L.ladderBottom, L.layer), top = svgToStage(L.ladderX, L.ladderTop, L.layer);
+    const [lo, hi] = SCENES[habitat.key].ground;
+    return [{ ...top, far: LEDGE_FAR }, { ...foot, speed: CLIMB_SPEED, zone: "ground" },
+      { x: Math.max(8, Math.min(86, foot.x + (Math.random() - 0.5) * 40)), y: lo + Math.random() * (hi - lo), zone: "ground" }];
+  }
+
+  // ---------- Swimming (Open Sea, Seafoam Islands) ----------
+  // In water, a water Pokémon sinks part way below the surface, and bobs a
+  // little higher or lower each time it moves.
+  function setSwim(v) {
+    const w = SCENES[habitat.key].water;
+    if (!w || !SWIMMERS.has(v.id) || !v.el.isConnected) return;
+    const top = svgToStage(800, w.top, w.layer).y, bottom = svgToStage(800, w.bottom, w.layer).y;
+    clearTimeout(v.swimTimer);
+    if (v.y <= top && v.y >= bottom) {
+      const deep = DEEP_SWIMMERS.has(v.id) ? 0.15 : 0;
+      const sink = Math.random() < 0.15 ? 0.08 : 0.2 + deep + Math.random() * 0.25;
+      v.el.classList.add("is-swimming");
+      v.el.style.setProperty("--sink", sink.toFixed(2));
+    } else {
+      v.el.style.setProperty("--sink", 0);
+      v.swimTimer = setTimeout(() => v.el.classList.remove("is-swimming"), 1400);
+    }
   }
 
   // Stop every walker (and boulder) where it is right now
@@ -323,7 +438,7 @@
       v.el.style.transition = "none";
       v.x = (box.left + box.width / 2 - area.left) / area.width * 100;
       v.y = (area.bottom - box.bottom) / area.height * 100;
-      place(v.el, v.x, v.y);
+      place(v.el, v.x, v.y, v.far || 1);
     }
   }
 
@@ -345,7 +460,7 @@
     });
   }
 
-  const canPush = v => STRENGTH.has(v.id) && boulders.some(b => !b.pusher);
+  const canPush = v => STRENGTH.has(v.id) && v.zone !== "ledge" && boulders.some(b => !b.pusher);
 
   function push(v, resume) {
     const free = boulders.filter(b => !b.pusher);
@@ -385,6 +500,7 @@
 
   function leave(v, fled) {
     clearTimeout(v.timer);
+    clearTimeout(v.swimTimer);
     for (const b of boulders) if (b.pusher === v) b.pusher = null;
     visitors = visitors.filter(o => o !== v);
     v.el.style.transition = "";

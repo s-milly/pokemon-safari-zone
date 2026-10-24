@@ -168,7 +168,9 @@
     },
 
     sea: {
-      ground: [8, 34], fly: 0.25, tint: "#1f6fa0", haze: ["#e2f4fb", 420, 0.35],
+      ground: [8, 34], fly: 0.25, tint: "#1f6fa0",
+      // Where the water is, in drawing units of a layer: here, everything below the horizon
+      water: { top: 414, bottom: 900, layer: 0 }, haze: ["#e2f4fb", 420, 0.35],
       back: layered(
         sky("se", [[0, "#7fc8ee"], [1, "#e2f4fb"]]) + sky("sw", [[0, "#4fb4de"], [0.4, "#2b8cc4"], [1, "#165a93"]]) + glow("sesun", "#fff6cc"),
         `<rect width="${W}" height="420" fill="url(#se)"/><rect y="414" width="${W}" height="${H - 414}" fill="url(#sw)"/>` +
@@ -304,7 +306,10 @@
     victory: {
       ground: [6, 24], tint: "#6b4a2e", haze: ["#c99a64", 560, 0.3],
       // Strength boulders that Pokémon can push (x and y in percent, see app.js)
-      boulders: [[22, 14], [74, 10]],
+      boulders: [[36, 12], [74, 10]],
+      // The ladder and the rock ledge it leads to, in drawing units of the middle layer
+      // edge is the top of the ledge, from one end to the other: x, y, x, y
+      ledge: { ladderX: 470, ladderBottom: 600, ladderTop: 478, x1: 90, x2: 410, edge: [0, 450, 560, 470], layer: 1 },
       back: layered(
         sky("vr", [[0, "#24180f"], [1, "#4a3220"]]) + glow("vexit", "#fff1c8") + glow("vtorch", "#ffb347") +
         sky("vrock", [[0, "#7a5a3c"], [1, "#5a4029"]]),
@@ -315,10 +320,10 @@
         ridge(480, 80, 4, "#3e2b1b", 401) +
         L + ridge(560, 50, 5, "url(#vrock)", 403) +
         // A rock ledge with a ladder up to it
-        `<path d="M1040 470 L1600 450 L1600 560 L1060 560 Z" fill="#6a4c32"/><path d="M1040 470 L1600 450 L1600 466 L1050 484 Z" fill="#8a6644"/>` +
-        `<g stroke="#a07a4c" stroke-width="7" stroke-linecap="round"><path d="M1110 478 L1110 600 M1150 476 L1150 600"/>${Array.from({ length: 5 }, (_, i) => `<path d="M1110 ${496 + i * 22} H1150"/>`).join("")}</g>` +
+        `<path d="M560 470 L0 450 L0 560 L540 560 Z" fill="#6a4c32"/><path d="M560 470 L0 450 L0 466 L550 484 Z" fill="#8a6644"/>` +
+        `<g stroke="#a07a4c" stroke-width="7" stroke-linecap="round"><path d="M450 478 L450 600 M490 476 L490 600"/>${Array.from({ length: 5 }, (_, i) => `<path d="M450 ${496 + i * 22} H490"/>`).join("")}</g>` +
         // Torches on the walls
-        `<g><rect x="356" y="430" width="10" height="44" fill="#4a3220"/><circle class="fx-pulse" cx="361" cy="420" r="70" fill="url(#vtorch)" opacity=".7"/><path class="fx-flicker" d="M361 398 q12 14 0 26 q-12 -12 0 -26 Z" fill="#ffcf5a"/></g>` +
+        `<g><rect x="616" y="430" width="10" height="44" fill="#4a3220"/><circle class="fx-pulse" cx="621" cy="420" r="70" fill="url(#vtorch)" opacity=".7"/><path class="fx-flicker" d="M621 398 q12 14 0 26 q-12 -12 0 -26 Z" fill="#ffcf5a"/></g>` +
         `<g><rect x="1296" y="400" width="10" height="44" fill="#4a3220"/><circle class="fx-pulse" style="animation-delay:-2s" cx="1301" cy="390" r="70" fill="url(#vtorch)" opacity=".7"/><path class="fx-flicker" style="animation-delay:-1.1s" d="M1301 368 q12 14 0 26 q-12 -12 0 -26 Z" fill="#ffcf5a"/></g>` +
         ridge(640, 20, 5, "#6e5035", 405) +
         L + ridge(700, 16, 4, "#8a6844", 407) +
@@ -330,7 +335,9 @@
     },
 
     snow: {
-      ground: [6, 24], tint: "#2f6d8f", haze: ["#bfe3f2", 600, 0.35],
+      ground: [6, 24], tint: "#2f6d8f",
+      // The channel of sea water running through the cave
+      water: { top: 688, bottom: 758, layer: 2 }, haze: ["#bfe3f2", 600, 0.35],
       back: layered(
         sky("sf", [[0, "#10324a"], [1, "#1d5372"]]) + sky("sfout", [[0, "#9fd6f2"], [0.55, "#dff4fc"], [0.56, "#4aa8d4"], [1, "#2a7fb0"]]) +
         glow("sflight", "#e8f8ff") + sky("ice", [[0, "#e6f6fd"], [1, "#a9d4ea"]]),

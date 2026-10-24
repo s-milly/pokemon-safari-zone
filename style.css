@@ -169,7 +169,7 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
   filter: drop-shadow(0 4px 6px rgba(0, 0, 0, .25)) saturate(calc(1 - var(--f) * .6)) brightness(calc(1 - var(--f) * .15));
   transform-origin: 50% 100%;
   opacity: 0; transform: translateY(18%) scale(.6);
-  transition: opacity .5s ease, transform .6s cubic-bezier(.3, 1.6, .5, 1);
+  transition: opacity .5s ease, transform .6s cubic-bezier(.3, 1.6, .5, 1), translate 1.4s ease-in-out;
 }
 .mon.is-in img { opacity: 1; transform: none; animation: bob 2.8s ease-in-out .6s infinite; }
 .mon.is-flipped img { scale: -1 1; }
@@ -193,6 +193,19 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
 @keyframes shiver { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(2%); } }
 @keyframes flee { 0% { transform: none; } 25% { transform: translateY(-20%); } 100% { transform: translateY(-10%); opacity: 0; } }
 @keyframes twinkle { 50% { opacity: .3; } }
+
+/* Swimming: the lower part of the Pokémon sits below the waterline, which
+   is the bottom edge of its box, with a ripple ring around it */
+.mon { --sink: 0; }
+.mon img { translate: 0 calc(var(--sink) * 100%); }
+.mon.is-swimming { clip-path: inset(-60% -60% 0 -60%); }
+.mon.is-swimming .mon__shadow { display: none; }
+.mon.is-swimming::after {
+  content: ""; position: absolute; left: 4%; right: 4%; bottom: -5%; height: 10%; z-index: 2;
+  border-radius: 50%; border: 3px solid rgba(255, 255, 255, .75); background: rgba(255, 255, 255, .15);
+  animation: ripple 2.8s ease-in-out infinite;
+}
+@keyframes ripple { 50% { transform: scaleX(1.08); opacity: .7; } }
 
 /* Strength boulders in Victory Road */
 .boulder { position: absolute; width: calc(min(15vh, 11vw) * var(--s)); transform: translate(-50%, 0); }

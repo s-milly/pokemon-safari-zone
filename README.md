@@ -11,6 +11,9 @@ A classroom volume game. Put a habitat up on the board and press Start. While th
 - **Too loud:** if the room stays over the goal for more than half a second, every Pokémon on screen flees and the wait starts over. In Settings you can switch this so the scene pauses instead, and the Pokémon come back once it is quiet again.
 - **Wandering:** Pokémon walk slowly around the habitat and turn to face the way they are going. Their size comes from their Pokédex height, scaled down so a 9 meter Onix still fits on screen next to a 30 centimeter Caterpie.
 - **Strength boulders:** in Victory Road, Pokémon that can learn HM04 Strength in Red and Blue now and then walk up to a boulder and push it a short way.
+- **Ladder and ledge:** in Victory Road, Pokémon sometimes climb the ladder and roam the rock ledge above, looking smaller up there because they are further back. Later they climb back down.
+- **Swimming:** in the Open Sea, and in the sea channel at Seafoam Islands, water Pokémon swim half under the surface, sitting higher or lower each time they move. Pokémon that cannot swim stay out of the water.
+- **Up to 4 at a time:** when a fifth Pokémon arrives, the one that has been there longest wanders off.
 - **Depth:** each background has far, middle and near layers. Far layers are hazier and drift more slowly, like a slow camera pan.
 - **Rarity:** most Pokémon are common, some are uncommon and a few are rare (final evolutions, legendaries, Snorlax, Lapras, the Eevee evolutions and others). About 1 in 40 is shiny, and you can turn shinies off.
 - **Class Pokédex:** every Pokémon the class has spotted is saved, with how many times it was seen. Ones not found yet show as silhouettes. Flip the **Shiny forms** switch to see the shiny Pokédex.

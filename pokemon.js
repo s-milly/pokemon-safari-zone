@@ -130,3 +130,8 @@ window.ART = {
 // Pokémon in the game that can learn HM04 Strength in Red and Blue (checked
 // against PokeAPI). In Victory Road they sometimes push a boulder.
 window.STRENGTH = new Set([66, 67, 68, 95, 106, 107, 111, 112, 150]);
+
+// Water Pokémon that swim, half under the surface, in the Open Sea and in the
+// sea channel at Seafoam Islands. Fish and jellyfish sit lower in the water.
+window.SWIMMERS = new Set([7, 8, 9, 54, 55, 60, 61, 62, 72, 73, 79, 80, 86, 87, 90, 91, 98, 99, 116, 117, 118, 119, 129, 130, 131, 134]);
+window.DEEP_SWIMMERS = new Set([72, 73, 116, 117, 118, 119, 129, 130]);
