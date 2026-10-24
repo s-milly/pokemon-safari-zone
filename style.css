@@ -194,6 +194,10 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
 @keyframes flee { 0% { transform: none; } 25% { transform: translateY(-20%); } 100% { transform: translateY(-10%); opacity: 0; } }
 @keyframes twinkle { 50% { opacity: .3; } }
 
+/* Strength boulders in Victory Road */
+.boulder { position: absolute; width: calc(min(15vh, 11vw) * var(--s)); transform: translate(-50%, 0); }
+.boulder svg { display: block; width: 100%; height: auto; position: relative; z-index: 1; filter: drop-shadow(0 4px 6px rgba(0, 0, 0, .3)) brightness(calc(1 - var(--f) * .15)); }
+
 /* Shh overlay */
 .scene__hush {
   position: absolute; inset: 0; z-index: 150; display: grid; place-content: center; text-align: center;
@@ -204,7 +208,7 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
 
 /* HUD */
 .hud { position: absolute; left: 0; right: 0; z-index: 200; display: flex; align-items: center; gap: 12px; padding: 16px 20px; }
-.hud--top { top: 0; justify-content: space-between; background: linear-gradient(rgba(10, 12, 24, .45), transparent); }
+.hud--top { top: 0; z-index: 310; justify-content: space-between; background: linear-gradient(rgba(10, 12, 24, .45), transparent); }
 .hud__title { color: #fff; font-size: 1.5rem; font-weight: 700; margin: 0; text-shadow: 0 2px 8px rgba(0, 0, 0, .4); }
 .hud__right { display: flex; align-items: center; gap: 8px; }
 .hud__count { color: #fff; font-weight: 600; background: rgba(10, 12, 24, .5); padding: .3em .8em; border-radius: 999px; font-size: .95rem; }
@@ -349,6 +353,7 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
   .practice input { width: 100px; }
   .mon { width: calc(min(16vh, 28vw) * var(--k) * var(--s)); }
   .scene__stage { bottom: 15vh; }
+  .boulder { width: calc(min(11vh, 20vw) * var(--s)); }
   .dex { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); padding: 4px 16px 20px; gap: 10px; }
   .sheet__head, .tabs, .form { padding-left: 16px; padding-right: 16px; }
   .start__card { padding: 26px 22px; }

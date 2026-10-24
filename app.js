@@ -65,6 +65,7 @@
     $("#start").hidden = false;
     stage.innerHTML = "";
     visitors = [];
+    setBoulders(key);
     quietMs = loudMs = calmMs = 0;
     nextMs = waitFor();
     running = false; paused = false; scared = false; setHush(false);
@@ -234,7 +235,7 @@
     for (let i = 0; i < 24; i++) {
       const x = 10 + Math.random() * 76;
       const y = lo + Math.random() * (flyMax - lo);
-      const gap = Math.min(999, ...visitors.map(v => Math.hypot(v.x - x, (v.y - y) * 1.6)));
+      const gap = Math.min(999, ...[...visitors, ...boulders].map(v => Math.hypot(v.x - x, (v.y - y) * 1.6)));
       if (gap > bestGap) { best = { x, y }; bestGap = gap; }
       if (gap > 22) break;
     }
@@ -286,6 +287,10 @@
     v.timer = setTimeout(function step() {
       if (!v.el.isConnected) return;
       if (!running || paused || hushed || reduceMotion.matches) return;
+      if (canPush(v) && Math.random() < PUSH_CHANCE) {
+        push(v, () => { v.timer = setTimeout(step, 2000 + Math.random() * 4000); });
+        return;
+      }
       const [lo, hi] = SCENES[habitat.key].ground;
       const top = SCENES[habitat.key].fly ? hi + 40 * SCENES[habitat.key].fly : hi;
       let x;
@@ -300,8 +305,18 @@
     }, delay);
   }
 
-  // Stop every walker where it is right now
+  // Stop every walker (and boulder) where it is right now
   function freezeAll() {
+    for (const b of boulders) {
+      const box = b.el.getBoundingClientRect(), area = stage.getBoundingClientRect();
+      const svg = b.el.querySelector("svg"), turn = getComputedStyle(svg).transform;
+      b.el.style.transition = svg.style.transition = "none";
+      if (turn !== "none") { const [a, c] = turn.slice(7).split(",").map(Number); b.turn = Math.atan2(c, a) * 180 / Math.PI; }
+      svg.style.transform = `rotate(${b.turn}deg)`;
+      b.x = (box.left + box.width / 2 - area.left) / area.width * 100;
+      place(b.el, b.x, b.y);
+      b.pusher = null;
+    }
     for (const v of visitors) {
       clearTimeout(v.timer);
       const box = v.el.getBoundingClientRect(), area = stage.getBoundingClientRect();
@@ -312,8 +327,65 @@
     }
   }
 
+  // ---------- Strength boulders (Victory Road) ----------
+  // A Pokémon that can learn Strength sometimes walks up to a boulder and
+  // pushes it a short way. Most of the time it just wanders like the others.
+  const PUSH_CHANCE = 0.12; // chance on each walk
+  const PUSH_SPEED = 1.6;   // slower than walking, boulders are heavy
+  let boulders = [];
+
+  function setBoulders(key) {
+    boulders = (SCENES[key].boulders || []).map(([x, y]) => {
+      const el = document.createElement("div");
+      el.className = "boulder";
+      el.innerHTML = `<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="52" r="46" fill="#8d8a84"/><circle cx="37" cy="37" r="20" fill="#a8a59e"/><path d="M24 68 q26 14 52 -4 M62 20 l8 18 M70 50 l12 6" stroke="#6f6c66" stroke-width="4" fill="none" stroke-linecap="round"/></svg><span class="mon__shadow"></span>`;
+      stage.appendChild(el);
+      place(el, x, y);
+      return { el, x, y, turn: 0, pusher: null };
+    });
+  }
+
+  const canPush = v => STRENGTH.has(v.id) && boulders.some(b => !b.pusher);
+
+  function push(v, resume) {
+    const free = boulders.filter(b => !b.pusher);
+    const b = free[Math.floor(Math.random() * free.length)];
+    const dist = 8 + Math.random() * 8;
+    const ways = [-1, 1].filter(d => b.x + d * dist >= 10 && b.x + d * dist <= 84);
+    if (!ways.length) return resume();
+    const d = ways[Math.floor(Math.random() * ways.length)];
+    b.pusher = v;
+
+    // 1. Walk up beside the boulder, on the side it will be pushed from
+    const gap = (v.el.offsetWidth + b.el.offsetWidth) / 2 / stage.clientWidth * 100 * 0.85;
+    const x = b.x - d * gap, y = b.y + 0.3;
+    const walk = Math.hypot(x - v.x, (y - v.y) * 2) / WALK_SPEED;
+    v.el.style.transition = `left ${walk}s linear, bottom ${walk}s linear, --s ${walk}s linear`;
+    v.el.classList.toggle("is-flipped", x > v.x);
+    place(v.el, x, y);
+    v.x = x; v.y = y;
+
+    // 2. Push: Pokémon and boulder slide together, the boulder rolling
+    v.timer = setTimeout(() => {
+      if (!running || paused || hushed || b.pusher !== v) { b.pusher = null; return; }
+      const secs = dist / PUSH_SPEED;
+      const svg = b.el.querySelector("svg");
+      v.el.classList.toggle("is-flipped", d > 0);
+      v.el.style.transition = b.el.style.transition = `left ${secs}s linear`;
+      svg.style.transition = `transform ${secs}s linear`;
+      b.turn += d * dist * 9;
+      svg.style.transform = `rotate(${b.turn}deg)`;
+      v.x += d * dist; b.x += d * dist;
+      place(v.el, v.x, v.y);
+      place(b.el, b.x, b.y);
+      say(`${v.name} used Strength! The boulder moved.`);
+      v.timer = setTimeout(() => { b.pusher = null; resume(); }, secs * 1000 + 600);
+    }, walk * 1000 + 400);
+  }
+
   function leave(v, fled) {
     clearTimeout(v.timer);
+    for (const b of boulders) if (b.pusher === v) b.pusher = null;
     visitors = visitors.filter(o => o !== v);
     v.el.style.transition = "";
     v.el.style.setProperty("--dir", v.x < 50 ? -1 : 1);

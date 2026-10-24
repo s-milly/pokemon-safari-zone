@@ -303,6 +303,8 @@
 
     victory: {
       ground: [6, 24], tint: "#6b4a2e", haze: ["#c99a64", 560, 0.3],
+      // Strength boulders that Pokémon can push (x and y in percent, see app.js)
+      boulders: [[22, 14], [74, 10]],
       back: layered(
         sky("vr", [[0, "#24180f"], [1, "#4a3220"]]) + glow("vexit", "#fff1c8") + glow("vtorch", "#ffb347") +
         sky("vrock", [[0, "#7a5a3c"], [1, "#5a4029"]]),
@@ -320,14 +322,10 @@
         `<g><rect x="1296" y="400" width="10" height="44" fill="#4a3220"/><circle class="fx-pulse" style="animation-delay:-2s" cx="1301" cy="390" r="70" fill="url(#vtorch)" opacity=".7"/><path class="fx-flicker" style="animation-delay:-1.1s" d="M1301 368 q12 14 0 26 q-12 -12 0 -26 Z" fill="#ffcf5a"/></g>` +
         ridge(640, 20, 5, "#6e5035", 405) +
         L + ridge(700, 16, 4, "#8a6844", 407) +
-        // Round boulders, the kind you push with Strength
-        `<g><circle cx="300" cy="700" r="62" fill="#8d8a84"/><circle cx="282" cy="682" r="30" fill="#a8a59e"/><path d="M262 712 q30 14 64 -6" stroke="#6f6c66" stroke-width="5" fill="none"/></g>` +
-        `<g><circle cx="1240" cy="720" r="50" fill="#8d8a84"/><circle cx="1226" cy="706" r="24" fill="#a8a59e"/></g>` +
         `<g fill="#6a4c32"><path d="M520 740 L540 690 L560 740 Z"/><path d="M1000 760 L1016 720 L1032 760 Z"/></g>` +
         dots(24, 409, "#ffd9a0", 380, 760, 1.4, "fx-float")
       ),
       front: svg("", `<g fill="#3e2b1b"><ellipse cx="110" cy="900" rx="230" ry="100"/><ellipse cx="1500" cy="900" rx="240" ry="110"/></g>` +
-        `<g><circle cx="1420" cy="830" r="70" fill="#76736d"/><circle cx="1400" cy="810" r="34" fill="#8f8c85"/></g>` +
         `<g fill="none" stroke="#7a5a3c" stroke-width="6" stroke-linecap="round"><path d="M-40 806 Q90 780 230 800"/></g>`)
     },
 
@@ -355,9 +353,6 @@
         L + `<path d="M0 700 Q400 670 800 690 T1600 680 L1600 900 L0 900 Z" fill="#2f7fae"/>` +
         `<g fill="url(#ice)"><path d="M380 712 l70 -10 l40 18 l-90 10 Z"/><path d="M980 730 l90 -12 l50 20 l-110 12 Z"/><path d="M640 760 l60 -8 l30 14 l-80 8 Z"/></g>` +
         ridge(760, 16, 4, "#e9f6fc", 507) +
-        // Boulders you push into the currents with Strength
-        `<g><circle cx="280" cy="770" r="54" fill="#8a9aa6"/><circle cx="264" cy="754" r="26" fill="#a8b6c0"/><path d="M240 760 q20 -30 70 -24" stroke="#ffffff" stroke-width="10" stroke-linecap="round" fill="none"/></g>` +
-        `<g><circle cx="1280" cy="790" r="44" fill="#8a9aa6"/><circle cx="1268" cy="776" r="20" fill="#a8b6c0"/><path d="M1250 780 q16 -24 56 -20" stroke="#ffffff" stroke-width="9" stroke-linecap="round" fill="none"/></g>` +
         `<g class="fx-drift" fill="#e8f8ff" opacity=".25"><ellipse cx="500" cy="740" rx="300" ry="24"/><ellipse cx="1150" cy="760" rx="340" ry="26"/></g>`
       ),
       front: svg("", `<g fill="#ffffff"><ellipse cx="120" cy="900" rx="260" ry="90"/><ellipse cx="1500" cy="900" rx="260" ry="100"/></g>` +

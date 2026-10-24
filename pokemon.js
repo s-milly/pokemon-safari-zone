@@ -126,3 +126,7 @@ window.ART = {
   normal: id => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`,
   shiny: id => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${id}.png`
 };
+
+// Pokémon in the game that can learn HM04 Strength in Red and Blue (checked
+// against PokeAPI). In Victory Road they sometimes push a boulder.
+window.STRENGTH = new Set([66, 67, 68, 95, 106, 107, 111, 112, 150]);
