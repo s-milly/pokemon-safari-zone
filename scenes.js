@@ -332,23 +332,36 @@
     },
 
     snow: {
-      ground: [6, 24], tint: "#3d6d96", haze: ["#f2dce8", 620, 0.4],
+      ground: [6, 24], tint: "#2f6d8f", haze: ["#bfe3f2", 600, 0.35],
       back: layered(
-        sky("sn", [[0, "#2c3f74"], [0.5, "#8fa6d6"], [0.75, "#f2d6e2"], [1, "#f6eef4"]]) +
-        sky("au", [[0, "#7affc8"], [1, "#7affc8"]]) + sky("ice", [[0, "#cfe6f5"], [1, "#a9cbe6"]]),
-        fill("sn") +
-        `<g class="fx-aurora" fill="none" stroke-linecap="round"><path d="M-50 160 C300 60 600 230 900 120 S1400 60 1700 150" stroke="#7affc8" stroke-width="60" opacity=".22"/><path d="M-50 200 C320 110 640 260 940 170 S1420 120 1700 210" stroke="#8ad0ff" stroke-width="40" opacity=".2"/></g>` +
-        dots(40, 91, "#ffffff", 0, 260, 1.4, "fx-twinkle") +
-        `<path d="M0 560 L260 260 L420 420 L640 180 L880 460 L1060 300 L1300 520 L1460 340 L1600 480 L1600 640 L0 640 Z" fill="#a9b9dd"/>` +
-        `<path d="M640 180 L880 460 L760 460 Z M260 260 L420 420 L330 420 Z M1060 300 L1300 520 L1160 520 Z" fill="#8798c4"/>` +
-        `<path d="M260 260 L310 320 L290 340 L270 320 L240 300 Z M640 180 L700 250 L680 262 L660 250 L630 270 L610 230 Z M1060 300 L1110 350 L1090 362 L1070 352 L1030 340 Z M1460 340 L1500 380 L1470 390 L1440 365 Z" fill="#ffffff"/>` +
-        L + pines(640, 12, "#3f6690", 89, 180, "#ffffff") +
-        ridge(650, 22, 5, "#e3eef7", 97) +
-        `<ellipse cx="800" cy="720" rx="420" ry="40" fill="url(#ice)"/><path d="M560 712 L700 728 M860 708 L1000 724" stroke="#ffffff" stroke-width="4" opacity=".7" stroke-linecap="round"/>` +
-        L + ridge(760, 16, 4, "#f4f9fd", 101) +
-        snowfall(dots(70, 103, "#ffffff", 0, 900, 3.4), "") + snowfall(dots(50, 105, "#ffffff", 0, 900, 1.8), " snowfall--slow")
+        sky("sf", [[0, "#10324a"], [1, "#1d5372"]]) + sky("sfout", [[0, "#9fd6f2"], [0.55, "#dff4fc"], [0.56, "#4aa8d4"], [1, "#2a7fb0"]]) +
+        glow("sflight", "#e8f8ff") + sky("ice", [[0, "#e6f6fd"], [1, "#a9d4ea"]]),
+        fill("sf") +
+        // The cave mouth looking out to the sea
+        `<path d="M520 640 Q520 250 800 220 Q1080 250 1080 640 Z" fill="url(#sfout)"/>` +
+        `<ellipse cx="800" cy="420" rx="320" ry="260" fill="url(#sflight)" opacity=".45"/>` +
+        `<g fill="#ffffff" opacity=".9"><ellipse cx="700" cy="300" rx="60" ry="14"/><ellipse cx="900" cy="330" rx="44" ry="11"/></g>` +
+        `<path d="M600 420 Q640 400 690 420 Z M900 420 Q950 396 1010 420 Z" fill="#6f8f9c"/>` +
+        `<g class="fx-wave" stroke="#ffffff" stroke-opacity=".5" stroke-width="3" fill="none" stroke-linecap="round"><path d="M600 470 q20 -8 40 0 t40 0"/><path d="M820 500 q20 -8 40 0 t40 0"/><path d="M700 560 q20 -8 40 0 t40 0"/></g>` +
+        `<path d="M0 0 H1600 V700 H1080 Q1080 250 800 220 Q520 250 520 640 V700 H0 Z" fill="#1a4a66"/>` +
+        `<path d="M0 0 H1600 V120 Q1200 160 800 130 Q400 160 0 120 Z" fill="#245e80"/>` +
+        L + ridge(560, 60, 4, "#2b6a8c", 501) +
+        `<g fill="#cfeefa" opacity=".9">` + Array.from({ length: 15 }, (_, i) => { const x = i * 110 + 30, h = 50 + ((i * 61) % 130); return `<path d="M${x - 22} 118 L${x + 22} 118 L${x} ${118 + h} Z"/>`; }).join("") + `</g>` +
+        // Frozen falls down the cave wall
+        `<path d="M250 160 Q230 380 260 600 L330 600 Q350 380 320 160 Z" fill="#bfe6f6" opacity=".85"/><path d="M270 180 Q262 380 282 590" stroke="#ffffff" stroke-width="6" opacity=".7" fill="none"/>` +
+        `<path d="M1300 150 Q1280 360 1320 590 L1380 590 Q1400 360 1370 150 Z" fill="#bfe6f6" opacity=".85"/>` +
+        `<g fill="#ffffff">${dots(40, 503, "#ffffff", 140, 620, 2, "fx-twinkle")}</g>` +
+        ridge(640, 24, 5, "#3f86a8", 505) +
+        L + `<path d="M0 700 Q400 670 800 690 T1600 680 L1600 900 L0 900 Z" fill="#2f7fae"/>` +
+        `<g fill="url(#ice)"><path d="M380 712 l70 -10 l40 18 l-90 10 Z"/><path d="M980 730 l90 -12 l50 20 l-110 12 Z"/><path d="M640 760 l60 -8 l30 14 l-80 8 Z"/></g>` +
+        ridge(760, 16, 4, "#e9f6fc", 507) +
+        // Boulders you push into the currents with Strength
+        `<g><circle cx="280" cy="770" r="54" fill="#8a9aa6"/><circle cx="264" cy="754" r="26" fill="#a8b6c0"/><path d="M240 760 q20 -30 70 -24" stroke="#ffffff" stroke-width="10" stroke-linecap="round" fill="none"/></g>` +
+        `<g><circle cx="1280" cy="790" r="44" fill="#8a9aa6"/><circle cx="1268" cy="776" r="20" fill="#a8b6c0"/><path d="M1250 780 q16 -24 56 -20" stroke="#ffffff" stroke-width="9" stroke-linecap="round" fill="none"/></g>` +
+        `<g class="fx-drift" fill="#e8f8ff" opacity=".25"><ellipse cx="500" cy="740" rx="300" ry="24"/><ellipse cx="1150" cy="760" rx="340" ry="26"/></g>`
       ),
-      front: svg("", `<g fill="#ffffff"><ellipse cx="120" cy="900" rx="260" ry="90"/><ellipse cx="1500" cy="900" rx="260" ry="100"/><ellipse cx="800" cy="935" rx="420" ry="60"/></g>` +
+      front: svg("", `<g fill="#ffffff"><ellipse cx="120" cy="900" rx="260" ry="90"/><ellipse cx="1500" cy="900" rx="260" ry="100"/></g>` +
+        `<g fill="#bfe6f6"><path d="M60 840 l30 -70 l30 70 Z"/><path d="M110 850 l20 -46 l20 46 Z"/><path d="M1460 840 l26 -64 l26 64 Z"/><path d="M1510 850 l18 -40 l18 40 Z"/></g>` +
         `<g fill="#d6e6f4"><ellipse cx="160" cy="910" rx="200" ry="40"/><ellipse cx="1460" cy="912" rx="200" ry="44"/></g>`)
     },
 
@@ -375,29 +388,41 @@
     },
 
     space: {
-      ground: [8, 30], fly: 0.5, tint: "#2a2b6b", haze: ["#3a3c7a", 700, 0.2],
+      ground: [6, 26], fly: 0.25, tint: "#4a3a7a", haze: ["#6c5a9e", 560, 0.3],
       back: layered(
-        sky("sp", [[0, "#05061a"], [1, "#1b1d4a"]]) +
-        `<radialGradient id="neb1"><stop offset="0" stop-color="#9a5fe0" stop-opacity=".55"/><stop offset="1" stop-color="#9a5fe0" stop-opacity="0"/></radialGradient>` +
-        `<radialGradient id="neb2"><stop offset="0" stop-color="#3fc1d6" stop-opacity=".4"/><stop offset="1" stop-color="#3fc1d6" stop-opacity="0"/></radialGradient>` +
-        `<radialGradient id="planet" cx=".35" cy=".35"><stop offset="0" stop-color="#f6b07e"/><stop offset=".7" stop-color="#d9733f"/><stop offset="1" stop-color="#8a3f22"/></radialGradient>` +
-        `<radialGradient id="earth" cx=".35" cy=".35"><stop offset="0" stop-color="#8fd2ff"/><stop offset="1" stop-color="#2556a6"/></radialGradient>` +
-        sky("moon", [[0, "#a4a4bc"], [1, "#7c7c96"]]),
-        fill("sp") +
-        `<ellipse cx="520" cy="260" rx="480" ry="200" fill="url(#neb1)" transform="rotate(-14 520 260)"/><ellipse cx="900" cy="380" rx="380" ry="140" fill="url(#neb2)" transform="rotate(-8 900 380)"/>` +
-        dots(110, 127, "#ffffff", 0, 700, 1.4) + dots(40, 129, "#ffffff", 0, 700, 2.2, "fx-twinkle") +
-        `<g class="fx-shoot"><path d="M200 130 l160 80" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/><circle cx="360" cy="210" r="4" fill="#ffffff"/></g>` +
-        `<path d="M1072 266 A190 34 -18 0 1 1448 194" fill="none" stroke="#f3c79a" stroke-width="10"/>` +
-        `<circle cx="1260" cy="230" r="110" fill="url(#planet)"/>` +
-        `<path d="M1448 194 A190 34 -18 0 1 1072 266" fill="none" stroke="#f3c79a" stroke-width="10"/>` +
-        `<circle cx="300" cy="520" r="34" fill="url(#earth)"/><path d="M286 506 q10 -6 18 4 q-4 10 -14 8 Z M300 530 q12 -2 14 8 q-8 4 -14 -2 Z" fill="#6fcf8a"/>` +
-        L + ridge(700, 26, 5, "url(#moon)", 131) +
-        L + `<g><ellipse cx="420" cy="780" rx="90" ry="20" fill="#6a6a82"/><path d="M332 776 A90 20 0 0 1 508 776" stroke="#b9b9cf" stroke-width="4" fill="none"/>` +
-        `<ellipse cx="1100" cy="760" rx="70" ry="16" fill="#6a6a82"/><path d="M1032 757 A70 16 0 0 1 1168 757" stroke="#b9b9cf" stroke-width="4" fill="none"/>` +
-        `<ellipse cx="760" cy="840" rx="110" ry="22" fill="#6a6a82"/><path d="M652 836 A110 22 0 0 1 868 836" stroke="#b9b9cf" stroke-width="4" fill="none"/></g>`
+        sky("sc", [[0, "#120e2e"], [0.6, "#3b2c6b"], [1, "#6a4f8f"]]) + glow("scmoon", "#f4eccc") + glow("scpsy", "#c58cff") +
+        glow("sclamp", "#ffe08a") + sky("plaza", [[0, "#8a7f99"], [1, "#5e5570"]]),
+        fill("sc") +
+        dots(70, 601, "#e8e0ff", 0, 380, 1.5, "fx-twinkle") +
+        `<circle cx="1320" cy="130" r="170" fill="url(#scmoon)" opacity=".45"/><circle cx="1320" cy="130" r="50" fill="#f4eccc"/>` +
+        // Far skyline
+        `<g fill="#2a2150">${Array.from({ length: 22 }, (_, i) => { const w = 50 + ((i * 37) % 50), h = 120 + ((i * 71) % 170); return `<rect x="${i * 76 - 20}" y="${560 - h}" width="${w}" height="${h}"/>`; }).join("")}</g>` +
+        `<g fill="#ffd36b" opacity=".55">${Array.from({ length: 70 }, (_, i) => `<rect x="${(i * 97) % 1600}" y="${420 + ((i * 53) % 120)}" width="6" height="8"/>`).join("")}</g>` +
+        // Silph Co. tower in the middle of the city
+        `<rect x="700" y="150" width="200" height="420" fill="#3a2f6e"/><rect x="730" y="110" width="140" height="44" fill="#3a2f6e"/><path d="M800 110 L800 50" stroke="#3a2f6e" stroke-width="6"/>` +
+        `<circle class="fx-flicker" cx="800" cy="48" r="7" fill="#ff5a5a"/>` +
+        `<g fill="#9fd4f0" opacity=".85">${Array.from({ length: 40 }, (_, i) => `<rect x="${716 + (i % 5) * 36}" y="${220 + Math.floor(i / 5) * 42}" width="22" height="22" rx="2"/>`).join("")}</g>` +
+        `<rect x="720" y="168" width="160" height="34" rx="4" fill="#1e2230"/><text x="800" y="192" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="20" letter-spacing="2" fill="#ffd84a">SILPH CO.</text>` +
+        L + ridge(600, 14, 5, "#4a3d6e", 603) +
+        // Pokémon Center on the left, Poké Mart on the right
+        `<g transform="translate(220 470)"><rect x="0" y="40" width="220" height="110" fill="#f4efe4"/><path d="M-14 46 L110 0 L234 46 Z" fill="#e3350d"/><rect x="84" y="88" width="52" height="62" fill="#9fd4f0"/>` +
+        `<circle cx="110" cy="64" r="16" fill="#ffffff" stroke="#1e2230" stroke-width="4"/><path d="M94 64 H126" stroke="#1e2230" stroke-width="4"/><circle cx="110" cy="64" r="5" fill="#ffffff" stroke="#1e2230" stroke-width="3"/>` +
+        `<g fill="#ffd36b"><rect x="22" y="80" width="40" height="28" rx="3"/><rect x="158" y="80" width="40" height="28" rx="3"/></g></g>` +
+        `<g transform="translate(1160 490)"><rect x="0" y="34" width="200" height="96" fill="#f4efe4"/><path d="M-12 40 L100 0 L212 40 Z" fill="#2a75bb"/><rect x="76" y="70" width="48" height="60" fill="#9fd4f0"/>` +
+        `<rect x="60" y="44" width="80" height="20" rx="3" fill="#2a75bb"/><text x="100" y="60" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="14" fill="#ffffff">MART</text>` +
+        `<g fill="#ffd36b"><rect x="18" y="72" width="38" height="26" rx="3"/><rect x="144" y="72" width="38" height="26" rx="3"/></g></g>` +
+        `<circle class="fx-pulse" cx="800" cy="460" r="260" fill="url(#scpsy)" opacity=".2"/>` +
+        ridge(660, 12, 5, "#5a4d7a", 605) +
+        L + `<path d="M0 700 Q400 690 800 696 T1600 692 L1600 900 L0 900 Z" fill="url(#plaza)"/>` +
+        `<g stroke="#7a6f8c" stroke-width="3" opacity=".6">${Array.from({ length: 9 }, (_, i) => `<path d="M${-200 + i * 260} 900 L${400 + i * 100} 700"/>`).join("")}<path d="M0 760 H1600 M0 830 H1600"/></g>` +
+        // Street lamps
+        `<g><rect x="496" y="560" width="8" height="150" fill="#2a2440"/><circle class="fx-pulse" cx="500" cy="556" r="80" fill="url(#sclamp)" opacity=".6"/><circle cx="500" cy="556" r="12" fill="#ffe08a"/></g>` +
+        `<g><rect x="1096" y="560" width="8" height="150" fill="#2a2440"/><circle class="fx-pulse" style="animation-delay:-2.5s" cx="1100" cy="556" r="80" fill="url(#sclamp)" opacity=".6"/><circle cx="1100" cy="556" r="12" fill="#ffe08a"/></g>` +
+        dots(26, 607, "#d9b8ff", 360, 800, 2.2, "fx-float")
       ),
-      front: svg("", `<g fill="#a2a2b8"><ellipse cx="100" cy="900" rx="220" ry="80"/><ellipse cx="1500" cy="900" rx="220" ry="90"/></g>` +
-        `<g fill="#c4c4d6"><circle cx="300" cy="880" r="14"/><circle cx="1290" cy="886" r="10"/></g>`)
+      front: svg("", `<g fill="#3c5a3e"><ellipse cx="90" cy="890" rx="210" ry="80"/><ellipse cx="1510" cy="890" rx="220" ry="86"/></g>` +
+        `<g fill="#4f7350"><ellipse cx="60" cy="852" rx="120" ry="44"/><ellipse cx="1540" cy="850" rx="130" ry="46"/></g>` +
+        `<g fill="#e58fd0"><circle cx="40" cy="840" r="7"/><circle cx="100" cy="856" r="7"/><circle cx="1510" cy="842" r="7"/><circle cx="1570" cy="858" r="7"/></g>`)
     }
   };
 

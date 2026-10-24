@@ -94,7 +94,7 @@ window.HABITATS = [
     ]
   },
   {
-    key: "snow", name: "Seafoam Islands", blurb: "Snowdrifts and icy wind",
+    key: "snow", name: "Seafoam Islands", blurb: "Icy caves out at sea",
     pokemon: [
       [54, "Psyduck", "common", 8], [79, "Slowpoke", "common", 12], [86, "Seel", "common", 11], [90, "Shellder", "common", 3],
       [55, "Golduck", "uncommon", 17], [80, "Slowbro", "uncommon", 16], [87, "Dewgong", "uncommon", 17], [91, "Cloyster", "uncommon", 15],
