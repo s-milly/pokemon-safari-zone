@@ -79,6 +79,27 @@
     return out;
   }
 
+  // A patch of tall grass like the games': rows of leafy clumps, darker at the
+  // back and lighter at the front. Each row is outlined as one shape (drawn
+  // once with a thick line, then again on top without it).
+  function tallGrass(cx, baseY, width, seed) {
+    const r = rng(seed);
+    const blade = (x, y, w, h, lean) => `<path d="M${x - w} ${y} Q${x - w * 0.8 + lean * 0.3} ${y - h * 0.65} ${x + lean} ${y - h} Q${x + w * 0.8 + lean * 0.3} ${y - h * 0.65} ${x + w} ${y} Z"/>`;
+    let out = "";
+    [[-18, "#3a8a3c", 0.8, 0.8], [-6, "#4c9f47", 0.92, 0.9], [8, "#61b654", 1, 1]].forEach(([dy, fill, k, wk], row) => {
+      const w = width * wk, n = Math.round(w / 46);
+      let blades = "";
+      for (let i = 0; i < n; i++) {
+        const x = cx - w / 2 + (i + 0.5) * (w / n) + (r() - 0.5) * 8;
+        // The patch is a soft mound: clumps get shorter towards the ends
+        const t = Math.abs(x - cx) / (w / 2), h = (44 + r() * 10) * k * (1 - t * t * 0.55);
+        blades += blade(x - 13, baseY + dy, 12, h * 0.75, -12) + blade(x + 13, baseY + dy, 12, h * 0.75, 12) + blade(x, baseY + dy + 2, 15, h, 2);
+      }
+      out += `<g data-noink fill="${fill}" stroke="${line(fill)}" stroke-width="6" stroke-linejoin="round">${blades}</g><g data-noink fill="${fill}">${blades}</g>`;
+    });
+    return out;
+  }
+
   function dots(count, seed, fill, yMin, yMax, rMax, cls = "") {
     const r = rng(seed);
     let out = "";
@@ -189,10 +210,8 @@
         `<g><rect x="1066" y="590" width="8" height="54" fill="#7a5236"/><rect x="1030" y="566" width="80" height="34" rx="5" fill="#a0734a" stroke="#7a5236" stroke-width="4"/><text x="1070" y="590" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="18" fill="#fff4dc">ROUTE 1</text></g>` +
         L + ridge(700, 16, 4, "#86cf6b", 211) +
         `<path clip-path="url(#rpclip)" d="M720 900 C760 820 820 760 790 670 L840 670 C880 760 900 830 980 900 Z" fill="url(#rpath)"/>` +
-        // A one-way ledge across the meadow
-        `<path d="M0 742 Q300 730 600 744 L600 756 Q300 744 0 756 Z" fill="#4f9a4a"/><path d="M1000 748 Q1300 736 1600 748 L1600 760 Q1300 750 1000 762 Z" fill="#4f9a4a"/>` +
         // Patches of tall grass where wild Pokémon hide
-        `<g fill="#2f7f3a">${Array.from({ length: 2 }, (_, k) => Array.from({ length: 9 }, (_, i) => `<path d="M${(k ? 1120 : 180) + i * 34} ${790} l14 -34 l14 34 Z"/>`).join("")).join("")}</g>` +
+        tallGrass(330, 792, 300, 223) + tallGrass(1270, 792, 300, 227) +
         dots(30, 213, "#ffffff", 700, 880, 3) + dots(24, 215, "#ffd84a", 700, 880, 3) + dots(14, 217, "#ff8fb1", 700, 880, 3)
       ),
       front: svg("", tufts(900, "#3f9a49", 60, 219, 90) + tufts(900, "#5cb85c", 40, 221, 60) +
@@ -217,7 +236,7 @@
         ridge(720, 14, 4, "#b7ad5a", 31) +
         `<g fill="#a99a73"><ellipse cx="300" cy="760" rx="60" ry="24"/><ellipse cx="1300" cy="770" rx="44" ry="18"/></g>`
       ),
-      front: svg("", tufts(900, "#9c8f3c", 70, 37, 120) + tufts(900, "#c2b45a", 50, 41, 80) + tufts(900, "#d9cb72", 26, 43, 50))
+      front: svg("", tufts(900, "#9c8f3c", 70, 37, 70) + tufts(900, "#c2b45a", 50, 41, 50) + tufts(900, "#d9cb72", 26, 43, 32))
     },
 
     sea: {
