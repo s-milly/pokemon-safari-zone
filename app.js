@@ -565,8 +565,29 @@
     const to = groundSpot(v), f = fillOf(v);
     go(v, [stay(1500, 1500, { start: w => { flag("is-burrowing", true)(w); sinkTo(w, f + 0.12); } }),
       stay(300, 300, { start: flag("is-under", true) }),
-      { ...to, speed: 4, noFlip: true },
+      { ...to, speed: 4, noFlip: true, start: dirtTrail(true), end: dirtTrail(false) },
       stay(1500, 1500, { start: w => { flag("is-under", false)(w); sinkTo(w, 0); }, end: flag("is-burrowing", false) })], rest);
+  }
+
+  // While a digger moves underground, it leaves small clumps of dirt behind
+  // that fade away after a few seconds
+  function dirtTrail(on) {
+    return v => {
+      clearInterval(v.trail);
+      if (!on) return;
+      v.trail = setInterval(() => {
+        if (!v.el.isConnected || paused || hushed) return;
+        const box = getComputedStyle(v.el);
+        const clump = document.createElement("div");
+        clump.className = "dirt";
+        clump.style.left = `${parseFloat(box.left) / stage.clientWidth * 100}%`;
+        clump.style.bottom = `${parseFloat(box.bottom) / stage.clientHeight * 100}%`;
+        clump.style.width = `${v.el.offsetWidth * 0.45}px`;
+        clump.innerHTML = `<svg viewBox="0 0 40 14" aria-hidden="true"><path d="M2 14 Q8 6 20 5 Q32 6 38 14 Z" fill="#8a6440"/><circle cx="10" cy="11" r="2" fill="#6b4a32"/><circle cx="27" cy="9" r="1.6" fill="#a98256"/></svg>`;
+        stage.appendChild(clump);
+        setTimeout(() => clump.remove(), 4200);
+      }, 280);
+    };
   }
 
   function dance(v, rest) {
@@ -815,6 +836,7 @@
 
   function leave(v, fled) {
     clearTimeout(v.timer);
+    clearInterval(v.trail);
     if (v.cleanup) { v.cleanup(); v.cleanup = null; }
     clearTimeout(v.swimTimer);
     for (const b of boulders) if (b.pusher === v) b.pusher = null;

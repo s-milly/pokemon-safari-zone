@@ -266,6 +266,9 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 20' preserveAspectRatio='none'%3E%3Cpath d='M0 20 Q8 7 30 5 Q52 7 60 20 Z' fill='%238a6440'/%3E%3Cpath d='M10 14 Q30 6 50 14' fill='none' stroke='%23a98256' stroke-width='2'/%3E%3Ccircle cx='14' cy='17' r='2' fill='%236b4a32'/%3E%3Ccircle cx='44' cy='16' r='2.4' fill='%236b4a32'/%3E%3Ccircle cx='30' cy='12' r='1.6' fill='%23c9a676'/%3E%3C/svg%3E") center bottom / 100% 100% no-repeat;
 }
 .mon.is-under .mon__body { opacity: 0; transition: opacity .3s ease; }
+.dirt { position: absolute; transform: translate(-50%, 0); pointer-events: none; animation: dirt-fade 4s ease-in forwards; }
+.dirt svg { display: block; width: 100%; height: auto; }
+@keyframes dirt-fade { from { opacity: .95; } to { opacity: 0; transform: translate(-50%, 0) scaleY(.4); } }
 
 /* Mt. Moon: the Moon Stone, dancing Clefairy, Zubat roosting upside down */
 .moonstone { position: absolute; width: calc(min(7vh, 5vw) * var(--s)); transform: translate(-50%, 0); }

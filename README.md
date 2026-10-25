@@ -15,7 +15,7 @@ A classroom volume game. Put a habitat up on the board and press Start. While th
 - **Habitat activities:** now and then, instead of a walk, a Pokémon does something that fits where it lives:
   - Route 1: ducks into the tall grass and peeks out. Snorlax lies down for a nap.
   - Viridian Forest: Caterpie, Weedle and Venonat climb a tree; Caterpie, Metapod, Weedle and Kakuna hang from a branch on a silk thread.
-  - Pewter City: Sandshrew, Sandslash, Diglett and Dugtrio dig into the ground and pop up somewhere else.
+  - Pewter City: Sandshrew, Sandslash, Diglett and Dugtrio dig into the ground, tunnel along leaving a trail of dirt, and pop up somewhere else.
   - Mt. Moon: Clefairy and Clefable dance around the Moon Stone. Zubat and Golbat roost upside down on the ceiling and swoop back down.
   - Lavender Town: ghosts turn see-through and drift through the gravestones. Gastly and Haunter float into the Pokémon Tower windows.
   - Saffron City: Pokémon that can learn Teleport in Red and Blue (everyone here but Ditto) teleport in a purple flash, or go into the Pokémon Center or Poké Mart for a while.
