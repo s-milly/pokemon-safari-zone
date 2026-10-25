@@ -51,6 +51,7 @@
   const scene = $("#scene"), stage = $("#stage"), dialogBox = $("#dialog");
   let habitat = null, running = false, paused = false, hushed = false, scared = false;
   let quietMs = 0, loudMs = 0, calmMs = 0, lastFrame = 0, visitors = [], nextMs = 0;
+  let session = null;
 
   // Quiet time needed for the next Pokémon: somewhere between the setting and twice it
   const waitFor = () => (settings.spawnMin + Math.random() * settings.spawnMin) * 1000;
@@ -71,6 +72,7 @@
     quietMs = loudMs = calmMs = 0;
     nextMs = waitFor();
     running = false; paused = false; scared = false; setHush(false);
+    session = null;
     updateCount();
     $("#home").hidden = true;
     scene.hidden = false;
@@ -85,26 +87,31 @@
     stopMic();
     renderHome();
   }
-  $("#back-home").addEventListener("click", closeScene);
+  // Leaving after a session shows its summary first
+  $("#back-home").addEventListener("click", () => session ? endSession() : closeScene());
 
   $("#start-btn").addEventListener("click", async () => {
     const ok = settings.practice || await startMic();
     if (!ok) return;
     $("#start").hidden = true;
     running = true; paused = false;
+    session = newSession();
     $("#playpause").textContent = "Pause";
     say(`Welcome to the ${habitat.name}. Stay quiet and the Pokémon will come out.`);
     lastFrame = performance.now();
   });
 
-  $("#playpause").addEventListener("click", () => {
-    if (!running) return;
-    paused = !paused;
+  function setPaused(on) {
+    paused = on;
     $("#playpause").textContent = paused ? "Resume" : "Pause";
     scene.classList.toggle("is-paused", paused);
     paused ? freezeAll() : visitors.forEach(v => wander(v, 600));
-    say(paused ? "Paused." : "Back to watching.");
     lastFrame = performance.now();
+  }
+  $("#playpause").addEventListener("click", () => {
+    if (!running) return;
+    setPaused(!paused);
+    say(paused ? "Paused." : "Back to watching.");
   });
 
   $("#fullscreen").addEventListener("click", () => {
@@ -188,6 +195,7 @@
         quietMs += dt;
         if (quietMs >= nextMs) { quietMs = 0; nextMs = waitFor(); spawn(); }
       }
+      if (session) track(dt, lvl, over);
     }
     ring.style.strokeDashoffset = 100 - Math.min(100, quietMs / nextMs * 100);
     if (!scene.hidden) layerByDepth();
@@ -208,6 +216,7 @@
 
   function tooLoud() {
     loudMs = 0; calmMs = 0;
+    if (session) { session.loud.push(session.activeMs); session.streak = 0; }
     if (settings.loudMode === "pause") {
       setHush(true);
       say("Too loud! The Pokémon are hiding.");
@@ -848,6 +857,7 @@
   }
 
   function record(p, shiny) {
+    session?.mons.push({ id: p.id, shiny, isNew: !dex[p.id], newShiny: shiny && !(dex[p.id] && shinyCount(dex[p.id])), at: session.activeMs });
     const entry = dex[p.id] || { seen: 0, shiny: false, first: new Date().toISOString() };
     entry.seen += 1;
     if (shiny) entry.shinySeen = shinyCount(entry) + 1;
@@ -870,6 +880,190 @@
     dialogBox.classList.add("is-on");
     clearTimeout(sayTimer);
     sayTimer = setTimeout(() => dialogBox.classList.remove("is-on"), big ? 6000 : 4000);
+  }
+
+  // ---------- Session summary ----------
+  // A session runs from Start until the class ends it. Paused time is left
+  // out. The room's volume is kept once a second (the loudest moment in that
+  // second) for the chart.
+  const SAMPLE_MS = 1000;
+  function newSession() {
+    return { started: Date.now(), activeMs: 0, underMs: 0, streak: 0, longest: 0, loud: [], mons: [], points: [], bucket: 0, bucketMs: 0 };
+  }
+  function track(dt, lvl, over) {
+    const s = session;
+    s.activeMs += dt;
+    if (!over) s.underMs += dt;
+    // A quiet stretch is broken only by a "too loud" moment
+    if (!hushed && !scared) { s.streak += dt; s.longest = Math.max(s.longest, s.streak); }
+    s.bucket = Math.max(s.bucket, lvl);
+    s.bucketMs += dt;
+    if (s.bucketMs >= SAMPLE_MS) {
+      s.points.push({ v: s.bucket, goal: settings.goal });
+      s.bucket = 0; s.bucketMs -= SAMPLE_MS;
+    }
+  }
+
+  const summaryDialog = $("#summary");
+  let pausedBefore = false;
+  function endSession() {
+    if (!session) return closeScene();
+    pausedBefore = paused;
+    if (running && !paused) setPaused(true);
+    renderSummary();
+    summaryDialog.showModal();
+    drawChart();
+  }
+  function keepWatching() {
+    if (summaryDialog.open) summaryDialog.close();
+    if (running && paused && !pausedBefore) setPaused(false);
+  }
+  $("#end-btn").addEventListener("click", () => { if (running) endSession(); });
+  $("#summary-resume").addEventListener("click", keepWatching);
+  $("#summary-done").addEventListener("click", () => {
+    session = null;
+    summaryDialog.close();
+    closeScene();
+  });
+  // Closing it any other way (Esc or a click outside) goes back to the same session
+  summaryDialog.addEventListener("close", () => { if (session) keepWatching(); });
+  addEventListener("resize", () => { if (summaryDialog.open) drawChart(); });
+
+  function duration(ms) {
+    const total = Math.round(ms / 1000), m = Math.floor(total / 60), sec = total % 60;
+    if (!m) return `${sec} sec`;
+    if (m >= 60) return `${Math.floor(m / 60)} hr ${m % 60} min`;
+    return sec && m < 10 ? `${m} min ${sec} sec` : `${m} min`;
+  }
+  const clock = sec => `${Math.floor(sec / 60)}:${String(Math.floor(sec % 60)).padStart(2, "0")}`;
+
+  function renderSummary() {
+    const s = session;
+    const newOnes = s.mons.filter(m => m.isNew).length;
+    const under = s.activeMs ? Math.round(s.underMs / s.activeMs * 100) : 0;
+    $("#summary-sub").textContent = `${habitat.name} · started at ${new Date(s.started).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`;
+    const stats = [
+      ["Time watching", duration(s.activeMs)],
+      ["Under the goal", `${under}%`],
+      ["Longest quiet stretch", duration(s.longest)],
+      ["Times it got too loud", s.loud.length],
+      ["Pokémon appeared", s.mons.length],
+      ["New in the Pokédex", newOnes],
+    ];
+    $("#summary-stats").innerHTML = stats.map(([label, value]) => `<li class="stat"><b>${value}</b><span>${label}</span></li>`).join("");
+
+    // Each Pokémon once, in the order it first appeared
+    const seen = new Map();
+    for (const m of s.mons) {
+      const g = seen.get(m.id) || { ...m, count: 0, shinyAny: false, newShinyAny: false };
+      g.count += 1; g.shinyAny ||= m.shiny; g.newShinyAny ||= m.newShiny;
+      seen.set(m.id, g);
+    }
+    $("#summary-mons").innerHTML = seen.size ? [...seen.values()].map(g => {
+      const p = byId[g.id];
+      const tags = (g.isNew ? '<span class="tag tag--new">New!</span>' : "") + (g.newShinyAny && !g.isNew ? '<span class="tag tag--shiny">New shiny!</span>' : "");
+      const star = g.shinyAny ? ' <span class="dex__shiny" title="Shiny">✦</span>' : "";
+      const count = g.count > 1 ? `<small>Seen ${times(g.count)}</small>` : "";
+      return `<li class="caught__card"><img src="${(g.shinyAny ? ART.shiny : ART.normal)(g.id)}" alt="" loading="lazy" draggable="false"><b>${p.name}${star}</b>${tags}${count}</li>`;
+    }).join("") : `<li class="caught__empty">No Pokémon came out this time. Stay quiet a little longer next time and they will.</li>`;
+
+    // Table view: one row per minute
+    const rows = [];
+    for (let i = 0; i < s.points.length; i += 60) {
+      const chunk = s.points.slice(i, i + 60);
+      const from = i * SAMPLE_MS, to = (i + chunk.length) * SAMPLE_MS;
+      const names = s.mons.filter(m => m.at >= from && m.at < to).map(m => byId[m.id].name);
+      const loud = s.loud.filter(t => t >= from && t < to).length;
+      rows.push(`<tr><td>${i / 60 + 1}</td><td>${Math.round(chunk.reduce((a, b) => a + b.v, 0) / chunk.length)}</td><td>${Math.round(Math.max(...chunk.map(c => c.v)))}</td><td>${loud || ""}</td><td>${names.join(", ")}</td></tr>`);
+    }
+    $("#summary-table").innerHTML = rows.length
+      ? `<table><thead><tr><th>Minute</th><th>Average volume</th><th>Loudest</th><th>Too loud</th><th>Pokémon</th></tr></thead><tbody>${rows.join("")}</tbody></table>`
+      : "<p>Not enough time yet to show the volume.</p>";
+    $("#summary-note").textContent = s.points.length
+      ? `Volume goes from 0 (silent) to 100, the same as the meter on screen. Paused time is left out.`
+      : "";
+  }
+
+  // Area chart of the volume, red where it went over the goal, with each
+  // Pokémon shown at the moment it appeared
+  function drawChart() {
+    const box = $("#summary-chart"), pts = session.points;
+    if (pts.length < 2) { box.innerHTML = '<p class="chart__empty">Watch for at least a few seconds to see the volume here.</p>'; return; }
+    const W = Math.max(280, box.clientWidth), H = W < 500 ? 180 : 220;
+    const m = { l: 34, r: 12, t: 40, b: 26 }, iw = W - m.l - m.r, ih = H - m.t - m.b;
+    // Keep about one point for every 3 pixels, using the loudest moment in each
+    const per = Math.max(1, Math.ceil(pts.length / (iw / 3)));
+    const data = [];
+    for (let i = 0; i < pts.length; i += per) {
+      const chunk = pts.slice(i, i + per);
+      data.push({ t: i + chunk.length / 2, v: Math.max(...chunk.map(c => c.v)), goal: chunk[chunk.length - 1].goal });
+    }
+    const span = pts.length;
+    const x = t => m.l + t / span * iw, y = v => m.t + ih - v / 100 * ih;
+    const line = data.map((d, i) => `${i ? "L" : "M"}${x(d.t).toFixed(1)},${y(d.v).toFixed(1)}`).join("");
+    const area = `${line}L${x(data[data.length - 1].t).toFixed(1)},${y(0)}L${x(data[0].t).toFixed(1)},${y(0)}Z`;
+    // The goal can change partway through, so it is drawn as steps
+    let goalPath = "";
+    data.forEach((d, i) => { goalPath += `${i ? "L" : "M"}${(i ? x(d.t) : m.l).toFixed(1)},${y(d.goal).toFixed(1)}`; if (i < data.length - 1 && data[i + 1].goal !== d.goal) goalPath += `L${x(data[i + 1].t).toFixed(1)},${y(d.goal).toFixed(1)}`; });
+    goalPath += `L${(m.l + iw).toFixed(1)},${y(data[data.length - 1].goal).toFixed(1)}`;
+    const overClip = `${goalPath}L${m.l + iw},${m.t - 2}L${m.l},${m.t - 2}Z`;
+    const underClip = `${goalPath}L${m.l + iw},${y(0) + 2}L${m.l},${y(0) + 2}Z`;
+
+    // Time labels: whole minutes, spaced so they never crowd
+    const mins = span / 60, stepMin = [1, 2, 5, 10, 15, 30, 60].find(n => mins / n <= W / 90) || 60;
+    let ticks = "";
+    for (let mm = 0; mm * 60 <= span; mm += stepMin) ticks += `<text x="${x(mm * 60)}" y="${H - 6}" text-anchor="${mm ? "middle" : "start"}">${mm} min</text>`;
+    if (mins < 1) ticks = `<text x="${m.l}" y="${H - 6}">0 sec</text><text x="${m.l + iw}" y="${H - 6}" text-anchor="end">${span} sec</text>`;
+
+    const lastGoal = data[data.length - 1].goal;
+    const loudMarks = session.loud.map(t => `<line class="chart__loud" x1="${x(t / SAMPLE_MS)}" x2="${x(t / SAMPLE_MS)}" y1="${m.t}" y2="${y(0)}"/>`).join("");
+    const icon = W < 500 ? 26 : 32;
+    // Skip an icon that would sit on top of the one before it (all are in the hover and the list)
+    let lastX = -Infinity;
+    const shown = session.mons.filter(mn => { const px = x(mn.at / SAMPLE_MS); if (px - lastX < icon * 0.8) return false; lastX = px; return true; });
+    const mons = shown.map(mn => `<img class="chart__mon" src="${(mn.shiny ? ART.shiny : ART.normal)(mn.id)}" alt="" title="${byId[mn.id].name}" style="left:${x(mn.at / SAMPLE_MS)}px;top:${m.t - icon - 2}px;width:${icon}px" draggable="false">`).join("");
+
+    box.innerHTML = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Volume over the session. The class was under the goal ${Math.round(session.underMs / session.activeMs * 100)}% of the time.">
+      <defs>
+        <clipPath id="clip-over"><path d="${overClip}"/></clipPath>
+        <clipPath id="clip-under"><path d="${underClip}"/></clipPath>
+      </defs>
+      <g class="chart__grid">${[0, 50, 100].map(v => `<line x1="${m.l}" x2="${m.l + iw}" y1="${y(v)}" y2="${y(v)}"/><text x="${m.l - 6}" y="${y(v) + 4}" text-anchor="end">${v}</text>`).join("")}</g>
+      <g clip-path="url(#clip-under)"><path class="chart__area" d="${area}"/><path class="chart__line" d="${line}"/></g>
+      <g clip-path="url(#clip-over)"><path class="chart__area chart__area--over" d="${area}"/><path class="chart__line chart__line--over" d="${line}"/></g>
+      ${loudMarks}
+      <path class="chart__goal" d="${goalPath}"/>
+      <text class="chart__goal-label" x="${m.l + iw - 4}" y="${y(lastGoal) - 6}" text-anchor="end">Goal ${lastGoal}</text>
+      <g class="chart__axis">${ticks}</g>
+      <line class="chart__cross" id="chart-cross" x1="0" x2="0" y1="${m.t}" y2="${y(0)}" visibility="hidden"/>
+      <circle class="chart__dot" id="chart-dot" r="5" visibility="hidden"/>
+    </svg>${mons}<div class="chart__tip" id="chart-tip" hidden></div>`;
+
+    // Hover or touch: show the time, volume and anything that happened then
+    const svg = box.querySelector("svg"), cross = box.querySelector("#chart-cross"), dot = box.querySelector("#chart-dot"), tip = box.querySelector("#chart-tip");
+    const show = e => {
+      const r = svg.getBoundingClientRect();
+      const px = Math.max(m.l, Math.min(m.l + iw, e.clientX - r.left));
+      const sec = Math.round((px - m.l) / iw * span);
+      const d = data.reduce((a, b) => Math.abs(b.t - sec) < Math.abs(a.t - sec) ? b : a);
+      const near = per * 1.5 + 2;
+      const events = [
+        ...session.mons.filter(mn => Math.abs(mn.at / SAMPLE_MS - sec) <= near).map(mn => `${mn.shiny ? "Shiny " : ""}${byId[mn.id].name} appeared`),
+        ...session.loud.filter(t => Math.abs(t / SAMPLE_MS - sec) <= near).map(() => "Too loud"),
+      ];
+      cross.setAttribute("x1", x(d.t)); cross.setAttribute("x2", x(d.t)); cross.setAttribute("visibility", "visible");
+      dot.setAttribute("cx", x(d.t)); dot.setAttribute("cy", y(d.v)); dot.setAttribute("visibility", "visible");
+      dot.classList.toggle("is-over", d.v > d.goal);
+      tip.innerHTML = `<b>${clock(d.t)}</b> Volume ${Math.round(d.v)}${events.map(ev => `<br>${ev}`).join("")}`;
+      tip.hidden = false;
+      const left = Math.min(W - tip.offsetWidth - 4, Math.max(4, x(d.t) - tip.offsetWidth / 2));
+      tip.style.left = `${left}px`;
+      tip.style.top = `${Math.max(0, y(d.v) - tip.offsetHeight - 12)}px`;
+    };
+    const hide = () => { tip.hidden = true; cross.setAttribute("visibility", "hidden"); dot.setAttribute("visibility", "hidden"); };
+    svg.addEventListener("pointermove", show);
+    svg.addEventListener("pointerdown", show);
+    svg.addEventListener("pointerleave", hide);
   }
 
   // ---------- Pokédex ----------

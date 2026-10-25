@@ -32,6 +32,7 @@ A classroom volume game. Put a habitat up on the board and press Start. While th
 - **Depth:** each background has far, middle and near layers. Far layers are hazier and drift more slowly, like a slow camera pan.
 - **Rarity:** most Pokémon are common, some are uncommon and a few are rare (final evolutions, legendaries, Snorlax, Lapras, the Eevee evolutions and others). About 1 in 40 is shiny, and you can turn shinies off.
 - **Class Pokédex:** every Pokémon the class has spotted is saved, with how many times it was seen. Ones not found yet show as silhouettes. Flip the **Shiny forms** switch to see the shiny Pokédex.
+- **Session summary:** press **End session** (or **← Habitats**) and a summary shows how long the class watched, how much of that time it stayed under the goal, its longest quiet stretch, how many times it got too loud, how many Pokémon appeared and how many were new to the Pokédex. A chart shows the volume over the session, red where it went over the goal, with each Pokémon shown at the moment it appeared. Hover or tap the chart for the details at any moment, or open it as a table. **Keep watching** goes back to the same session, and **Done** returns to the habitats.
 - **Practice mode:** without a microphone, a slider stands in for the room so you can try everything.
 
 The microphone only measures volume, inside the browser. Nothing is recorded or sent anywhere. Settings and the Pokédex are saved in the browser on that computer.

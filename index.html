@@ -68,6 +68,7 @@
           <span>Practice noise</span>
           <input type="range" id="practice-level" min="0" max="100" value="10">
         </label>
+        <button class="btn btn--small" type="button" id="end-btn">End session</button>
         <button class="btn btn--solid" type="button" id="playpause">Pause</button>
       </div>
     </div>
@@ -92,6 +93,36 @@
     </div>
     <div class="tabs" id="dex-tabs" role="tablist"></div>
     <ul class="dex" id="dex-grid" role="list"></ul>
+  </dialog>
+
+  <!-- Session summary -->
+  <dialog class="sheet" id="summary" aria-labelledby="summary-title">
+    <div class="sheet__head">
+      <h2 id="summary-title">Session summary</h2>
+      <p class="sheet__sub" id="summary-sub"></p>
+    </div>
+    <div class="summary">
+      <ul class="stats" id="summary-stats" role="list"></ul>
+
+      <section class="summary__block">
+        <h3>Volume over time</h3>
+        <div class="chart" id="summary-chart"></div>
+        <p class="summary__note" id="summary-note"></p>
+        <details class="summary__table">
+          <summary>Show as a table</summary>
+          <div id="summary-table"></div>
+        </details>
+      </section>
+
+      <section class="summary__block">
+        <h3>Pokémon this session</h3>
+        <ul class="caught" id="summary-mons" role="list"></ul>
+      </section>
+    </div>
+    <div class="summary__actions">
+      <button class="btn" type="button" id="summary-resume">Keep watching</button>
+      <button class="btn btn--solid" type="button" id="summary-done">Done</button>
+    </div>
   </dialog>
 
   <!-- Settings -->
