@@ -197,6 +197,20 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
 @keyframes flee { 0% { transform: none; } 25% { transform: translateY(-20%); } 100% { transform: translateY(-10%); opacity: 0; } }
 @keyframes twinkle { 50% { opacity: .3; } }
 
+/* While walking, a small step bounce at a pace set by size (--step).
+   Hoppers hop, long Pokémon slither, flyers keep their hover. */
+.mon { --step: .5s; }
+.mon.is-moving img { animation: step var(--step) ease-in-out infinite; }
+.mon.gait-hop.is-moving img { animation: hop-step calc(var(--step) * 1.1) ease-out infinite; }
+.mon.gait-slither.is-moving img { animation: slither calc(var(--step) * 1.8) ease-in-out infinite alternate; }
+.mon--float.is-moving img { animation: bob 2.8s ease-in-out infinite; }
+.mon.is-swimming.is-moving img { animation: none; }
+.mon.is-in.fidget-hop img { animation: hop-once .55s ease-out; }
+@keyframes step { 50% { transform: translateY(-2.5%); } }
+@keyframes hop-step { 0%, 100% { transform: none; } 45% { transform: translateY(-9%); } }
+@keyframes slither { from { transform: skewX(-4deg); } to { transform: skewX(4deg); } }
+@keyframes hop-once { 0%, 100% { transform: none; } 40% { transform: translateY(-8%); } }
+
 /* Swimming: the picture is cut off at the waterline, just under the foam
    crest of a strip of moving water that laps against the Pokémon. */
 .mon { --sink: 0; --pad: 0; }

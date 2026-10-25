@@ -264,13 +264,16 @@
     const { x, y } = placeFor(p);
     const el = document.createElement("div");
     const floats = FLOATERS.has(p.id);
-    el.className = `mon mon--${p.rarity}${shiny ? " mon--shiny" : ""}${floats ? " mon--float" : ""}`;
+    const gait = HOPPERS.has(p.id) ? " gait-hop" : SLITHERERS.has(p.id) ? " gait-slither" : "";
+    el.className = `mon mon--${p.rarity}${shiny ? " mon--shiny" : ""}${floats ? " mon--float" : ""}${gait}`;
     // Bigger Pokémon look bigger: Pokédex height, squashed so a 9 meter Onix
     // still fits next to a 30 centimeter Caterpie
     const size = Math.max(0.6, Math.min(2, Math.pow(p.height / 10, 0.45)));
     // Flyers hover a little above their shadow, everyone else stands on it
     const pad = floats ? -0.12 : ART_PAD[p.id] || 0;
-    el.style.cssText = `--k:${size.toFixed(2)};--pad:${pad}`;
+    // Small Pokémon take quick steps, big ones slow, heavy steps
+    const step = Math.max(0.36, Math.min(0.8, 0.3 + p.height * 0.012));
+    el.style.cssText = `--k:${size.toFixed(2)};--pad:${pad};--step:${step.toFixed(2)}s`;
     place(el, x, y);
     // The body holds the picture so swimmers can be cut off at the waterline
     el.innerHTML = `<span class="mon__body"><img alt="${shiny ? "Shiny " : ""}${p.name}" src="${(shiny ? ART.shiny : ART.normal)(p.id)}" draggable="false"></span><span class="mon__shadow"></span><span class="mon__fx"></span>`;
@@ -289,6 +292,16 @@
       say(shiny ? `Whoa! A shiny ${p.name} appeared!` : `A wild ${p.name} appeared!${tag}`, p.rarity === "rare" || shiny);
     }, { once: true });
     img.addEventListener("error", () => { quietMs = nextMs * 0.75; }, { once: true });
+  }
+
+  // Turn to face the way it is going. The picture is mirrored only when its
+  // artwork faces the other way; ones looking straight out are never mirrored.
+  function face(v, goingRight) {
+    let mirror = false;
+    if (FACES_FRONT.has(v.id)) mirror = false;
+    else if (FACES_RIGHT.has(v.id)) mirror = !goingRight;
+    else mirror = goingRight;
+    v.el.classList.toggle("is-flipped", mirror);
   }
 
   // Position on the stage, with perspective: full size at the front of the
@@ -322,6 +335,7 @@
         v.path = Math.random() < 0.35 ? climbDown(v) : [ledgeSpot(v)];
         return follow(v, rest);
       }
+      if (canFidget(v) && Math.random() < 0.25) return fidget(v, rest);
       const options = (ACTIVITIES[habitat.key] || []).slice().sort(() => Math.random() - 0.5);
       for (const act of options) {
         if (Math.random() < (BUSY ? 0.6 : act.chance) && act.who(v)) return act.run(v, rest);
@@ -329,6 +343,18 @@
       v.path = [groundSpot(v)];
       follow(v, rest);
     }, delay);
+  }
+
+  // A small, quick fidget while standing: a glance the other way, or a hop
+  const canFidget = v => !FLOATERS.has(v.id) && !ROLLERS.has(v.id) && !v.el.classList.contains("is-swimming");
+  function fidget(v, rest) {
+    if (Math.random() < 0.5) {
+      v.el.classList.toggle("is-flipped");
+      v.timer = setTimeout(() => { v.el.classList.toggle("is-flipped"); rest(); }, 700 + Math.random() * 900);
+    } else {
+      v.el.classList.add("fidget-hop");
+      v.timer = setTimeout(() => { v.el.classList.remove("fidget-hop"); rest(); }, 600);
+    }
   }
 
   function groundSpot(v) {
@@ -359,8 +385,14 @@
     if (dist > 0.01) {
       const ease = w.ease || "linear";
       v.el.style.transition = `left ${seconds}s ${ease}, bottom ${seconds}s ${ease}, --s ${seconds}s ${ease}`;
-      if (!w.noFlip && Math.abs(x - v.x) > 0.5) v.el.classList.toggle("is-flipped", x > v.x);
+      if (!w.noFlip && Math.abs(x - v.x) > 0.5) face(v, x > v.x);
       if (ROLLERS.has(v.id)) roll(v, x - v.x, seconds);
+      // A small step bounce while walking (Voltorb and Electrode roll instead)
+      if (seconds > 0.05 && !ROLLERS.has(v.id)) {
+        v.el.classList.add("is-moving");
+        clearTimeout(v.moveTimer);
+        v.moveTimer = setTimeout(() => v.el.classList.remove("is-moving"), seconds * 1000);
+      }
       place(v.el, x, y, w.far || 1);
       v.x = x; v.y = y; v.far = w.far || 1;
       if (!w.keepSink) {
@@ -587,7 +619,7 @@
     const d = spot.x > v.x ? 1 : -1;
     const gap = v.el.offsetWidth / 2 / stage.clientWidth * 100 * 0.7;
     v.cleanup = () => { el.remove(); if (bait === el) bait = null; };
-    go(v, [{ x: spot.x - d * gap, y: spot.y + 0.3, end: w => { w.el.classList.toggle("is-flipped", d > 0); flag("is-eating", true)(w); } },
+    go(v, [{ x: spot.x - d * gap, y: spot.y + 0.3, end: w => { face(w, d > 0); flag("is-eating", true)(w); } },
       stay(6000, 8000, { end: w => { flag("is-eating", false)(w); el.classList.add("is-gone"); setTimeout(w.cleanup, 800); w.cleanup = null; } })], rest);
   }
 
@@ -615,7 +647,7 @@
     const pools = POOLS.map(([x, y, r]) => ({ x, y, r, at: svgToStage(x, y, 2) })).filter(p => onScreen(p.at));
     const p = anyOf(pools), side = Math.random() < 0.5 ? -1 : 1;
     const spot = svgToStage(p.x + side * (p.r + 70), p.y, 2);
-    go(v, [{ ...spot, end: w => { w.el.classList.toggle("is-flipped", side < 0); flag("is-warming", true)(w); } },
+    go(v, [{ ...spot, end: w => { face(w, side < 0); flag("is-warming", true)(w); } },
       stay(7000, 10000, { end: flag("is-warming", false) })], rest);
   }
 
@@ -703,6 +735,8 @@
     }
     for (const v of visitors) {
       clearTimeout(v.timer);
+      clearTimeout(v.moveTimer);
+      v.el.classList.remove("is-moving");
       const box = v.el.getBoundingClientRect(), area = stage.getBoundingClientRect();
       v.el.style.transition = "none";
       v.x = (box.left + box.width / 2 - area.left) / area.width * 100;
@@ -744,7 +778,7 @@
     const x = b.x - d * gap, y = b.y + 0.3;
     const walk = Math.hypot(x - v.x, (y - v.y) * 2) / WALK_SPEED;
     v.el.style.transition = `left ${walk}s linear, bottom ${walk}s linear, --s ${walk}s linear`;
-    v.el.classList.toggle("is-flipped", x > v.x);
+    face(v, x > v.x);
     place(v.el, x, y);
     v.x = x; v.y = y;
 
@@ -753,7 +787,7 @@
       if (!running || paused || hushed || b.pusher !== v) { b.pusher = null; return; }
       const secs = dist / PUSH_SPEED;
       const svg = b.el.querySelector("svg");
-      v.el.classList.toggle("is-flipped", d > 0);
+      face(v, d > 0);
       v.el.style.transition = b.el.style.transition = `left ${secs}s linear`;
       svg.style.transition = `transform ${secs}s linear`;
       b.turn += d * dist * 9;
