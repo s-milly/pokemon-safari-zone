@@ -93,7 +93,7 @@
       ground: [6, 26], tint: "#2f6b3a", haze: ["#e9f3d6", 560, 0.45],
       back: layered(
         sky("fs", [[0, "#a9dccb"], [0.55, "#eef4cf"], [1, "#eef4cf"]]) + glow("fsun", "#fff6c4") +
-        sky("fpath", [[0, "#d9c08f"], [1, "#b99566"]]),
+        sky("fpath", [[0, "#d9c08f"], [1, "#b99566"]]) + `<clipPath id="fpclip">${ridge(700, 18, 4, "#000", 13)}</clipPath>`,
         fill("fs") +
         `<circle cx="1250" cy="170" r="240" fill="url(#fsun)"/><circle cx="1250" cy="170" r="62" fill="#fffbe0"/>` +
         `<g class="fx-pulse" fill="#fffbe0" opacity=".14"><path d="M1250 170 L700 900 L860 900 Z"/><path d="M1250 170 L1020 900 L1130 900 Z"/><path d="M1250 170 L420 900 L520 900 Z"/></g>` +
@@ -105,7 +105,7 @@
         ridge(625, 24, 5, "#5aa365", 11) +
         tree(180, 690, 1.2, "#2f7a45", "#3f9455", "#6b4a32") + tree(1420, 680, 1.35, "#2f7a45", "#3f9455", "#6b4a32") +
         L + ridge(700, 18, 4, "#7cc46a", 13) +
-        `<path d="M700 900 C760 820 820 760 790 700 L830 700 C880 760 900 830 960 900 Z" fill="url(#fpath)" opacity=".8"/>` +
+        `<path clip-path="url(#fpclip)" d="M700 900 C760 820 820 760 790 670 L830 670 C880 760 900 830 960 900 Z" fill="url(#fpath)" opacity=".8"/>` +
         dots(40, 15, "#ffffff", 720, 860, 3) + dots(30, 16, "#ffd84a", 720, 860, 3) + dots(20, 18, "#ff9ec4", 720, 860, 3) +
         `<g fill="#fff3a0">${dots(18, 21, "#fff3a0", 420, 760, 3, "fx-float")}</g>`
       ),
@@ -119,7 +119,7 @@
       ground: [6, 26], tint: "#3f8f4a", haze: ["#e6f6ff", 540, 0.4],
       back: layered(
         sky("rt", [[0, "#7cc6f2"], [0.6, "#dff3fd"], [1, "#e9f7fd"]]) + glow("rsun", "#fffbe0") +
-        sky("rpath", [[0, "#ead6a4"], [1, "#d1b47a"]]),
+        sky("rpath", [[0, "#ead6a4"], [1, "#d1b47a"]]) + `<clipPath id="rpclip">${ridge(700, 16, 4, "#000", 211)}</clipPath>`,
         fill("rt") +
         `<circle cx="1320" cy="140" r="200" fill="url(#rsun)"/><circle cx="1320" cy="140" r="54" fill="#fffde8"/>` +
         cloud(300, 130, 1.1, "#ffffff") + cloud(860, 200, 0.8, "#ffffff") +
@@ -135,7 +135,7 @@
         `<g fill="#ffffff">${Array.from({ length: 12 }, (_, i) => `<rect x="${430 + i * 24}" y="600" width="8" height="34" rx="3"/>`).join("")}<rect x="426" y="608" width="290" height="6" rx="3"/><rect x="426" y="622" width="290" height="6" rx="3"/></g>` +
         `<g><rect x="1066" y="590" width="8" height="54" fill="#7a5236"/><rect x="1030" y="566" width="80" height="34" rx="5" fill="#a0734a" stroke="#7a5236" stroke-width="4"/><text x="1070" y="590" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="18" fill="#fff4dc">ROUTE 1</text></g>` +
         L + ridge(700, 16, 4, "#86cf6b", 211) +
-        `<path d="M720 900 C760 820 820 760 790 690 L840 690 C880 760 900 830 980 900 Z" fill="url(#rpath)"/>` +
+        `<path clip-path="url(#rpclip)" d="M720 900 C760 820 820 760 790 670 L840 670 C880 760 900 830 980 900 Z" fill="url(#rpath)"/>` +
         // A one-way ledge across the meadow
         `<path d="M0 742 Q300 730 600 744 L600 756 Q300 744 0 756 Z" fill="#4f9a4a"/><path d="M1000 748 Q1300 736 1600 748 L1600 760 Q1300 750 1000 762 Z" fill="#4f9a4a"/>` +
         // Patches of tall grass where wild Pokémon hide
