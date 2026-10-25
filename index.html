@@ -160,6 +160,14 @@
         </select>
       </label>
 
+      <label class="field">
+        <span>Background style</span>
+        <select name="bgStyle">
+          <option value="art">Outlined, to match the Pokémon artwork</option>
+          <option value="classic">Classic flat drawings</option>
+        </select>
+      </label>
+
       <label class="toggle"><input type="checkbox" name="shiny"> <span>Shiny Pokémon (about 1 in 40)</span></label>
       <label class="toggle"><input type="checkbox" name="showMeter"> <span>Show the volume meter</span></label>
       <label class="toggle"><input type="checkbox" name="practice"> <span>Practice mode (no microphone, use a slider)</span></label>
@@ -172,6 +180,7 @@
 
   <script src="pokemon.js"></script>
   <script src="scenes.js"></script>
+  <script src="scenes-classic.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

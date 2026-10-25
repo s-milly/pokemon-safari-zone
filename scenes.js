@@ -9,6 +9,45 @@
 (function () {
   const W = 1600, H = 900;
 
+  // ---------- Drawing style ----------
+  // The official Pokémon artwork has clean coloured outlines (a darker version
+  // of each colour, never plain black), flat colours with one lighter tone, and
+  // no blur. These helpers give the backgrounds the same look.
+  function hsl(hex) {
+    const n = parseInt(hex.slice(1).replace(/^(.)(.)(.)$/, "$1$1$2$2$3$3"), 16);
+    const r = (n >> 16) / 255, g = (n >> 8 & 255) / 255, b = (n & 255) / 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b), l = (max + min) / 2, d = max - min;
+    let h = 0;
+    const sat = d ? d / (1 - Math.abs(2 * l - 1)) : 0;
+    if (d) h = max === r ? ((g - b) / d + 6) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    return [h * 60, sat, l];
+  }
+  function hex(h, sat, l) {
+    const f = k => { const a = sat * Math.min(l, 1 - l), t = (k + h / 30) % 12; return l - a * Math.max(-1, Math.min(t - 3, 9 - t, 1)); };
+    return "#" + [0, 8, 4].map(k => Math.round(Math.max(0, Math.min(1, f(k))) * 255).toString(16).padStart(2, "0")).join("");
+  }
+  // Line colour: darker and a little richer. Greys and whites get a cool blue line.
+  function line(c) {
+    const [h, sat, l] = hsl(c);
+    return sat < 0.12 ? hex(222, 0.28, l * 0.62) : hex(h, Math.min(1, sat * 1.1 + 0.08), l * 0.58);
+  }
+  const light = (c, k) => { const [h, sat, l] = hsl(c); return hex(h, sat, l + (1 - l) * k); };
+
+  // Outline every flat-coloured shape in a layer. Small sparkles, see-through
+  // glows and anything marked data-noink are left alone.
+  function ink(markup, width) {
+    return markup.replace(/<(path|circle|ellipse|rect|polygon|g)\b([^>]*?)(\/?)>/g, (all, tag, attrs, close) => {
+      const color = /\bfill="(#[0-9a-fA-F]{3,6})"/.exec(attrs);
+      if (!color || /\bstroke=|data-noink|\bclass=|clip-path/.test(attrs)) return all;
+      const opacity = /\bopacity="([\d.]+)"/.exec(attrs);
+      if (opacity && Number(opacity[1]) < 0.6) return all;
+      const num = name => Number((new RegExp(`\\b${name}="([\\d.]+)"`).exec(attrs) || [])[1] ?? Infinity);
+      if (tag === "circle" && num("r") < 6) return all;
+      if (tag === "rect" && (num("width") < 12 || num("height") < 12)) return all;
+      return `<${tag}${attrs} stroke="${line(color[1])}" stroke-width="${width}" stroke-linejoin="round"${close}>`;
+    });
+  }
+
   function rng(seed) {
     let s = seed % 2147483647 || 1;
     return () => (s = s * 16807 % 2147483647) / 2147483647;
@@ -23,7 +62,10 @@
       const x = i * step, cy = y + (r() - 0.5) * amp * 2;
       d += ` Q${x - step / 2} ${cy - amp * r()} ${x} ${y + (r() - 0.5) * amp}`;
     }
-    return `<path d="${d} L${W} ${H} Z" fill="${fill}" ${extra}/>`;
+    d += ` L${W} ${H} Z`;
+    if (!fill.startsWith("#") || fill === "#000") return `<path d="${d}" fill="${fill}" ${extra}/>`;
+    // A lit rim along the top edge, like the light edge in the artwork
+    return `<path d="${d}" fill="${light(fill, 0.22)}" ${extra}/><path data-noink d="${d}" transform="translate(0 9)" fill="${fill}" ${extra}/>`;
   }
 
   // Blades of grass along a line
@@ -60,15 +102,26 @@
   }
 
   // A round leafy tree with a lit side
-  function tree(x, y, s, dark, light, trunk) {
+  // The leaves are outlined as one shape: drawn once with a thick line, then
+  // again on top without one, so only the outside edge shows
+  function tree(x, y, s, dark, lit, trunk) {
+    const crown = `<circle cx="${x - 50 * s}" cy="${y - 150 * s}" r="${70 * s}"/><circle cx="${x + 45 * s}" cy="${y - 160 * s}" r="${75 * s}"/><circle cx="${x}" cy="${y - 220 * s}" r="${85 * s}"/>`;
+    const lw = Math.max(2.5, 5 * s);
     return `<rect x="${x - 10 * s}" y="${y - 140 * s}" width="${20 * s}" height="${140 * s}" rx="${6 * s}" fill="${trunk}"/>` +
-      `<circle cx="${x - 50 * s}" cy="${y - 150 * s}" r="${70 * s}" fill="${dark}"/><circle cx="${x + 45 * s}" cy="${y - 160 * s}" r="${75 * s}" fill="${dark}"/>` +
-      `<circle cx="${x}" cy="${y - 220 * s}" r="${85 * s}" fill="${dark}"/><circle cx="${x + 20 * s}" cy="${y - 235 * s}" r="${55 * s}" fill="${light}"/>` +
-      `<circle cx="${x + 60 * s}" cy="${y - 175 * s}" r="${40 * s}" fill="${light}"/>`;
+      `<g data-noink fill="${dark}" stroke="${line(dark)}" stroke-width="${lw * 2}">${crown}</g><g data-noink fill="${dark}">${crown}</g>` +
+      // Leaf clumps: lighter on the sunny side, each with its own line
+      `<g data-noink fill="${lit}" stroke="${line(dark)}" stroke-width="${lw * 0.6}"><path d="M${x + 20 * s - 55 * s} ${y - 235 * s} a${55 * s} ${55 * s} 0 0 1 ${110 * s} 0 a${55 * s} ${40 * s} 0 0 1 ${-110 * s} 0Z"/>` +
+      `<path d="M${x + 60 * s - 40 * s} ${y - 175 * s} a${40 * s} ${40 * s} 0 0 1 ${80 * s} 0 a${40 * s} ${28 * s} 0 0 1 ${-80 * s} 0Z"/></g>` +
+      `<g data-noink fill="${light(lit, 0.35)}"><ellipse cx="${x + 30 * s}" cy="${y - 262 * s}" rx="${22 * s}" ry="${10 * s}"/></g>`;
   }
 
+  // Puffy cloud with one outline round the outside and a soft shadow underneath
   function cloud(x, y, s, fill, cls = "fx-drift") {
-    return `<g class="${cls}" fill="${fill}"><ellipse cx="${x}" cy="${y}" rx="${110 * s}" ry="${26 * s}"/><ellipse cx="${x + 40 * s}" cy="${y - 20 * s}" rx="${60 * s}" ry="${30 * s}"/><ellipse cx="${x - 40 * s}" cy="${y - 10 * s}" rx="${45 * s}" ry="${22 * s}"/></g>`;
+    const puffs = `<ellipse cx="${x}" cy="${y}" rx="${110 * s}" ry="${26 * s}"/><ellipse cx="${x + 40 * s}" cy="${y - 20 * s}" rx="${60 * s}" ry="${30 * s}"/><ellipse cx="${x - 40 * s}" cy="${y - 10 * s}" rx="${45 * s}" ry="${22 * s}"/>`;
+    const [, , l] = hsl(fill);
+    const shadow = l > 0.5 ? hex(212, 0.55, 0.9) : light(fill, -0.2);
+    return `<g class="${cls}"><g fill="${fill}" stroke="${line(fill)}" stroke-width="${5 * s}">${puffs}</g><g fill="${fill}">${puffs}</g>` +
+      `<ellipse data-noink cx="${x + 6 * s}" cy="${y + 12 * s}" rx="${92 * s}" ry="${9 * s}" fill="${shadow}"/></g>`;
   }
 
   function sky(id, stops) {
@@ -235,9 +288,9 @@
         fill("fo") +
         `<circle cx="1180" cy="140" r="180" fill="url(#fosun)"/><circle cx="1180" cy="140" r="50" fill="#fff6dc"/>` +
         ridge(360, 40, 4, "#d7925e", 53) +
-        `<g stroke="#c47c4b" stroke-width="3" opacity=".6">${Array.from({ length: 6 }, (_, i) => `<path d="M0 ${400 + i * 16} Q400 ${390 + i * 16} 800 ${404 + i * 16} T1600 ${398 + i * 16}"/>`).join("")}</g>` +
+        `<g fill="none" stroke="#c47c4b" stroke-width="3" opacity=".6">${Array.from({ length: 6 }, (_, i) => `<path d="M0 ${400 + i * 16} Q400 ${390 + i * 16} 800 ${404 + i * 16} T1600 ${398 + i * 16}"/>`).join("")}</g>` +
         ridge(440, 30, 5, "#c47c4b", 59) + L + ridge(520, 26, 5, "#b46c3e", 61) +
-        `<g stroke="#a35f34" stroke-width="3" opacity=".6">${Array.from({ length: 5 }, (_, i) => `<path d="M0 ${560 + i * 14} Q400 ${552 + i * 14} 800 ${566 + i * 14} T1600 ${558 + i * 14}"/>`).join("")}</g>` +
+        `<g fill="none" stroke="#a35f34" stroke-width="3" opacity=".6">${Array.from({ length: 5 }, (_, i) => `<path d="M0 ${560 + i * 14} Q400 ${552 + i * 14} 800 ${566 + i * 14} T1600 ${558 + i * 14}"/>`).join("")}</g>` +
         `<g fill="none" stroke="#f3dcc0" stroke-width="10" stroke-linecap="round" opacity=".85">` +
         `<path d="M300 480 a26 26 0 1 1 -26 -26 a40 40 0 1 1 40 40"/>` +
         `<path d="M900 470 L1180 470"/>${Array.from({ length: 6 }, (_, i) => `<path d="M${940 + i * 40} 470 q-12 40 0 70"/>`).join("")}` +
@@ -434,11 +487,15 @@
   // colour, so they fade into the distance; style.css also blurs them slightly.
   for (const [key, scene] of Object.entries(window.SCENES)) {
     const { defs, parts } = scene.back;
-    const [color, y, strength] = scene.haze;
+    // Lighter haze than the classic set: the artwork's colours stay clear and bright
+    const [color, y, haze0] = scene.haze, strength = haze0 * 0.55;
     const id = "hz" + key;
     const hazeDef = `<linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity="0"/><stop offset="${(y - 260) / H}" stop-color="${color}" stop-opacity="0"/><stop offset="${y / H}" stop-color="${color}" stop-opacity="${strength}"/><stop offset="1" stop-color="${color}" stop-opacity="${strength * 0.2}"/></linearGradient>`;
     const haze = `<rect width="${W}" height="${H}" fill="url(#${id})"/>`;
-    scene.layers = parts.map((part, i) => svg(defs + hazeDef, part + (i < parts.length - 1 ? haze : "")));
-    scene.thumb = svg(defs + hazeDef, parts.join(haze));
+    // Lines get thicker towards the front, like nearer things in a drawing
+    const inked = parts.map((part, i) => ink(part, [2, 3, 4][i] ?? 4));
+    scene.layers = inked.map((part, i) => svg(defs + hazeDef, part + (i < parts.length - 1 ? haze : "")));
+    scene.thumb = svg(defs + hazeDef, inked.join(haze));
+    scene.front = ink(scene.front, 3.5);
   }
 })();

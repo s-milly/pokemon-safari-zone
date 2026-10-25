@@ -117,8 +117,10 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
 /* Depth: far layers are blurred a touch, and every layer drifts a little,
    the near ones more than the far ones, like a slow camera pan */
 .scene__back .layer { position: absolute; inset: 0 -48px; will-change: transform; }
-.layer--0 { --p: 6; filter: blur(1.4px); }
-.layer--1 { --p: 14; filter: blur(.5px); }
+.layer--0 { --p: 6; filter: blur(.6px); }
+.layer--1 { --p: 14; }
+.is-classic .layer--0 { filter: blur(1.4px); }
+.is-classic .layer--1 { filter: blur(.5px); }
 .layer--2, .scene__stage { --p: 24; }
 .scene__front { --p: 36; inset: 0 -48px; }
 .scene__back .layer, .scene__stage, .scene__front { animation: cam 28s ease-in-out infinite alternate; }

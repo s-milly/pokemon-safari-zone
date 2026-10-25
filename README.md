@@ -30,6 +30,7 @@ A classroom volume game. Put a habitat up on the board and press Start. While th
 - **Swimming:** in the Open Sea, water Pokémon swim with their lower part under the surface, sitting a little higher or lower each time they move, with the water lapping at them. Further out they get smaller and ride higher in the water so they stay easy to see.
 - **Up to 4 at a time:** when a fifth Pokémon arrives, the one that has been there longest wanders off.
 - **Depth:** each background has far, middle and near layers. Far layers are hazier and drift more slowly, like a slow camera pan.
+- **Background style:** the backgrounds are drawn to match the official Pokémon artwork, with clean coloured outlines (a darker shade of each colour, thicker on nearer layers), a lit edge along the top of each hill and clear, bright colours. The original flat drawings are kept, and Settings can switch back to them.
 - **Rarity:** most Pokémon are common, some are uncommon and a few are rare (final evolutions, legendaries, Snorlax, Lapras, the Eevee evolutions and others). About 1 in 40 is shiny, and you can turn shinies off.
 - **Class Pokédex:** every Pokémon the class has spotted is saved, with how many times it was seen. Ones not found yet show as silhouettes. Flip the **Shiny forms** switch to see the shiny Pokédex.
 - **Session summary:** press **End session** (or **← Habitats**) and a summary shows how long the class watched, how much of that time it stayed under the goal, its longest quiet stretch, how many times it got too loud, how many Pokémon appeared and how many were new to the Pokédex. A chart shows the volume over the session, red where it went over the goal, with each Pokémon shown at the moment it appeared. Hover or tap the chart for the details at any moment, or open it as a table. **Keep watching** goes back to the same session, and **Done** returns to the habitats.
@@ -49,7 +50,8 @@ The microphone only measures volume, inside the browser. Nothing is recorded or 
 index.html   page layout: home, scene, Pokédex and Settings
 style.css    styles, phone layout and reduced motion
 pokemon.js   habitats, the Pokémon in each one and their Pokédex heights
-scenes.js    the drawn backgrounds for each habitat, in depth layers
+scenes.js    the drawn backgrounds for each habitat, in depth layers, in the outlined style
+scenes-classic.js  the original flat backgrounds, chosen in Settings
 app.js       microphone meter, timing, spawning, fleeing and the Pokédex
 ```
 

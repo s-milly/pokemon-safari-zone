@@ -14,7 +14,7 @@
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
   // ---------- Saved settings and Pokédex (per browser) ----------
-  const DEFAULTS = { loudMode: "flee", goal: 45, sensitivity: 5, spawnMin: 60, shiny: true, showMeter: true, practice: false };
+  const DEFAULTS = { loudMode: "flee", goal: 45, sensitivity: 5, spawnMin: 60, shiny: true, showMeter: true, practice: false, bgStyle: "art" };
   function load(key, fallback) {
     try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; }
   }
@@ -25,6 +25,10 @@
   delete settings.spawnSeconds; // replaced by spawnMin
   let dex = load("qsz-dex", {});
 
+  // The drawings for a habitat in the chosen style. Where things stand (ground,
+  // water, ledge, boulders) is the same in both, so that always comes from SCENES.
+  const look = key => (settings.bgStyle === "classic" ? SCENES_CLASSIC : SCENES)[key];
+
   const byId = {};
   for (const h of HABITATS) for (const p of h.pokemon) byId[p.id] = { ...p, habitat: h.key };
 
@@ -33,8 +37,8 @@
   function renderHome() {
     habitatList.innerHTML = HABITATS.map(h => {
       const seen = h.pokemon.filter(p => dex[p.id]).length;
-      return `<li><button class="habitat" type="button" data-habitat="${h.key}" style="--tint:${SCENES[h.key].tint}">
-        <span class="habitat__art">${SCENES[h.key].thumb.replace(/(id="|url\(#)(\w+)/g, "$1$2-thumb")}</span>
+      return `<li><button class="habitat" type="button" data-habitat="${h.key}" style="--tint:${look(h.key).tint}">
+        <span class="habitat__art">${look(h.key).thumb.replace(/(id="|url\(#)(\w+)/g, "$1$2-thumb")}</span>
         <span class="habitat__text"><b>${h.name}</b><small>${h.blurb}</small></span>
         <span class="habitat__seen">${seen} of ${h.pokemon.length}</span>
       </button></li>`;
@@ -58,8 +62,7 @@
 
   function openScene(key) {
     habitat = HABITATS.find(h => h.key === key);
-    $("#scene-back").innerHTML = SCENES[key].layers.map((svg, i) => `<div class="layer layer--${i}">${svg}</div>`).join("");
-    $("#scene-front").innerHTML = SCENES[key].front;
+    drawScene(key);
     $("#scene-title").textContent = habitat.name;
     $("#start-title").textContent = habitat.name;
     $("#start-error").hidden = true;
@@ -78,6 +81,12 @@
     scene.hidden = false;
     applySettings();
     $("#start-btn").focus();
+  }
+
+  function drawScene(key) {
+    $("#scene-back").innerHTML = look(key).layers.map((svg, i) => `<div class="layer layer--${i}">${svg}</div>`).join("");
+    $("#scene-front").innerHTML = look(key).front;
+    scene.classList.toggle("is-classic", settings.bgStyle === "classic");
   }
 
   function closeScene() {
@@ -1118,6 +1127,7 @@
     form.shiny.checked = settings.shiny;
     form.showMeter.checked = settings.showMeter;
     form.practice.checked = settings.practice;
+    form.bgStyle.value = settings.bgStyle;
     $("#goal-out").textContent = settings.goal;
     $("#sens-out").textContent = settings.sensitivity;
   }
@@ -1131,7 +1141,10 @@
     settings.shiny = form.shiny.checked;
     settings.showMeter = form.showMeter.checked;
     settings.practice = form.practice.checked;
+    const style = settings.bgStyle;
+    settings.bgStyle = form.bgStyle.value;
     save("qsz-settings", settings);
+    if (settings.bgStyle !== style) { renderHome(); if (habitat && !scene.hidden) drawScene(habitat.key); }
     fillForm();
     applySettings();
   });
