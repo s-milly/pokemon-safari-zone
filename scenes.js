@@ -214,8 +214,7 @@
         tallGrass(330, 792, 300, 223) + tallGrass(1270, 792, 300, 227) +
         dots(30, 213, "#ffffff", 700, 880, 3) + dots(24, 215, "#ffd84a", 700, 880, 3) + dots(14, 217, "#ff8fb1", 700, 880, 3)
       ),
-      front: svg("", tufts(900, "#3f9a49", 60, 219, 90) + tufts(900, "#5cb85c", 40, 221, 60) +
-        `<g fill="#2b7a36">${Array.from({ length: 14 }, (_, i) => `<path d="M${-20 + i * 30} 900 l15 -60 l15 60 Z"/><path d="M${1200 + i * 30} 900 l15 -54 l15 54 Z"/>`).join("")}</g>`)
+      front: svg("", "")
     },
 
     safari: {
