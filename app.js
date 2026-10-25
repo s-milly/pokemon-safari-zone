@@ -348,7 +348,8 @@
   // A small, quick fidget while standing: a glance the other way, or a hop
   const canFidget = v => !FLOATERS.has(v.id) && !ROLLERS.has(v.id) && !v.el.classList.contains("is-swimming");
   function fidget(v, rest) {
-    if (Math.random() < 0.5) {
+    // Slitherers never hop; they only glance
+    if (Math.random() < 0.5 || SLITHERERS.has(v.id)) {
       v.el.classList.toggle("is-flipped");
       v.timer = setTimeout(() => { v.el.classList.toggle("is-flipped"); rest(); }, 700 + Math.random() * 900);
     } else {

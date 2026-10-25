@@ -158,4 +158,4 @@ window.FACES_FRONT = new Set([3, 4, 6, 12, 15, 20, 24, 35, 36, 39, 40, 41, 42, 4
 // A few Pokémon move differently from the usual step: small bouncy ones hop,
 // long ones slither.
 window.HOPPERS = new Set([19, 25, 26, 29, 32, 35, 36, 39, 40, 52, 56, 60, 61, 102, 133]);
-window.SLITHERERS = new Set([10, 13, 23, 24, 95, 147, 148]);
+window.SLITHERERS = new Set([10, 11, 13, 14, 23, 24, 95, 147, 148]);
