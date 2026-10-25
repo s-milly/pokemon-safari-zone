@@ -75,6 +75,9 @@
     quietMs = loudMs = calmMs = 0;
     nextMs = waitFor();
     running = false; paused = false; scared = false; setHush(false);
+    // Ending a session pauses the scene, so clear that before a fresh start
+    scene.classList.remove("is-paused");
+    $("#playpause").textContent = "Pause";
     session = null;
     updateCount();
     $("#home").hidden = true;
