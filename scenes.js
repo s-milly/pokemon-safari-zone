@@ -473,11 +473,11 @@
         // Far skyline
         `<g fill="#2a2150">${Array.from({ length: 22 }, (_, i) => { const w = 50 + ((i * 37) % 50), h = 120 + ((i * 71) % 170); return `<rect x="${i * 76 - 20}" y="${560 - h}" width="${w}" height="${h}"/>`; }).join("")}</g>` +
         `<g fill="#ffd36b" opacity=".55">${Array.from({ length: 70 }, (_, i) => `<rect x="${(i * 97) % 1600}" y="${420 + ((i * 53) % 120)}" width="6" height="8"/>`).join("")}</g>` +
-        // Silph Co. tower in the middle of the city
-        `<rect x="700" y="150" width="200" height="420" fill="#3a2f6e"/><rect x="730" y="110" width="140" height="44" fill="#3a2f6e"/><path d="M800 110 L800 50" stroke="#3a2f6e" stroke-width="6"/>` +
-        `<circle class="fx-flicker" cx="800" cy="48" r="7" fill="#ff5a5a"/>` +
-        `<g fill="#9fd4f0" opacity=".85">${Array.from({ length: 40 }, (_, i) => `<rect x="${716 + (i % 5) * 36}" y="${220 + Math.floor(i / 5) * 42}" width="22" height="22" rx="2"/>`).join("")}</g>` +
-        `<rect x="720" y="168" width="160" height="34" rx="4" fill="#1e2230"/><text x="800" y="192" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="20" letter-spacing="2" fill="#ffd84a">SILPH CO.</text>` +
+        // Silph Co. tower in the middle of the city, kept low so the sign clears the centred title
+        `<rect x="700" y="290" width="200" height="280" fill="#3a2f6e"/><rect x="730" y="250" width="140" height="44" fill="#3a2f6e"/><path d="M800 250 L800 190" stroke="#3a2f6e" stroke-width="6"/>` +
+        `<circle class="fx-flicker" cx="800" cy="188" r="7" fill="#ff5a5a"/>` +
+        `<g fill="#9fd4f0" opacity=".85">${Array.from({ length: 25 }, (_, i) => `<rect x="${716 + (i % 5) * 36}" y="${360 + Math.floor(i / 5) * 42}" width="22" height="22" rx="2"/>`).join("")}</g>` +
+        `<rect x="720" y="308" width="160" height="34" rx="4" fill="#1e2230"/><text x="800" y="332" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="20" letter-spacing="2" fill="#ffd84a">SILPH CO.</text>` +
         L + ridge(600, 14, 5, "#4a3d6e", 603) +
         // Pokémon Center on the left, Poké Mart on the right
         `<g transform="translate(220 470)"><rect x="0" y="40" width="220" height="110" fill="#f4efe4"/><path d="M-14 46 L110 0 L234 46 Z" fill="#e3350d"/><rect x="84" y="88" width="52" height="62" fill="#9fd4f0"/>` +
