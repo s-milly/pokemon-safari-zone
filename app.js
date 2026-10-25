@@ -515,7 +515,7 @@
   const GRAVES = [[290, 700], [404, 710], [1178, 705]];
   const WINDOWS = [[710, 294], [750, 364], [621, 534], [831, 554]];
   const DOORS = [[330, 620], [1260, 620]];
-  const PYLONS = [[250, 640], [1416, 640]];
+  const PADS = [[420, 770], [1180, 790]]; // the glowing circles on the Power Plant ground
   const POOLS = [[350, 760, 110], [1250, 790, 140]];
   const ELECTRIC = new Set([25, 26, 81, 82, 100, 101, 125, 135, 145]);
   const FIRE = new Set([4, 5, 6, 37, 38, 58, 59, 77, 78, 126, 136, 146]);
@@ -624,8 +624,8 @@
   }
 
   function charge(v, rest) {
-    const p = anyOf(spots(PYLONS, 1)), side = p.x < 50 ? 1 : -1;
-    go(v, [{ x: p.x + side * rand(3, 6), y: p.y, end: flag("is-charged", true) }, stay(6000, 9000, { end: flag("is-charged", false) })], rest);
+    const p = anyOf(spots(PADS, 2));
+    go(v, [{ x: p.x + rand(-2, 2), y: p.y, end: flag("is-charged", true) }, stay(6000, 9000, { end: flag("is-charged", false) })], rest);
   }
 
   // Voltorb and Electrode roll instead of walking
@@ -691,7 +691,7 @@
       { chance: 0.15, who: has(84, 85, 128), run: run },
       { chance: 0.08, who: v => walker(v) && !bait, run: eatBait }
     ],
-    power: [{ chance: 0.12, who: v => ELECTRIC.has(v.id) && spots(PYLONS, 1).length > 0, run: charge }],
+    power: [{ chance: 0.12, who: v => ELECTRIC.has(v.id) && spots(PADS, 2).length > 0, run: charge }],
     snow: [
       { chance: 0.25, who: has(86, 87), run: slide },
       { chance: 0.1, who: walker, run: slide }

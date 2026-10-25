@@ -20,7 +20,7 @@ A classroom volume game. Put a habitat up on the board and press Start. While th
   - Lavender Town: ghosts turn see-through and drift through the gravestones. Gastly and Haunter float into the Pokémon Tower windows.
   - Saffron City: Pokémon that can learn Teleport in Red and Blue (everyone here but Ditto) teleport in a purple flash, or go into the Pokémon Center or Poké Mart for a while.
   - Safari Zone: Tauros, Doduo and Dodrio break into a run. Pokémon eat bait that appears on the ground.
-  - Power Plant: electric Pokémon charge up at a pylon. Voltorb and Electrode roll instead of walking.
+  - Power Plant: electric Pokémon charge up on the glowing circles on the ground. Voltorb and Electrode roll instead of walking.
   - Seafoam Islands: Pokémon slide across the ice, Seel and Dewgong most of all.
   - Cinnabar Island: fire Pokémon warm up by a lava pool.
   - Open Sea: swimmers dive and come up somewhere else with a splash. Magikarp flops out of the water.
