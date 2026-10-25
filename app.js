@@ -190,9 +190,21 @@
       }
     }
     ring.style.strokeDashoffset = 100 - Math.min(100, quietMs / nextMs * 100);
+    if (!scene.hidden) layerByDepth();
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(t => { lastFrame = t; frame(t); });
+
+  // Whoever is closer to the front of the scene (lower on screen) is drawn on
+  // top. This uses where each one is right now, mid-walk, not where it is
+  // heading, so two Pokémon crossing paths overlap the right way round.
+  function layerByDepth() {
+    const height = stage.clientHeight || 1;
+    for (const el of stage.children) {
+      const bottom = parseFloat(getComputedStyle(el).bottom) || 0;
+      el.style.zIndex = 10000 - Math.round(bottom / height * 9000);
+    }
+  }
 
   function tooLoud() {
     loudMs = 0; calmMs = 0;
