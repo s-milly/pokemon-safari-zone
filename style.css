@@ -355,7 +355,11 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
 /* HUD */
 .hud { position: absolute; left: 0; right: 0; z-index: 200; display: flex; align-items: center; gap: 12px; padding: 16px 20px; }
 .hud--top { top: 0; z-index: 310; justify-content: space-between; background: linear-gradient(rgba(10, 12, 24, .45), transparent); }
-.hud__title { color: #fff; font-size: 1.5rem; font-weight: 700; margin: 0; text-shadow: 0 2px 8px rgba(0, 0, 0, .4); }
+.hud__title {
+  color: #fff; font-size: 1.5rem; font-weight: 700; margin: 0; text-shadow: 0 2px 8px rgba(0, 0, 0, .4);
+  /* Centred on the screen, not between the buttons on either side */
+  position: absolute; left: 50%; transform: translateX(-50%); white-space: nowrap; pointer-events: none;
+}
 .hud__right { display: flex; align-items: center; gap: 8px; }
 .hud__count { color: #fff; font-weight: 600; background: rgba(10, 12, 24, .5); padding: .3em .8em; border-radius: 999px; font-size: .95rem; }
 .hud .btn:not(.btn--solid) { background: rgba(255, 255, 255, .92); border-color: transparent; color: #1e2230; }
@@ -489,7 +493,7 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
   .habitat__seen { font-size: .75rem; top: 8px; right: 8px; }
   .hud { padding: 12px; gap: 8px; }
   .hud--top { flex-wrap: wrap; }
-  .hud__title { order: 3; width: 100%; font-size: 1.2rem; }
+  .hud__title { position: static; transform: none; order: 3; width: 100%; font-size: 1.2rem; text-align: center; }
   .hud__count { display: none; }
   .hud--bottom { flex-wrap: wrap; }
   .next { width: 52px; height: 52px; }
