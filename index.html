@@ -88,6 +88,7 @@
     <div class="sheet__head">
       <h2 id="dex-title">Class Pokédex</h2>
       <p class="sheet__sub" id="dex-sub"></p>
+      <img class="charm charm--dex" id="dex-charm" src="px/shiny-charm.png" alt="Shiny Charm earned" title="Shiny Charm earned" width="60" height="60" hidden>
       <label class="switch"><input type="checkbox" id="dex-shiny" role="switch"> <span class="switch__track" aria-hidden="true"></span> <span>✦ Shiny forms</span></label>
       <button class="btn btn--small" type="button" data-close>Close</button>
     </div>
@@ -169,7 +170,8 @@
         </select>
       </label>
 
-      <label class="toggle"><input type="checkbox" name="shiny"> <span>Shiny Pokémon (about 1 in 40)</span></label>
+      <label class="toggle"><input type="checkbox" name="shiny"> <span>Shiny Pokémon (about 1 in 80)</span></label>
+      <label class="toggle toggle--charm" id="charm-toggle"><input type="checkbox" name="charm"> <img class="charm" src="px/shiny-charm.png" alt="" width="60" height="60"> <span>Shiny Charm <small id="charm-note"></small></span></label>
       <label class="toggle"><input type="checkbox" name="showMeter"> <span>Show the volume meter</span></label>
       <label class="toggle"><input type="checkbox" name="practice"> <span>Practice mode (no microphone, use a slider)</span></label>
 

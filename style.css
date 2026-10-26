@@ -752,7 +752,7 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
 .tag { font-size: .75rem; font-weight: 700; padding: .1em .6em; border-radius: 999px; background: var(--gold); color: #1e2230; }
 .summary__actions { display: flex; justify-content: flex-end; gap: 12px; padding: 18px 26px 24px; position: sticky; bottom: 0; background: var(--card); border-top: 2px solid var(--line); }
 
-.form { padding: 0 26px 26px; display: grid; gap: 20px; }
+.form { padding: 0 26px 26px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; }
 .form fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 10px; }
 .form legend { font-weight: 600; margin-bottom: 8px; }
 .choice { display: flex; gap: 10px; align-items: flex-start; border: 2px solid var(--line); border-radius: 14px; padding: 10px 14px; cursor: pointer; }
@@ -764,9 +764,18 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
 .field > span { font-weight: 600; display: flex; justify-content: space-between; }
 .field output { color: var(--muted); }
 .field input[type="range"] { accent-color: var(--red); width: 100%; }
-.field select { font: inherit; padding: .4em .6em; border-radius: 10px; border: 2px solid var(--line); background: var(--card); color: var(--ink); }
+.field select { width: 100%; font: inherit; padding: .4em .6em; border-radius: 10px; border: 2px solid var(--line); background: var(--card); color: var(--ink); }
 .field small { color: var(--muted); }
 .toggle { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+/* The Shiny Charm sprite fills only the middle of its 30px square: draw it at 2x and pull the box in */
+.charm { image-rendering: pixelated; width: 60px; height: 60px; margin: -14px -12px; flex: none; }
+.charm[hidden] { display: none; }
+.toggle--charm { align-items: center; }
+.toggle--charm small { display: block; color: var(--muted); font-size: .85rem; }
+.toggle--charm.is-locked { cursor: default; }
+.toggle--charm.is-locked .charm { filter: brightness(0); opacity: .25; }
+.toggle--charm.is-locked > span { color: var(--muted); }
+.toggle--charm input { margin-top: 0; }
 .form__danger { border-top: 2px solid var(--line); padding-top: 16px; }
 
 /* ---------- Phone ---------- */

@@ -7,14 +7,15 @@
 (function () {
   const $ = sel => document.querySelector(sel);
   const RARITY_WEIGHT = { common: 70, uncommon: 25, rare: 5 };
-  const SHINY_ODDS = 40;
+  const SHINY_ODDS = 80;
+  const CHARM_ODDS = 40;   // with the Shiny Charm, earned by completing the Pokédex
   const MAX_ON_SCREEN = 4;
   const LOUD_MS = 600;     // how long the room must stay over the goal to count as loud
   const CALM_MS = 1200;    // how long it must be quiet again before the scene resumes
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
   // ---------- Saved settings and Pokédex (per browser) ----------
-  const DEFAULTS = { loudMode: "flee", goal: 45, sensitivity: 5, spawnMin: 60, shiny: true, showMeter: true, practice: false, bgStyle: "pixel" };
+  const DEFAULTS = { loudMode: "flee", goal: 45, sensitivity: 5, spawnMin: 60, shiny: true, charm: true, showMeter: true, practice: false, bgStyle: "pixel" };
   function load(key, fallback) {
     try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; }
   }
@@ -26,6 +27,9 @@
   // The pixel backgrounds came with the Black and White sprites: everyone starts on them once
   if (!settings.pixelSeen) { settings.bgStyle = "pixel"; settings.pixelSeen = true; save("qsz-settings", settings); }
   let dex = load("qsz-dex", {});
+  // The Shiny Charm stays once earned, even if the Pokédex is cleared later
+  const dexDone = () => Object.keys(byId).every(id => dex[id]);
+  const charmOn = () => settings.charmEarned && settings.charm;
 
   // The drawings for a habitat in the chosen style. Where things stand (ground,
   // water, ledge, boulders) is the same in both, so that always comes from SCENES.
@@ -34,6 +38,8 @@
 
   const byId = {};
   for (const h of HABITATS) for (const p of h.pokemon) byId[p.id] = { ...p, habitat: h.key };
+  // A class that finished the Pokédex before the charm existed gets it now
+  if (!settings.charmEarned && dexDone()) { settings.charmEarned = true; save("qsz-settings", settings); }
 
   // ---------- Home ----------
   const habitatList = $("#habitats");
@@ -322,7 +328,7 @@
   function spawn() {
     if (visitors.length >= MAX_ON_SCREEN) leave(visitors[0], false);
     const p = pick(), key = habitat.key;
-    const shiny = settings.shiny && Math.random() < 1 / SHINY_ODDS;
+    const shiny = settings.shiny && Math.random() < 1 / (charmOn() ? CHARM_ODDS : SHINY_ODDS);
     const { x, y } = placeFor(p);
     const alt = pickAlt(p, y);
     const el = document.createElement("div");
@@ -1381,6 +1387,11 @@
     dex[p.id] = entry;
     save("qsz-dex", dex);
     updateCount();
+    if (!settings.charmEarned && dexDone()) {
+      settings.charmEarned = true;
+      save("qsz-settings", settings);
+      setTimeout(() => say("The Pokédex is complete! You received the Shiny Charm. Shiny Pokémon will now appear twice as often.", true), 6500);
+    }
   }
 
   function updateCount() {
@@ -1595,6 +1606,7 @@
     const seen = entries.length, shinies = entries.filter(e => shinyCount(e)).length;
     $("#dex-sub").textContent = dexShiny ? `${shinies} of ${all} shiny forms found` : `${seen} of ${all} spotted`;
     $("#dex").classList.toggle("is-shiny", dexShiny);
+    $("#dex-charm").hidden = !settings.charmEarned;
     tabs.innerHTML = [["all", "All"], ...HABITATS.map(h => [h.key, h.name])]
       .map(([k, n]) => `<button type="button" role="tab" aria-selected="${k === dexTab}" data-tab="${k}">${n}</button>`).join("");
     // The main view lists all 151 in Pokédex number order
@@ -1632,6 +1644,10 @@
     form.sensitivity.value = settings.sensitivity;
     form.spawnMin.value = String(settings.spawnMin);
     form.shiny.checked = settings.shiny;
+    form.charm.checked = settings.charmEarned && settings.charm;
+    form.charm.disabled = !settings.charmEarned || !settings.shiny;
+    $("#charm-note").textContent = settings.charmEarned ? "Shinies appear about 1 in 40 instead of 1 in 80." : "Complete the Pokédex to earn it.";
+    $("#charm-toggle").classList.toggle("is-locked", !settings.charmEarned);
     form.showMeter.checked = settings.showMeter;
     form.practice.checked = settings.practice;
     form.bgStyle.value = settings.bgStyle;
@@ -1646,6 +1662,7 @@
     settings.spawnMin = Number(form.spawnMin.value);
     if (settings.spawnMin !== before) nextMs = Math.min(nextMs, waitFor());
     settings.shiny = form.shiny.checked;
+    if (settings.charmEarned) settings.charm = form.charm.checked;
     settings.showMeter = form.showMeter.checked;
     settings.practice = form.practice.checked;
     const style = settings.bgStyle;
