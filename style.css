@@ -173,7 +173,10 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
    screen height. Both can be animated, so a flyer's shadow follows it. */
 @property --y { syntax: "<number>"; inherits: true; initial-value: 0; }
 @property --alt { syntax: "<number>"; inherits: true; initial-value: 0; }
-.mon, .boulder, .bait, .moonstone { bottom: calc((var(--y) + var(--alt)) * 1%); }
+.mon, .boulder, .bait, .moonstone { bottom: calc((var(--y) + var(--alt) + var(--dip, 0)) * 1%); }
+/* Going down behind the top of a hill: the part below the hilltop is hidden */
+.mon.is-over-hill .mon__body { clip-path: inset(-60% -60% var(--hill, 0px) -60%); }
+.mon.is-over-hill .mon__shadow { opacity: 0; }
 /* Trees, fences and signs from the pixel backgrounds, in depth order with the Pokémon */
 .stand { position: absolute; inset: 0 -48px; pointer-events: none; }
 .stand svg { display: block; width: 100%; height: 100%; }

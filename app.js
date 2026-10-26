@@ -230,7 +230,7 @@
       if (session) track(dt, lvl, over);
     }
     ring.style.strokeDashoffset = 100 - Math.min(100, quietMs / nextMs * 100);
-    if (!scene.hidden) layerByDepth();
+    if (!scene.hidden) { walkOverHills(); layerByDepth(); }
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(t => { lastFrame = t; frame(t); });
@@ -396,13 +396,15 @@
 
   // The scene's horizon and far ground line on screen, and the things standing
   // on the ground, worked out again whenever the screen changes size
-  const depth = { horizon: null, far: null };
+  const depth = { horizon: null, far: null, crest: null };
   function measureDepth() {
     const sc = habitat && SCENES[habitat.key];
     if (!sc || scene.hidden) return;
     const pixel = settings.bgStyle === "pixel";
     depth.horizon = sc.horizon ? svgToStage(800, sc.horizon, 2).y : null;
     depth.far = pixel && sc.far ? svgToStage(800, sc.far, 2).y : null;
+    const crest = pixel && look(habitat.key).crest;
+    depth.crest = crest ? crest.map((y, i) => svgToStage((i + 0.5) * 1600 / crest.length, y, 2)) : null;
     for (const st of stage.querySelectorAll(".stand")) {
       const a = svgToStage(+st.dataset.x1, +st.dataset.base, 2), b = svgToStage(+st.dataset.x2, +st.dataset.top, 2);
       Object.assign(st, { depthY: a.y, fromX: a.x, toX: b.x, topY: b.y });
@@ -426,6 +428,33 @@
     }
     measureDepth();
   }
+  // Rolling hills (Route 1, Viridian Forest, the Safari Zone): a Pokémon walking
+  // back past the top of the nearest hill goes down out of sight behind it,
+  // only its top half showing, then comes back up the next hill. VALLEY is how
+  // far back the dip goes past the top and DROP how far down it goes, both in
+  // percent of the screen height.
+  const VALLEY = 8, DROP = 6;
+  function crestAt(x) {
+    const c = depth.crest, first = c[0], last = c[c.length - 1];
+    const i = Math.max(0, Math.min(c.length - 1, Math.round((x - first.x) / (last.x - first.x) * (c.length - 1))));
+    return c[i].y;
+  }
+  function walkOverHills() {
+    if (!depth.crest) return;
+    const area = stage.getBoundingClientRect();
+    for (const v of visitors) {
+      const style = getComputedStyle(v.el);
+      const y = parseFloat(style.getPropertyValue("--y")), alt = parseFloat(style.getPropertyValue("--alt")) || 0;
+      const top = crestAt(parseFloat(style.left) / area.width * 100);
+      const dip = alt < 1 && y > top && y < top + VALLEY ? -DROP * Math.sin(Math.PI * (y - top) / VALLEY) : 0;
+      v.el.style.setProperty("--dip", dip.toFixed(2));
+      // How far its feet are below the top of the hill: that much of it is hidden
+      const hidden = top - (y + dip);
+      v.el.classList.toggle("is-over-hill", dip < 0 && hidden > 0);
+      if (dip < 0 && hidden > 0) v.el.style.setProperty("--hill", `${(hidden / 100 * area.height).toFixed(1)}px`);
+    }
+  }
+
   // Would a Pokémon standing here be hidden behind something? (Spots like
   // that are skipped, so the class can always see who came out.)
   function hiddenAt(x, y) {

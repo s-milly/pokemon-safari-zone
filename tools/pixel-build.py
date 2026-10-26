@@ -15,6 +15,9 @@ from PIL import Image, ImageEnhance
 SRC, OUT = "tools/.pixel", "px"
 UNIT = 1600 / 480          # drawing units per pixel
 BIG_X, BIG_Y = -800, -900  # where the wide canvas for moving parts starts
+# Scenes of rolling hills: the top edge of the nearest hill is saved, so the
+# game can show a Pokémon walking down behind it and up the next one
+HILLS = {"route", "forest", "safari"}
 COLORS = {"0": 40, "1": 48, "2": 64, "front": 24}
 EXTRA = 12                 # of those, kept for small things in their own colour
 
@@ -135,6 +138,10 @@ def main():
             standing = [bolder(Image.open(f"{SRC}/{st['file']}").convert("RGBA")) for st in layer["stands"]]
             pal = palette_for([still] + moving + standing, COLORS[name])
             still = to_palette(still, pal)
+            if key in HILLS and name == "2":
+                # The first solid pixel from the top of each column, in drawing units
+                alpha = np.asarray(still.getchannel("A")) > 0
+                out[key]["crest"] = [round(int(alpha[:, x].argmax()) * UNIT) for x in range(still.width)]
             for t in layer["texts"]:
                 if t.get("stand") is None:
                     write_text(still, t)
