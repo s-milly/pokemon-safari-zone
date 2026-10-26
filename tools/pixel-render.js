@@ -3,7 +3,9 @@
   Draws every layer of every habitat in scenes.js at 480 by 270 pixels with
   hard edges, using a local copy of the game (python3 -m http.server 4642).
   Animated parts (clouds, stars, glows...) are drawn one at a time on their
-  own, so they can keep moving in the game. Sign text is left out here and
+  own, so they can keep moving in the game. So are things standing on the
+  ground (marked data-stand in scenes.js), so the game can draw them in front
+  of Pokémon that walk behind them. Sign text is left out here and
   written back in a pixel font by step 2.
 
   Run from the project folder: node tools/pixel-render.js
@@ -32,19 +34,24 @@ const BIG = { x: -800, y: -900, w: 3200, h: 2700 };
       await page.setViewportSize({ width: W, height: H });
       await page.setContent(`<style>html,body{margin:0;background:transparent}svg{display:block;width:${W}px;height:${H}px}
         *{shape-rendering:crispEdges;animation:none!important;transition:none!important}
-        [data-fxi],text{visibility:hidden}</style>${layers[i]}`);
+        [data-fxi],[data-sti],text{visibility:hidden}</style>${layers[i]}`);
       // Mark each animated part (the outermost one, if they are nested) and note the signs
       const info = await page.evaluate(() => {
         const svg = document.querySelector("svg");
         const fx = [...svg.querySelectorAll("[class*='fx-']")].filter(el => !el.parentElement.closest("[class*='fx-']"));
         fx.forEach((el, n) => el.setAttribute("data-fxi", n));
+        const stands = [...svg.querySelectorAll("[data-stand]")];
+        stands.forEach((el, n) => el.setAttribute("data-sti", n));
         const texts = [...svg.querySelectorAll("text")].map(t => {
           const m = t.getScreenCTM(), p = svg.createSVGPoint();
           p.x = +t.getAttribute("x"); p.y = +t.getAttribute("y");
           const q = p.matrixTransform(m);
-          return { text: t.textContent, x: q.x, y: q.y, anchor: t.getAttribute("text-anchor") || "start", fill: t.getAttribute("fill") || "#fff", size: +t.getAttribute("font-size") * m.a };
+          const on = t.closest("[data-sti]");
+          return { text: t.textContent, x: q.x, y: q.y, anchor: t.getAttribute("text-anchor") || "start", fill: t.getAttribute("fill") || "#fff", size: +t.getAttribute("font-size") * m.a,
+            stand: on ? +on.getAttribute("data-sti") : null };
         });
-        return { fx: fx.map(el => ({ cls: el.getAttribute("class"), style: el.getAttribute("style") || "", opacity: el.getAttribute("opacity") || "" })), texts };
+        return { fx: fx.map(el => ({ cls: el.getAttribute("class"), style: el.getAttribute("style") || "", opacity: el.getAttribute("opacity") || "" })), texts,
+          stands: stands.map(el => ({ base: +el.getAttribute("data-stand") })) };
       });
       await page.screenshot({ path: `${OUT}/${key}-${name}.png`, omitBackground: true });
       // Each animated part alone, at rest, at full opacity (the game fades it)
@@ -64,9 +71,20 @@ const BIG = { x: -800, y: -900, w: 3200, h: 2700 };
         info.fx[n].file = `${key}-${name}-fx${n}.png`;
         await page.screenshot({ path: `${OUT}/${info.fx[n].file}`, omitBackground: true });
       }
+      // Each standing thing alone (its moving parts stay with the layer)
+      for (let n = 0; n < info.stands.length; n++) {
+        await page.evaluate(n => {
+          document.getElementById("only")?.remove();
+          const st = document.createElement("style"); st.id = "only";
+          st.textContent = `svg{visibility:hidden!important} [data-sti="${n}"],[data-sti="${n}"] *{visibility:visible!important} [data-sti="${n}"] [data-fxi],[data-sti="${n}"] [data-fxi] *,[data-sti="${n}"] text{visibility:hidden!important}`;
+          document.head.appendChild(st);
+        }, n);
+        info.stands[n].file = `${key}-${name}-st${n}.png`;
+        await page.screenshot({ path: `${OUT}/${info.stands[n].file}`, omitBackground: true });
+      }
       manifest[key].push({ name, ...info });
     }
-    console.log(key, manifest[key].map(l => `${l.name}: ${l.fx.length} moving, ${l.texts.length} signs`).join("; "));
+    console.log(key, manifest[key].map(l => `${l.name}: ${l.fx.length} moving, ${l.stands.length} standing, ${l.texts.length} signs`).join("; "));
   }
   fs.writeFileSync(`${OUT}/manifest.json`, JSON.stringify(manifest, null, 1));
   await browser.close();

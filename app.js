@@ -73,6 +73,7 @@
     stage.innerHTML = "";
     clearWeather(true);
     visitors = [];
+    setStands(key);
     setBoulders(key);
     setMoonstone(key);
     bait = null;
@@ -86,6 +87,7 @@
     updateCount();
     $("#home").hidden = true;
     scene.hidden = false;
+    measureDepth();
     applySettings();
     $("#start-btn").focus();
   }
@@ -97,6 +99,7 @@
     const w = scene.clientWidth || innerWidth, h = scene.clientHeight || innerHeight;
     const px = Math.min(Math.max(w / 480, h / 270), w / 240);
     scene.style.setProperty("--px", px.toFixed(3));
+    scene.style.setProperty("--vh1", `${(h / 100).toFixed(2)}px`);
   }
   addEventListener("resize", setPixelSize);
 
@@ -235,11 +238,16 @@
   // Whoever is closer to the front of the scene (lower on screen) is drawn on
   // top. This uses where each one is right now, mid-walk, not where it is
   // heading, so two Pokémon crossing paths overlap the right way round.
+  // Pokémon (and boulders, bait...) go by where they touch the ground (--y),
+  // so a flyer high in the air is still drawn by the spot below it. Things
+  // standing in the background (trees, fences...) go by their base.
   function layerByDepth() {
     const height = stage.clientHeight || 1;
     for (const el of stage.children) {
-      const bottom = parseFloat(getComputedStyle(el).bottom) || 0;
-      el.style.zIndex = 10000 - Math.round(bottom / height * 9000);
+      const style = getComputedStyle(el);
+      const ground = el.dataset.depth ?? style.getPropertyValue("--y");
+      const depth = ground !== "" ? parseFloat(ground) : (parseFloat(style.bottom) || 0) / height * 100;
+      el.style.zIndex = 10000 - Math.round(depth * 90);
     }
   }
 
@@ -282,14 +290,17 @@
   }
 
   // How far up the screen a Pokémon may stand. Ones that cannot swim stay
-  // out of the water (in the sea channel at Seafoam Islands), and only
-  // flyers and swimmers go beyond the ground into the band behind it.
+  // out of the water (in the sea channel at Seafoam Islands), and swimmers go
+  // further out over open water. With the pixel backgrounds, the ground goes
+  // further back (to the scene's far line), since trees, fences and signs
+  // there are drawn in front of anyone behind them. Flyers fly over this
+  // ground (see pickAlt).
   function heightRange(p) {
     const scene = SCENES[habitat.key];
     const [lo, hi] = scene.ground;
-    // Only flyers (and swimmers, out on open water) use the band above the ground
-    const upHigh = scene.fly && (FLOATERS.has(p.id) || (scene.water && SWIMMERS.has(p.id)));
-    let top = upHigh ? hi + 40 * scene.fly : hi;
+    const back = Math.max(hi, depth.far ?? hi);
+    const upHigh = scene.fly && scene.water && SWIMMERS.has(p.id);
+    let top = upHigh ? hi + 40 * scene.fly : back;
     if (scene.water && !SWIMMERS.has(p.id)) top = Math.min(top, svgToStage(800, scene.water.bottom, scene.water.layer).y - 1);
     return [lo, Math.max(lo, top)];
   }
@@ -300,6 +311,7 @@
     for (let i = 0; i < 24; i++) {
       const x = 10 + Math.random() * 76;
       const y = lo + Math.random() * (flyMax - lo);
+      if (hiddenAt(x, y) && i < 23) continue;
       const gap = Math.min(999, ...[...visitors, ...boulders].map(v => Math.hypot(v.x - x, (v.y - y) * 1.6)));
       if (gap > bestGap) { best = { x, y }; bestGap = gap; }
       if (gap > 22) break;
@@ -312,6 +324,7 @@
     const p = pick(), key = habitat.key;
     const shiny = settings.shiny && Math.random() < 1 / SHINY_ODDS;
     const { x, y } = placeFor(p);
+    const alt = pickAlt(p, y);
     const el = document.createElement("div");
     const floats = FLOATERS.has(p.id);
     const gait = HOPPERS.has(p.id) ? " gait-hop" : SLITHERERS.has(p.id) ? " gait-slither" : "";
@@ -324,14 +337,14 @@
     const foot = !floats && ART_FOOT[p.id];
     // Sprites are drawn at their own pixel size (--gw), so bigger Pokémon are bigger
     el.style.cssText = `--gw:${ART_SIZE[p.id][0]};--pad:${pad};--step:${step.toFixed(2)}s` + (foot ? `;--fl:${foot[0]};--fr:${foot[1]}` : "");
-    place(el, x, y);
+    place(el, x, y, 1, alt);
     // The body holds the picture so swimmers can be cut off at the waterline
     el.innerHTML = `<span class="mon__body"><img alt="${shiny ? "Shiny " : ""}${p.name}" src="${(shiny ? ART.shiny : ART.normal)(p.id)}" draggable="false"></span><span class="mon__shadow"></span><span class="mon__fx"></span>`;
-    const visitor = { ...p, shiny, el, x, y };
+    const visitor = { ...p, shiny, el, x, y, alt };
     const img = el.querySelector("img");
     // A legendary brings its own weather first and appears at its peak
     const legend = LEGENDS[p.id];
-    const revealAt = legend ? performance.now() + bringWeather(legend, x, y) : 0;
+    const revealAt = legend ? performance.now() + bringWeather(legend, x, y + alt) : 0;
     img.addEventListener("load", () => setTimeout(() => {
       // The room got loud (or the class left) while the picture was loading
       if (scared || hushed || !running || habitat.key !== key) { if (legend) clearWeather(); return; }
@@ -363,16 +376,73 @@
   }
 
   // Position on the stage, with perspective: full size at the front of the
-  // scene, shrinking steadily (and getting hazier) the further back it stands.
+  // scene, shrinking (and getting hazier) the further back it stands, down to
+  // nothing at the scene's horizon. y is where it touches the ground and alt
+  // how high above that it flies, both in percent of the screen height.
   function depthScale(y) {
-    return Math.max(0.42, Math.min(1.15, 1.15 - (y - 5) * 0.022));
+    if (depth.horizon == null) return Math.max(0.42, Math.min(1.15, 1.15 - (y - 5) * 0.022));
+    return Math.max(0.3, Math.min(1.15, 1.15 * (depth.horizon - y) / (depth.horizon - 5)));
   }
-  function place(el, x, y, far = 1) {
+  function place(el, x, y, far = 1, alt = 0) {
     el.style.left = `${x}%`;
-    el.style.bottom = `${y}%`;
+    el.style.setProperty("--y", y.toFixed(2));
+    el.style.setProperty("--alt", alt.toFixed(2));
     el.style.setProperty("--s", (depthScale(y) * far).toFixed(2));
     el.style.setProperty("--f", (y / 100).toFixed(2));
-    el.style.zIndex = 100 - Math.round(y);
+    el.style.zIndex = 10000 - Math.round(y * 90);
+  }
+  // Animate a move to the next place (--y and --alt are animatable, see style.css)
+  const moveTransition = (secs, ease = "linear") => ["left", "--y", "--alt", "--s"].map(p => `${p} ${secs}s ${ease}`).join(", ");
+
+  // The scene's horizon and far ground line on screen, and the things standing
+  // on the ground, worked out again whenever the screen changes size
+  const depth = { horizon: null, far: null };
+  function measureDepth() {
+    const sc = habitat && SCENES[habitat.key];
+    if (!sc || scene.hidden) return;
+    const pixel = settings.bgStyle === "pixel";
+    depth.horizon = sc.horizon ? svgToStage(800, sc.horizon, 2).y : null;
+    depth.far = pixel && sc.far ? svgToStage(800, sc.far, 2).y : null;
+    for (const st of stage.querySelectorAll(".stand")) {
+      const a = svgToStage(+st.dataset.x1, +st.dataset.base, 2), b = svgToStage(+st.dataset.x2, +st.dataset.top, 2);
+      Object.assign(st, { depthY: a.y, fromX: a.x, toX: b.x, topY: b.y });
+      st.dataset.depth = a.y.toFixed(2);
+    }
+  }
+  addEventListener("resize", () => requestAnimationFrame(measureDepth));
+
+  // Things standing on the ground in the pixel backgrounds (trees, fences,
+  // signs...). They are drawn on the stage so a Pokémon behind them is hidden
+  // behind them, and one in front is drawn over them.
+  function setStands(key) {
+    stage.querySelectorAll(".stand").forEach(el => el.remove());
+    for (const st of look(key).stands || []) {
+      const el = document.createElement("div");
+      el.className = "stand";
+      el.setAttribute("aria-hidden", "true");
+      Object.assign(el.dataset, { base: st.base, x1: st.x, x2: st.x + st.w, top: st.y });
+      el.innerHTML = `<svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice"><image href="${st.href}" x="${st.x}" y="${st.y}" width="${st.w}" height="${st.h}"/></svg>`;
+      stage.appendChild(el);
+    }
+    measureDepth();
+  }
+  // Would a Pokémon standing here be hidden behind something? (Spots like
+  // that are skipped, so the class can always see who came out.)
+  function hiddenAt(x, y) {
+    for (const st of stage.querySelectorAll(".stand")) {
+      if (st.depthY != null && y > st.depthY - 0.5 && x > st.fromX - 3 && x < st.toX + 3 && st.topY > y + 4) return true;
+    }
+    return false;
+  }
+
+  // How high a flyer goes: usually well up in the sky (its sprite stays clear
+  // of the top bar), now and then just above the ground. Everyone else: 0.
+  function pickAlt(p, y) {
+    if (!FLOATERS.has(p.id)) return 0;
+    const px = parseFloat(scene.style.getPropertyValue("--px")) || 3;
+    const tall = ART_SIZE[p.id][1] * px * depthScale(y) / (stage.clientHeight || 1) * 100;
+    const top = Math.max(0, 84 - y - tall);
+    return Math.random() < 0.15 ? rand(0, Math.min(6, top)) : top * rand(0.3, 1);
   }
 
   // Walk to a new spot at a steady pace, facing the way it is going, then rest.
@@ -421,16 +491,21 @@
 
   function groundSpot(v) {
     const [lo, top] = heightRange(v);
-    let x;
-    do { x = 8 + Math.random() * 78; } while (Math.abs(x - v.x) < 15);
-    return { x, y: Math.max(lo, Math.min(top, v.y + (Math.random() - 0.5) * 10)), zone: "ground" };
+    let x, y, tries = 0;
+    do {
+      x = 8 + Math.random() * 78;
+      y = Math.max(lo, Math.min(top, v.y + (Math.random() - 0.5) * (top - lo) * 0.8));
+    } while ((Math.abs(x - v.x) < 15 || hiddenAt(x, y)) && ++tries < 30);
+    return { x, y, alt: pickAlt(v, y), zone: "ground" };
   }
 
   // Go through a list of stops one at a time. A stop can have:
   //   x, y     where to go (leave out to stay put)
   //   speed    instead of walking speed; secs for an exact time (0 is instant)
   //   ease     a CSS timing function instead of a steady pace
-  //   far      extra shrink, or growth (see keepSize)
+  //   alt      how high above the ground (flyers, climbers); a stop with a y
+  //            and no alt is on the ground
+  //   far      extra shrink, or growth
   //   noFlip   keep facing the same way
   //   start    run on setting off; end runs on arrival
   //   wait     milliseconds to stay after arriving
@@ -442,13 +517,15 @@
     const w = v.path[0];
     if (!w) { v.path = null; return done(); }
     const x = w.x ?? v.x, y = w.y ?? v.y;
-    const dist = Math.hypot(x - v.x, (y - v.y) * 2);
-    const pace = w.speed || WALK_SPEED * (SLOW.has(v.id) ? 0.35 : 1);
+    // A stop on the ground brings a flyer down, unless it says how high to be
+    const alt = w.alt ?? (w.y != null ? 0 : v.alt || 0);
+    const dist = Math.hypot(x - v.x, (y - v.y) * 2, alt - (v.alt || 0));
+    const pace = w.speed || WALK_SPEED * (SLOW.has(v.id) ? 0.35 : FLOATERS.has(v.id) ? 1.6 : 1);
     const seconds = w.secs ?? (dist > 0.01 ? Math.max(0.3, dist / pace) : 0);
     if (w.start) w.start(v);
     if (dist > 0.01) {
       const ease = w.ease || "linear";
-      v.el.style.transition = `left ${seconds}s ${ease}, bottom ${seconds}s ${ease}, --s ${seconds}s ${ease}`;
+      v.el.style.transition = moveTransition(seconds, ease);
       if (!w.noFlip && Math.abs(x - v.x) > 0.5) face(v, x > v.x);
       if (ROLLERS.has(v.id)) roll(v, x - v.x, seconds);
       if (w.roll) roll(v, 0, seconds, w.roll, ease);
@@ -458,8 +535,8 @@
         clearTimeout(v.moveTimer);
         v.moveTimer = setTimeout(() => v.el.classList.remove("is-moving"), seconds * 1000);
       }
-      place(v.el, x, y, w.far || 1);
-      v.x = x; v.y = y; v.far = w.far || 1;
+      place(v.el, x, y, w.far || 1, alt);
+      v.x = x; v.y = y; v.alt = alt; v.far = w.far || 1;
       if (!w.keepSink) {
         clearTimeout(v.swimTimer);
         v.swimTimer = setTimeout(() => setSwim(v), seconds * 500);
@@ -563,7 +640,6 @@
   // Points in the drawings, as spots on the stage that are on screen right now
   const spots = (list, layer) => list.map(([x, y]) => svgToStage(x, y, layer)).filter(onScreen);
   // Moving up or down without going further back (climbing, hanging) keeps the size the same
-  const keepSize = (fromY, toY) => depthScale(fromY) / depthScale(toY);
   // Sprites are cropped close around the body, so the body fills the picture
   const fillOf = () => 1;
   const sinkTo = (v, amount) => v.el.style.setProperty("--sink", amount.toFixed(2));
@@ -707,21 +783,28 @@
     say(sleepers.length === 1 ? `The wild ${sleepers[0].name} fell asleep!` : "The wild Pokémon fell asleep!");
     for (const o of sleepers) fallAsleep(o, rand(14000, 20000));
   }
+  // Route 1 Pokémon that can be sung to sleep have a sleeping sprite with their
+  // eyes closed (made by tools/sleep-eyes.py). Snorlax's eyes are already shut.
+  const SLEEP_FACE = new Set([16, 17, 18, 19, 20, 21, 22, 40, 52, 53, 56, 57, 83, 108, 133]);
   function fallAsleep(v, ms) {
     stopHere(v);
     clearInterval(v.trail);
     v.asleep = true;
     flag("is-asleep", true)(v);
-    const [lo, hi] = SCENES[habitat.key].ground;
-    if (FLOATERS.has(v.id) && v.y > hi && !v.el.classList.contains("is-roosting")) {
-      const y = rand(lo, hi);
-      v.el.style.transition = "left 2.6s ease-in-out, bottom 2.6s ease-in-out, --s 2.6s ease-in-out";
-      place(v.el, v.x, y);
-      v.y = y; v.far = 1;
+    const img = v.el.querySelector(".mon__body img");
+    if (SLEEP_FACE.has(v.id)) {
+      v.awakeSrc = img.src;
+      img.src = `px/sleep/${v.shiny ? "shiny/" : ""}${v.id}.png`;
+    }
+    if (v.alt > 0.5 && !v.el.classList.contains("is-roosting")) {
+      v.el.style.transition = moveTransition(2.6, "ease-in-out");
+      place(v.el, v.x, v.y, 1, 0);
+      v.alt = 0; v.far = 1;
     }
     v.wake = setTimeout(() => {
       v.asleep = false;
       flag("is-asleep", false)(v);
+      if (v.awakeSrc) { img.src = v.awakeSrc; v.awakeSrc = null; }
       if (v.el.isConnected) wander(v, 500 + Math.random() * 1500);
     }, ms);
   }
@@ -794,18 +877,20 @@
 
   function climbTree(v, rest) {
     const t = anyOf(TREES.filter(t => onScreen(svgToStage(t.x, t.base, 1))));
-    const base = svgToStage(t.x, t.base, 1), top = svgToStage(t.x, t.top, 1);
+    // Its ground spot stays just in front of the trunk; climbing is height
+    const base = svgToStage(t.x, t.base + 6, 1), top = svgToStage(t.x, t.top, 1);
     const perch = svgToStage(rand(t.perch[0], t.perch[1]), rand(t.perch[2], t.perch[3]), 1);
-    go(v, [{ ...base }, { ...top, speed: 2, noFlip: true, far: keepSize(base.y, top.y) },
-      { ...perch, far: keepSize(base.y, perch.y) }, stay(6000, 10000),
-      { ...top, far: keepSize(base.y, top.y) }, { ...base, speed: 2, noFlip: true }, groundSpot(v)], rest);
+    const up = p => ({ x: p.x, y: base.y, alt: p.y - base.y });
+    go(v, [{ ...base }, { ...up(top), speed: 2, noFlip: true },
+      { ...up(perch) }, stay(6000, 10000),
+      { ...up(top) }, { ...base, speed: 2, noFlip: true }, groundSpot(v)], rest);
   }
 
   function hangFromTree(v, rest) {
     const t = anyOf(TREES.filter(t => onScreen(svgToStage(t.x, t.base, 1))));
     const x = t.x + (t.x < 800 ? 70 : -70);
-    const ground = svgToStage(x, t.base, 1), hang = svgToStage(x, t.base - 110, 1);
-    go(v, [{ ...ground }, { ...hang, speed: 1.5, noFlip: true, far: keepSize(ground.y, hang.y), start: flag("is-hanging", true) },
+    const ground = svgToStage(x, t.base + 6, 1), hang = svgToStage(x, t.base - 110, 1);
+    go(v, [{ ...ground }, { x: ground.x, y: ground.y, alt: hang.y - ground.y, speed: 1.5, noFlip: true, start: flag("is-hanging", true) },
       stay(7000, 11000), { ...ground, speed: 1.5, noFlip: true, end: flag("is-hanging", false) }], rest);
   }
 
@@ -854,10 +939,10 @@
   }
 
   function roost(v, rest) {
-    const y = rand(72, 78), x = Math.max(10, Math.min(84, v.x + rand(-10, 10)));
-    const [lo, hi] = heightRange(v);
-    go(v, [{ x, y, speed: 5, far: keepSize(v.y, y), end: flag("is-roosting", true) }, stay(6000, 10000),
-      { x: rand(10, 84), y: rand(lo, hi), speed: 9, ease: "cubic-bezier(.6, 0, .4, 1)", start: flag("is-roosting", false) }], rest);
+    const x = Math.max(10, Math.min(84, v.x + rand(-10, 10)));
+    const [lo, hi] = heightRange(v), y2 = rand(lo, hi);
+    go(v, [{ x, y: v.y, alt: rand(72, 78) - v.y, speed: 5, end: flag("is-roosting", true) }, stay(6000, 10000),
+      { x: rand(10, 84), y: y2, alt: pickAlt(v, y2), speed: 9, ease: "cubic-bezier(.6, 0, .4, 1)", start: flag("is-roosting", false) }], rest);
   }
 
   function driftThroughGrave(v, rest) {
@@ -867,10 +952,12 @@
   }
 
   // Go into a doorway or window, stay a while, come back out
-  function visit(list, layer) {
+  // (base: where the building meets the ground, for windows up the wall)
+  function visit(list, layer, base) {
     return (v, rest) => {
       const p = anyOf(spots(list, layer));
-      go(v, [{ ...p, speed: 3, end: flag("is-inside", true) }, stay(6000, 9000),
+      const to = base ? { x: p.x, y: svgToStage(800, base, layer).y, alt: p.y - svgToStage(800, base, layer).y } : p;
+      go(v, [{ ...to, speed: 3, end: flag("is-inside", true) }, stay(6000, 9000),
         stay(900, 900, { start: flag("is-inside", false) }), groundSpot(v)], rest);
     };
   }
@@ -969,7 +1056,7 @@
     ],
     haunted: [
       { chance: 0.12, who: v => has(92, 93, 94)(v) && spots(GRAVES, 1).length > 0, run: driftThroughGrave },
-      { chance: 0.1, who: v => has(92, 93)(v) && spots(WINDOWS, 0).length > 0, run: visit(WINDOWS, 0) },
+      { chance: 0.1, who: v => has(92, 93)(v) && spots(WINDOWS, 0).length > 0, run: visit(WINDOWS, 0, 660) },
       { chance: 0.2, who: v => GHOSTS.has(v.id), run: flickerGhost }
     ],
     // Saffron City: everyone here but Ditto can learn Teleport in Red and Blue
@@ -1036,11 +1123,12 @@
     clearTimeout(v.timer);
     clearTimeout(v.moveTimer);
     v.el.classList.remove("is-moving");
-    const box = v.el.getBoundingClientRect(), area = stage.getBoundingClientRect();
-    v.el.style.transition = "none";
+    const box = v.el.getBoundingClientRect(), area = stage.getBoundingClientRect(), style = getComputedStyle(v.el);
     v.x = (box.left + box.width / 2 - area.left) / area.width * 100;
-    v.y = (area.bottom - box.bottom) / area.height * 100;
-    place(v.el, v.x, v.y, v.far || 1);
+    v.y = parseFloat(style.getPropertyValue("--y")) || v.y;
+    v.alt = parseFloat(style.getPropertyValue("--alt")) || 0;
+    v.el.style.transition = "none";
+    place(v.el, v.x, v.y, v.far || 1, v.alt);
   }
 
   // ---------- Legendary arrivals ----------
@@ -1200,7 +1288,7 @@
     const gap = (v.el.offsetWidth + b.el.offsetWidth) / 2 / stage.clientWidth * 100 * 0.85;
     const x = b.x - d * gap, y = b.y + 0.3;
     const walk = Math.hypot(x - v.x, (y - v.y) * 2) / WALK_SPEED;
-    v.el.style.transition = `left ${walk}s linear, bottom ${walk}s linear, --s ${walk}s linear`;
+    v.el.style.transition = moveTransition(walk);
     face(v, x > v.x);
     place(v.el, x, y);
     v.x = x; v.y = y;
@@ -1516,7 +1604,7 @@
     const style = settings.bgStyle;
     settings.bgStyle = form.bgStyle.value;
     save("qsz-settings", settings);
-    if (settings.bgStyle !== style) { renderHome(); if (habitat && !scene.hidden) drawScene(habitat.key); }
+    if (settings.bgStyle !== style) { renderHome(); if (habitat && !scene.hidden) { drawScene(habitat.key); setStands(habitat.key); } }
     fillForm();
     applySettings();
   });

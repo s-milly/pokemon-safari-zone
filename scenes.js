@@ -2,7 +2,9 @@
   Hand-drawn SVG backgrounds, one per habitat.
   Each scene has a back layer (behind the Pokémon) and a front layer (grass,
   rocks or waves drawn over their feet). ground is the band, in percent from
-  the bottom of the screen, where Pokémon stand. fly lets some float higher.
+  the bottom of the screen, where Pokémon stand. fly lets swimmers go further
+  out over open water. With the pixel backgrounds the ground reaches back to
+  far, and Pokémon shrink toward horizon (both in drawing units).
   Classes starting with fx- are gentle loops defined in style.css; they stop
   under reduced motion and on the home screen thumbnails.
 */
@@ -321,12 +323,17 @@
   // Splits a background into far, middle and near layers (see layered below)
   const L = "\u0000";
   const layered = (defs, inner) => ({ defs, parts: inner.split(L) });
+  // Something standing on the ground that a Pokémon can walk behind. base is
+  // where it meets the ground, in drawing units. In the pixel backgrounds it is
+  // drawn in front of any Pokémon standing further back (see tools/pixel-render.js).
+  const stand = (base, inner) => `<g data-stand="${base}">${inner}</g>`;
 
   const fill = id => `<rect width="${W}" height="${H}" fill="url(#${id})"/>`;
   const range = (n, f) => Array.from({ length: n }, (_, i) => f(i)).join("");
 
   window.SCENES = {
     forest: {
+      far: 640, horizon: 540,
       ground: [6, 26], tint: "#2f6b3a", haze: ["#e9f3d6", 560, 0.45],
       back: layered(
         sky("fs", [[0, "#82cbd3"], [0.38, "#c8e9d4"], [0.6, "#f3f2cf"], [1, "#f3f2cf"]]) +
@@ -343,17 +350,17 @@
         L + pines(612, 15, "#4b8f5d", 7, 320) +
         `<g opacity=".14"><g class="fx-pulse" fill="#fffbe0"><path data-noink d="M1180 0 L1320 0 L900 680 L760 680 Z"/><path data-noink d="M1420 0 L1500 0 L1180 680 L1110 680 Z"/><path data-noink d="M820 0 L880 0 L520 680 L470 680 Z"/></g></g>` +
         ridge(628, 24, 5, "#58a163", 11, "", "grass") +
-        bush(360, 650, 0.85, "#3f8f4f") + bush(1170, 646, 0.95, "#3f8f4f", "#e23b3b") + bush(650, 636, 0.55, "#4a9a57") +
-        tree(180, 690, 1.2, "#2f7a45", "#4a9f5a", "#6b4a32") + tree(1420, 680, 1.35, "#2f7a45", "#4a9f5a", "#6b4a32") +
+        stand(650, bush(360, 650, 0.85, "#3f8f4f")) + stand(646, bush(1170, 646, 0.95, "#3f8f4f", "#e23b3b")) + stand(636, bush(650, 636, 0.55, "#4a9a57")) +
+        stand(690, tree(180, 690, 1.2, "#2f7a45", "#4a9f5a", "#6b4a32")) + stand(680, tree(1420, 680, 1.35, "#2f7a45", "#4a9f5a", "#6b4a32")) +
         L + ridge(700, 18, 4, "#7cc46a", 13, "", "grass") +
         `<path clip-path="url(#fpclip)" d="M700 900 C760 820 820 760 790 670 L830 670 C880 760 900 830 960 900 Z" fill="url(#fpath)" opacity=".85"/>` +
         `<g clip-path="url(#fpclip)" fill="none" stroke="#9d7a4c" stroke-width="3" stroke-linecap="round" opacity=".7"><path d="M702 898 C762 818 822 758 792 672"/><path d="M958 898 C898 828 878 758 828 672"/></g>` +
         `<g fill="#c9ad7c"><ellipse cx="820" cy="760" rx="9" ry="5"/><ellipse cx="850" cy="812" rx="12" ry="6"/><ellipse cx="800" cy="850" rx="10" ry="5"/></g>` +
         `<g fill="#f6fbc8" opacity=".3"><ellipse data-noink cx="420" cy="770" rx="110" ry="18"/><ellipse data-noink cx="1080" cy="800" rx="140" ry="20"/><ellipse data-noink cx="640" cy="840" rx="90" ry="14"/></g>` +
         // Mushrooms among the flowers, and a sign by the path (near the middle so phones see it)
-        `<g><rect x="553" y="756" width="12" height="20" rx="4" fill="#f4ead2"/><path d="M538 760 Q559 730 580 760 Z" fill="#e23b3b"/><g fill="#ffffff"><circle cx="552" cy="750" r="3.5"/><circle cx="566" cy="748" r="3"/></g>` +
+        `<g data-stand="780"><rect x="553" y="756" width="12" height="20" rx="4" fill="#f4ead2"/><path d="M538 760 Q559 730 580 760 Z" fill="#e23b3b"/><g fill="#ffffff"><circle cx="552" cy="750" r="3.5"/><circle cx="566" cy="748" r="3"/></g>` +
         `<rect x="583" y="768" width="9" height="14" rx="3" fill="#f4ead2"/><path d="M572 771 Q588 750 603 771 Z" fill="#e23b3b"/></g>` +
-        `<g><rect x="648" y="690" width="10" height="60" fill="#7a5236"/><rect x="598" y="662" width="110" height="40" rx="6" fill="#a0734a"/><rect data-noink x="598" y="662" width="110" height="10" rx="5" fill="#b8895c"/>` +
+        `<g data-stand="750"><rect x="648" y="690" width="10" height="60" fill="#7a5236"/><rect x="598" y="662" width="110" height="40" rx="6" fill="#a0734a"/><rect data-noink x="598" y="662" width="110" height="10" rx="5" fill="#b8895c"/>` +
         `<text x="653" y="689" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="15" fill="#fff4dc">VIRIDIAN</text></g>` +
         flowers(26, 15, 720, 870, ["#ffffff", "#ffd84a", "#ff9ec4"]) +
         `<g>${dots(18, 21, "#fff3a0", 420, 760, 3, "fx-float")}</g>`
@@ -363,6 +370,7 @@
     },
 
     route: {
+      far: 600, horizon: 450,
       ground: [6, 26], tint: "#3f8f4a", haze: ["#e6f6ff", 540, 0.4],
       back: layered(
         sky("rt", [[0, "#5fb6ef"], [0.45, "#a9dcf7"], [0.7, "#e2f4fc"], [1, "#e9f7fd"]]) +
@@ -385,13 +393,13 @@
         ridge(540, 26, 6, "#93cc95", 203, "", "grass") +
         // Hedgerows dividing the fields
         `<g fill="#6fb072"><path d="M60 556 q20 -14 40 0 q20 -14 40 0 q20 -14 40 0 q20 -14 40 0 Z"/><path d="M1240 552 q20 -14 40 0 q20 -14 40 0 q20 -14 40 0 q20 -14 40 0 q20 -14 40 0 Z"/></g>` +
-        L + tree(140, 640, 0.7, "#3b8a4a", "#58ad63", "#6b4a32", -1) + tree(300, 630, 0.55, "#3b8a4a", "#58ad63", "#6b4a32", -1) +
-        tree(1460, 640, 0.75, "#3b8a4a", "#58ad63", "#6b4a32") + tree(1300, 628, 0.5, "#3b8a4a", "#58ad63", "#6b4a32") +
+        L + stand(640, tree(140, 640, 0.7, "#3b8a4a", "#58ad63", "#6b4a32", -1)) + stand(630, tree(300, 630, 0.55, "#3b8a4a", "#58ad63", "#6b4a32", -1)) +
+        stand(640, tree(1460, 640, 0.75, "#3b8a4a", "#58ad63", "#6b4a32")) + stand(628, tree(1300, 628, 0.5, "#3b8a4a", "#58ad63", "#6b4a32")) +
         ridge(620, 18, 5, "#7cc274", 207, "", "grass") +
-        bush(560, 630, 0.42, "#5aa55c") + bush(1180, 636, 0.5, "#5aa55c", "#ff8fb1") +
-        `<g fill="#ffffff">${range(12, i => `<rect x="${430 + i * 24}" y="600" width="8" height="34" rx="3"/>`)}<rect x="426" y="608" width="290" height="6" rx="3"/><rect x="426" y="622" width="290" height="6" rx="3"/></g>` +
-        `<g data-noink fill="#c8d6e4">${range(12, i => `<rect x="${434 + i * 24}" y="604" width="4" height="30" rx="2"/>`)}</g>` +
-        `<g><rect x="1066" y="590" width="8" height="54" fill="#7a5236"/><rect x="1030" y="566" width="80" height="34" rx="5" fill="#a0734a" stroke="#7a5236" stroke-width="4"/><rect x="1034" y="569" width="72" height="7" rx="3" fill="#b8895c"/><text x="1070" y="590" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="18" fill="#fff4dc">ROUTE 1</text></g>` +
+        stand(630, bush(560, 630, 0.42, "#5aa55c")) + stand(636, bush(1180, 636, 0.5, "#5aa55c", "#ff8fb1")) +
+        `<g data-stand="634"><g fill="#ffffff">${range(12, i => `<rect x="${430 + i * 24}" y="600" width="8" height="34" rx="3"/>`)}<rect x="426" y="608" width="290" height="6" rx="3"/><rect x="426" y="622" width="290" height="6" rx="3"/></g>` +
+        `<g data-noink fill="#c8d6e4">${range(12, i => `<rect x="${434 + i * 24}" y="604" width="4" height="30" rx="2"/>`)}</g></g>` +
+        `<g data-stand="644"><rect x="1066" y="590" width="8" height="54" fill="#7a5236"/><rect x="1030" y="566" width="80" height="34" rx="5" fill="#a0734a" stroke="#7a5236" stroke-width="4"/><rect x="1034" y="569" width="72" height="7" rx="3" fill="#b8895c"/><text x="1070" y="590" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="18" fill="#fff4dc">ROUTE 1</text></g>` +
         L + ridge(700, 16, 4, "#86cf6b", 211, "", "grass") +
         `<path clip-path="url(#rpclip)" d="M720 900 C760 820 820 760 790 670 L840 670 C880 760 900 830 980 900 Z" fill="url(#rpath)"/>` +
         `<g clip-path="url(#rpclip)" fill="none" stroke="#b39463" stroke-width="3" stroke-linecap="round" opacity=".8"><path d="M722 898 C762 818 822 758 792 672"/><path d="M978 898 C898 828 878 758 838 672"/></g>` +
@@ -404,6 +412,7 @@
     },
 
     safari: {
+      far: 600, horizon: 480,
       ground: [6, 26], tint: "#8a6a24", haze: ["#fde3b0", 560, 0.45],
       back: layered(
         sky("ss", [[0, "#e5845e"], [0.32, "#f4b07a"], [0.58, "#fddca5"], [1, "#fde7b5"]]),
@@ -425,14 +434,14 @@
         `<ellipse cx="760" cy="600" rx="130" ry="16" fill="#79b5c4"/><ellipse data-noink cx="740" cy="597" rx="70" ry="5" fill="#d6f0f4" opacity=".8"/>` +
         `<g fill="none" stroke="#7b8a3a" stroke-width="4" stroke-linecap="round"><path d="M640 602 q-4 -20 2 -34 M650 604 q2 -16 10 -26 M876 600 q2 -18 -4 -30 M866 602 q-2 -14 -10 -22"/></g>` +
         // Acacia trees: a bent trunk under a wide flat crown
-        [[290, 610, 1], [1128, 610, 0.74]].map(([x, y, s]) => `<path d="M${x - 6 * s} ${y} Q${x - 10 * s} ${y - 60 * s} ${x} ${y - 110 * s} L${x - 40 * s} ${y - 140 * s} M${x} ${y - 110 * s} L${x + 40 * s} ${y - 142 * s} M${x - 2 * s} ${y - 100 * s} L${x + 6 * s} ${y - 146 * s}" stroke="#6f5a35" stroke-width="${12 * s}" fill="none" stroke-linecap="round"/>` +
+        [[290, 610, 1], [1128, 610, 0.74]].map(([x, y, s]) => stand(y, `<path d="M${x - 6 * s} ${y} Q${x - 10 * s} ${y - 60 * s} ${x} ${y - 110 * s} L${x - 40 * s} ${y - 140 * s} M${x} ${y - 110 * s} L${x + 40 * s} ${y - 142 * s} M${x - 2 * s} ${y - 100 * s} L${x + 6 * s} ${y - 146 * s}" stroke="#6f5a35" stroke-width="${12 * s}" fill="none" stroke-linecap="round"/>` +
           `<ellipse cx="${x}" cy="${y - 145 * s}" rx="${135 * s}" ry="${26 * s}" fill="#6f5a35"/><ellipse cx="${x + 8 * s}" cy="${y - 158 * s}" rx="${105 * s}" ry="${20 * s}" fill="#857043"/>` +
-          `<ellipse cx="${x - 70 * s}" cy="${y - 150 * s}" rx="${50 * s}" ry="${14 * s}" fill="#7b6539"/><ellipse data-noink cx="${x + 20 * s}" cy="${y - 166 * s}" rx="${60 * s}" ry="${8 * s}" fill="#a08a52"/>`).join("") +
+          `<ellipse cx="${x - 70 * s}" cy="${y - 150 * s}" rx="${50 * s}" ry="${14 * s}" fill="#7b6539"/><ellipse data-noink cx="${x + 20 * s}" cy="${y - 166 * s}" rx="${60 * s}" ry="${8 * s}" fill="#a08a52"/>`)).join("") +
         ridge(640, 20, 5, "#c9b766", 29, "", "grass") +
-        L + `<g fill="#8a6440">${range(14, i => `<rect x="${560 + i * 40}" y="610" width="10" height="56" rx="3"/>`)}<rect x="555" y="622" width="540" height="8" rx="3"/><rect x="555" y="646" width="540" height="8" rx="3"/></g>` +
-        `<g data-noink fill="#ad8459"><rect x="555" y="622" width="540" height="3" rx="1.5"/><rect x="555" y="646" width="540" height="3" rx="1.5"/></g>` +
+        L + `<g data-stand="666"><g fill="#8a6440">${range(14, i => `<rect x="${560 + i * 40}" y="610" width="10" height="56" rx="3"/>`)}<rect x="555" y="622" width="540" height="8" rx="3"/><rect x="555" y="646" width="540" height="8" rx="3"/></g>` +
+        `<g data-noink fill="#ad8459"><rect x="555" y="622" width="540" height="3" rx="1.5"/><rect x="555" y="646" width="540" height="3" rx="1.5"/></g></g>` +
         ridge(720, 14, 4, "#b7ad5a", 31, "", "grass") +
-        rock(300, 772, 0.9, "#a99a73") + rock(1300, 778, 0.7, "#a99a73", -1) +
+        stand(772, rock(300, 772, 0.9, "#a99a73")) + stand(778, rock(1300, 778, 0.7, "#a99a73", -1)) +
         flowers(16, 33, 740, 880, ["#ffd84a", "#ffffff", "#f08a5c"], 0.9)
       ),
       front: svg("", tufts(900, "#9c8f3c", 70, 37, 70) + tufts(900, "#c2b45a", 50, 41, 50) + tufts(900, "#d9cb72", 26, 43, 32))
@@ -497,6 +506,7 @@
     },
 
     cave: {
+      far: 615, horizon: 470,
       ground: [6, 24], tint: "#4b3a6b",
       // Where the Moon Stone sits on the cave floor (x and y in percent)
       moonstone: [52, 13], haze: ["#6d5a9a", 560, 0.3],
@@ -521,13 +531,14 @@
         `<g><rect x="1004" y="590" width="7" height="18" rx="3" fill="#e9dcff"/><path d="M994 594 Q1007 572 1021 594 Z" fill="#ff8fb1"/><rect x="1024" y="596" width="6" height="12" rx="3" fill="#e9dcff"/><path d="M1016 599 Q1027 584 1038 599 Z" fill="#ff8fb1"/></g>` +
         L + ridge(680, 20, 4, "#56486e", 47, "", "rock") +
         `<ellipse cx="800" cy="760" rx="180" ry="28" fill="#2c2a55"/><ellipse data-noink cx="800" cy="757" rx="150" ry="18" fill="#3b4a86"/><ellipse class="fx-pulse" cx="800" cy="756" rx="120" ry="10" fill="#9ee7ff" opacity=".3"/>` +
-        rock(420, 790, 0.6, "#4a3e64") + rock(1160, 800, 0.75, "#4a3e64", -1) +
+        stand(790, rock(420, 790, 0.6, "#4a3e64")) + stand(800, rock(1160, 800, 0.75, "#4a3e64", -1)) +
         dots(30, 49, "#cfe9ff", 120, 700, 1.6, "fx-float")
       ),
       front: svg("", corner("#2b2340") + `<ellipse cx="800" cy="930" rx="300" ry="60" fill="#2b2340"/>`)
     },
 
     fossil: {
+      far: 650, horizon: 380,
       ground: [6, 24], tint: "#8a4f2a", haze: ["#fbe3c0", 520, 0.4],
       back: layered(
         sky("fo", [[0, "#eeac78"], [0.5, "#f8d2a0"], [1, "#fbe9cc"]]),
@@ -552,10 +563,10 @@
         })() +
         `<circle cx="1236" cy="472" r="5" fill="#8a4a26"/>` +
         L + ridge(640, 18, 4, "#d9a777", 67, "", "sand") +
-        `<g stroke="#7a4a2a" stroke-width="5"><path d="M420 690 L420 640 M620 690 L620 640" fill="none"/></g><path d="M420 650 Q470 660 520 652 Q570 660 620 650" stroke="#f2c230" stroke-width="4" fill="none"/>` +
-        `<path d="M1250 660 L1310 600 L1370 660 Z" fill="#e8d6b0"/><path data-noink d="M1310 600 L1370 660 L1330 660 Z" fill="#cdb98f"/><path d="M1300 660 L1310 630 L1320 660 Z" fill="#8a6440"/><path d="M1310 600 L1310 560" stroke="#7a4a2a" stroke-width="4"/><path d="M1310 562 l30 8 l-30 8 Z" fill="#e3350d"/>` +
+        `<g data-stand="690"><g stroke="#7a4a2a" stroke-width="5"><path d="M420 690 L420 640 M620 690 L620 640" fill="none"/></g><path d="M420 650 Q470 660 520 652 Q570 660 620 650" stroke="#f2c230" stroke-width="4" fill="none"/></g>` +
+        `<g data-stand="660"><path d="M1250 660 L1310 600 L1370 660 Z" fill="#e8d6b0"/><path data-noink d="M1310 600 L1370 660 L1330 660 Z" fill="#cdb98f"/><path d="M1300 660 L1310 630 L1320 660 Z" fill="#8a6440"/><path d="M1310 600 L1310 560" stroke="#7a4a2a" stroke-width="4"/><path d="M1310 562 l30 8 l-30 8 Z" fill="#e3350d"/></g>` +
         ridge(720, 12, 4, "#e2b98c", 71, "", "sand") +
-        rock(560, 790, 0.55, "#c88a5c") + rock(1080, 800, 0.45, "#c88a5c", -1)
+        stand(790, rock(560, 790, 0.55, "#c88a5c")) + stand(800, rock(1080, 800, 0.45, "#c88a5c", -1))
       ),
       front: svg("", corner("#a5653c") +
         `<g stroke="#f3dcc0" stroke-width="9" stroke-linecap="round"><path d="M1400 852 L1480 832"/><circle cx="1394" cy="854" r="9" fill="#f3dcc0"/><circle cx="1486" cy="830" r="9" fill="#f3dcc0"/></g>` +
@@ -563,6 +574,7 @@
     },
 
     volcano: {
+      far: 640, horizon: 560,
       ground: [6, 24], tint: "#8a2d1d", haze: ["#e8853a", 600, 0.3],
       back: layered(
         sky("vo", [[0, "#22111c"], [0.4, "#6e2629"], [0.7, "#c9582c"], [1, "#ef9140"]]) + glow("vgl", "#ff9a3a") +
@@ -638,6 +650,7 @@
     },
 
     victory: {
+      far: 640, horizon: 520,
       ground: [6, 24], tint: "#6b4a2e", haze: ["#c99a64", 560, 0.3],
       // Strength boulders that Pokémon can push (x and y in percent, see app.js)
       boulders: [[36, 12], [74, 10]],
@@ -668,8 +681,8 @@
           `<path class="fx-flicker" style="animation-delay:-${d * 0.6}s" d="M${x} ${y - 24} q16 18 0 32 q-16 -14 0 -32 Z" fill="#ff9a3a"/><path class="fx-flicker" style="animation-delay:-${d * 0.6}s" d="M${x} ${y - 14} q9 12 0 20 q-9 -9 0 -20 Z" fill="#ffe08a"/></g>`).join("") +
         ridge(640, 20, 5, "#6e5035", 405, "", "rock") +
         L + ridge(700, 16, 4, "#8a6844", 407, "", "rock") +
-        `<g><path d="M520 740 L540 690 L560 740 Z" fill="#6a4c32"/><path data-noink d="M540 690 L560 740 L546 740 Z" fill="#7e5d3e"/><path d="M1000 760 L1016 720 L1032 760 Z" fill="#6a4c32"/></g>` +
-        rock(760, 820, 0.45, "#7a5a3c") + rock(1400, 790, 0.6, "#7a5a3c", -1) +
+        `<g data-stand="740"><path d="M520 740 L540 690 L560 740 Z" fill="#6a4c32"/><path data-noink d="M540 690 L560 740 L546 740 Z" fill="#7e5d3e"/></g><g data-stand="760"><path d="M1000 760 L1016 720 L1032 760 Z" fill="#6a4c32"/></g>` +
+        stand(820, rock(760, 820, 0.45, "#7a5a3c")) + stand(790, rock(1400, 790, 0.6, "#7a5a3c", -1)) +
         dots(24, 409, "#ffd9a0", 380, 760, 1.4, "fx-float")
       ),
       front: svg("", corner("#3e2b1b"))
@@ -718,6 +731,7 @@
     },
 
     haunted: {
+      far: 665, horizon: 580,
       ground: [6, 26], fly: 0.3, tint: "#3e2a5c", haze: ["#6b5a9a", 640, 0.3],
       back: layered(
         sky("ha", [[0, "#0d0a1d"], [0.6, "#2a1f48"], [1, "#43306a"]]) + glow("hwisp", "#8fd8ff") + sky("htower", [[0, "#2c2146"], [1, "#1e1734"]]),
@@ -745,13 +759,13 @@
         `<g fill="none" stroke="#1d1530" stroke-linecap="round"><path stroke-width="14" d="M180 660 L190 520"/><path stroke-width="8" d="M190 560 L150 520 M188 590 L230 540 M190 520 L170 480 M190 520 L215 490"/><path stroke-width="4" d="M150 520 L130 510 M230 540 L250 520 M170 480 L160 460 M215 490 L230 470"/>` +
         `<path stroke-width="14" d="M1440 660 L1430 540"/><path stroke-width="8" d="M1432 580 L1470 545 M1430 540 L1400 500 M1430 560 L1460 520"/><path stroke-width="4" d="M1470 545 L1490 540 M1400 500 L1390 480 M1460 520 L1474 500"/></g>` +
         // An iron fence round the graves
-        `<g stroke="#1d1530" stroke-width="4" stroke-linecap="round">${range(10, i => `<path d="M${470 + i * 26} 690 V650"/>`)}<path d="M466 660 H708"/></g>` +
-        `<g fill="#1d1530">${range(10, i => `<path d="M${466 + i * 26} 652 l4 -10 l4 10 Z"/>`)}</g>` +
+        `<g data-stand="690"><g stroke="#1d1530" stroke-width="4" stroke-linecap="round">${range(10, i => `<path d="M${470 + i * 26} 690 V650"/>`)}<path d="M466 660 H708"/></g>` +
+        `<g fill="#1d1530">${range(10, i => `<path d="M${466 + i * 26} 652 l4 -10 l4 10 Z"/>`)}</g></g>` +
         // Graves: each stone is lit on one side and carved with a line
-        [[290, 700, 30, 60], [404, 710, 24, 44], [1178, 705, 28, 56]].map(([x, y, r, h]) => `<path d="M${x - r} ${y} v${-h} a${r} ${r} 0 0 1 ${r * 2} 0 v${h} Z" fill="#4a3e66"/>` +
+        [[290, 700, 30, 60], [404, 710, 24, 44], [1178, 705, 28, 56]].map(([x, y, r, h]) => stand(y, `<path d="M${x - r} ${y} v${-h} a${r} ${r} 0 0 1 ${r * 2} 0 v${h} Z" fill="#4a3e66"/>` +
           `<path data-noink d="M${x - r + 6} ${y} v${-h} a${r - 6} ${r - 6} 0 0 1 ${r * 0.6} ${-(r - 8)} L${x - r * 0.2} ${y} Z" fill="#5c4f7c"/><path data-noink d="M${x - r * 0.4} ${y - h * 0.9} h${r * 0.8} M${x} ${y - h * 1.1} v${h * 0.5}" stroke="#2e2546" stroke-width="3" stroke-linecap="round"/>` +
-          `<ellipse data-noink cx="${x}" cy="${y + 2}" rx="${r * 1.5}" ry="5" fill="#140f26" opacity=".4"/>`).join("") +
-        `<g fill="#4a3e66"><rect x="1330" y="650" width="12" height="60"/><rect x="1312" y="664" width="48" height="12"/></g>` +
+          `<ellipse data-noink cx="${x}" cy="${y + 2}" rx="${r * 1.5}" ry="5" fill="#140f26" opacity=".4"/>`)).join("") +
+        `<g data-stand="710" fill="#4a3e66"><rect x="1330" y="650" width="12" height="60"/><rect x="1312" y="664" width="48" height="12"/></g>` +
         L + ridge(720, 14, 4, "#33284f", 113, "", "grass") +
         // Candles by the graves
         [[340, 735], [1230, 744]].map(([x, y], i) => `<rect x="${x - 4}" y="${y - 16}" width="8" height="16" rx="2" fill="#e8e0f4"/>${glowAt(x, y - 22, 26, "#ffd36b", 0.8, "fx-pulse")}<path class="fx-flicker" style="animation-delay:-${i}s" d="M${x} ${y - 30} q6 7 0 12 q-6 -5 0 -12 Z" fill="#ffd36b"/>`).join("") +
@@ -763,6 +777,7 @@
     },
 
     space: {
+      far: 640, horizon: 580,
       ground: [6, 26], fly: 0.25, tint: "#4a3a7a", haze: ["#6c5a9e", 560, 0.3],
       back: layered(
         sky("sc", [[0, "#100c2a"], [0.55, "#35286a"], [1, "#6a4f8f"]]) + glow("scpsy", "#c58cff") +
@@ -799,10 +814,10 @@
         `<g stroke="#7a6f8c" stroke-width="3" opacity=".6">${range(9, i => `<path d="M${-200 + i * 260} 900 L${400 + i * 100} 700"/>`)}<path d="M0 760 H1600 M0 830 H1600"/></g>` +
         `<g data-noink fill="#ffe08a" opacity=".14"><ellipse cx="500" cy="740" rx="160" ry="22"/><ellipse cx="1100" cy="740" rx="160" ry="22"/></g>` +
         // Flower planters along the plaza
-        [[300, 745], [1300, 748]].map(([x, y]) => `<rect x="${x - 60}" y="${y - 26}" width="120" height="26" rx="4" fill="#8a7f99"/><rect data-noink x="${x - 60}" y="${y - 26}" width="120" height="7" rx="3" fill="#a69cb4"/>` +
-          bush(x, y - 24, 0.42, "#4f7350", "#e58fd0")).join("") +
+        [[300, 745], [1300, 748]].map(([x, y]) => stand(y, `<rect x="${x - 60}" y="${y - 26}" width="120" height="26" rx="4" fill="#8a7f99"/><rect data-noink x="${x - 60}" y="${y - 26}" width="120" height="7" rx="3" fill="#a69cb4"/>` +
+          bush(x, y - 24, 0.42, "#4f7350", "#e58fd0"))).join("") +
         // Street lamps
-        [[500, 0], [1100, 2.5]].map(([x, d]) => `<g><rect x="${x - 4}" y="560" width="8" height="150" fill="#2a2440"/><rect x="${x - 12}" y="700" width="24" height="10" rx="3" fill="#2a2440"/><path d="M${x - 16} 552 L${x + 16} 552 L${x + 10} 540 L${x - 10} 540 Z" fill="#2a2440"/>` +
+        [[500, 0], [1100, 2.5]].map(([x, d]) => `<g data-stand="712"><rect x="${x - 4}" y="560" width="8" height="150" fill="#2a2440"/><rect x="${x - 12}" y="700" width="24" height="10" rx="3" fill="#2a2440"/><path d="M${x - 16} 552 L${x + 16} 552 L${x + 10} 540 L${x - 10} 540 Z" fill="#2a2440"/>` +
           `<circle class="fx-pulse"${d ? ` style="animation-delay:-${d}s"` : ""} cx="${x}" cy="562" r="90" fill="url(#sclamp)" opacity=".65"/><circle cx="${x}" cy="562" r="12" fill="#ffe08a"/></g>`).join("") +
         dots(26, 607, "#d9b8ff", 360, 800, 2.2, "fx-float")
       ),

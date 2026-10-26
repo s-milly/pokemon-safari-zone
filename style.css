@@ -169,6 +169,15 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
    of one pixel on screen (set from the screen size in app.js), --s its depth
    scale (smaller further back) and --f how far back it is (hazier). */
 @property --s { syntax: "<number>"; inherits: true; initial-value: 1; }
+/* Where it touches the ground and how high it is flying, in percent of the
+   screen height. Both can be animated, so a flyer's shadow follows it. */
+@property --y { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --alt { syntax: "<number>"; inherits: true; initial-value: 0; }
+.mon, .boulder, .bait, .moonstone { bottom: calc((var(--y) + var(--alt)) * 1%); }
+/* Trees, fences and signs from the pixel backgrounds, in depth order with the Pokémon */
+.stand { position: absolute; inset: 0 -48px; pointer-events: none; }
+.stand svg { display: block; width: 100%; height: 100%; }
+.stand image { image-rendering: pixelated; }
 .mon {
   --gw: 40; --s: 1; --f: 0; --dir: 1;
   position: absolute; width: calc(var(--gw) * var(--px, 3) * var(--s) * 1px);
@@ -183,7 +192,9 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
 }
 .mon.is-in img { opacity: 1; transform: none; animation: breathe 3.2s ease-in-out .6s infinite; }
 .mon--float.is-in img { animation: bob 2.8s ease-in-out .6s infinite; }
-.mon--float .mon__shadow { left: 25%; right: 25%; opacity: .6; }
+.mon--float .mon__shadow { left: 25%; right: 25%; opacity: max(.22, calc(.6 - var(--alt) * .008)); }
+/* The shadow stays on the ground under a flyer or climber, smaller the higher it is */
+.mon__shadow { translate: 0 calc(var(--alt) * var(--vh1, 9px)); scale: max(.5, calc(1 - var(--alt) * .01)); }
 .mon.is-flipped img { scale: -1 1; }
 .mon__shadow {
   position: absolute; left: 15%; right: 15%; bottom: -4%; height: 10%;

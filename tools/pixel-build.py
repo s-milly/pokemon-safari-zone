@@ -9,12 +9,14 @@ Run from the project folder: python3 tools/pixel-build.py
 Needs Pillow.
 """
 import base64, io, json, os
+import numpy as np
 from PIL import Image, ImageEnhance
 
 SRC, OUT = "tools/.pixel", "px"
 UNIT = 1600 / 480          # drawing units per pixel
 BIG_X, BIG_Y = -800, -900  # where the wide canvas for moving parts starts
-COLORS = {"0": 32, "1": 48, "2": 64, "front": 24}
+COLORS = {"0": 40, "1": 48, "2": 64, "front": 24}
+EXTRA = 12                 # of those, kept for small things in their own colour
 
 # A 3 by 5 pixel font for the signs (rows top to bottom, 1 = ink)
 FONT = {
@@ -65,7 +67,20 @@ def palette_for(images, n):
     all_px = Image.new("RGB", (width, 1)); x = 0
     for s in strips:
         all_px.paste(s, (x, 0)); x += s.width
-    return all_px.quantize(n, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE)
+    # Most colours go where most pixels are (sky, grass). A few more are kept for
+    # small things in a colour of their own, like red roofs and flowers, so they
+    # are not swallowed by the big areas around them.
+    base = all_px.quantize(n - EXTRA, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE)
+    pal = np.array(base.getpalette()[:3 * (n - EXTRA)], float).reshape(-1, 3)
+    colors = np.unique(np.frombuffer(all_px.tobytes(), np.uint8).reshape(-1, 3), axis=0).astype(float)
+    for _ in range(EXTRA):
+        gap = np.sqrt(((colors[:, None, :] - pal[None, :, :]) ** 2).sum(-1)).min(1)
+        if gap.max() < 36:
+            break
+        pal = np.vstack([pal, colors[gap.argmax()]])
+    out = Image.new("P", (1, 1))
+    out.putpalette([int(v) for v in pal.flatten()] + [0, 0, 0] * (256 - len(pal)))
+    return out
 
 
 def to_palette(im, pal):
@@ -117,10 +132,12 @@ def main():
             name = layer["name"]
             still = bolder(Image.open(f"{SRC}/{key}-{name}.png").convert("RGBA"))
             moving = [bolder(Image.open(f"{SRC}/{f['file']}").convert("RGBA")) for f in layer["fx"]]
-            pal = palette_for([still] + moving, COLORS[name])
+            standing = [bolder(Image.open(f"{SRC}/{st['file']}").convert("RGBA")) for st in layer["stands"]]
+            pal = palette_for([still] + moving + standing, COLORS[name])
             still = to_palette(still, pal)
             for t in layer["texts"]:
-                write_text(still, t)
+                if t.get("stand") is None:
+                    write_text(still, t)
             still.save(f"{OUT}/{key}-{name}.png", optimize=True)
             parts = [f'<image href="{OUT}/{key}-{name}.png" width="1600" height="900"/>']
             thumb_parts = [still]
@@ -140,6 +157,24 @@ def main():
                     if f["opacity"]:
                         rest.putalpha(rest.getchannel("A").point(lambda v, o=float(f["opacity"]): int(v * o)))
                     thumb_parts.append(rest)
+            # Things standing on the ground are drawn by the game, in depth order with the Pokémon
+            for n, (st, im) in enumerate(zip(layer["stands"], standing)):
+                im = to_palette(im, pal)
+                # A sign's words go on the sign (drawn on the wide canvas, see step 1)
+                for t in layer["texts"]:
+                    if t.get("stand") == n:
+                        write_text(im, {**t, "x": t["x"] - BIG_X / UNIT, "y": t["y"] - BIG_Y / UNIT})
+                box = im.getbbox()
+                if not box:
+                    continue
+                crop = im.crop(box)
+                out[key].setdefault("stands", []).append({
+                    "base": st["base"], "href": data_uri(crop),
+                    "x": round(BIG_X + box[0] * UNIT, 2), "y": round(BIG_Y + box[1] * UNIT, 2),
+                    "w": round(crop.width * UNIT, 2), "h": round(crop.height * UNIT, 2)})
+                rest = Image.new("RGBA", (480, 270))
+                rest.paste(crop, (box[0] + round(BIG_X / UNIT), box[1] + round(BIG_Y / UNIT)))
+                thumb_parts.append(rest)
             svg = f'<svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">{"".join(parts)}</svg>'
             if name == "front":
                 out[key]["front"] = svg

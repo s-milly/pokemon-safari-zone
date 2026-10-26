@@ -11,9 +11,9 @@ A classroom volume game. Put a habitat up on the board and press Start. While th
 - **Too loud:** if the room stays over the goal for more than half a second, every Pokémon on screen flees and the wait starts over. In Settings you can switch this so the scene pauses instead, and the Pokémon come back once it is quiet again.
 - **Wandering:** Pokémon walk slowly around the habitat and turn to face the way they are going. Their size comes from their Pokédex height, scaled down so a 9 meter Onix still fits on screen next to a 30 centimeter Caterpie.
 - **Movement:** Pokémon take small steps as they walk, quicker for small ones and slower for big ones. A few small, bouncy ones hop and long ones slither. Now and then one glances back or gives a little hop while standing. Each sprite turns to face the way it is going.
-- **Perspective:** Pokémon are full size at the front of the scene and shrink steadily the further back they go. They stand on their shadows, except the ones whose sprite shows them flying (like Pidgeot, Zubat, Gastly, Magnemite and the legendary birds), which hover above theirs.
+- **Perspective:** Pokémon are full size at the front of the scene and shrink toward the horizon the further back they go. With the pixel backgrounds they can walk well back into each scene: trees, fences, signs, rocks and lamps are drawn in front of a Pokémon standing behind them, and spots where one would be hidden are skipped. Flyers fly high over the scene, with their shadow on the ground below them. They stand on their shadows, except the ones whose sprite shows them flying (like Pidgeot, Zubat, Gastly, Magnemite and the legendary birds), which hover above theirs.
 - **Habitat activities:** now and then, instead of a walk, a Pokémon does something that fits where it lives:
-  - Route 1: steps a little way into the tall grass, ducks down and pops back up a couple of times to look around (the grass shakes as it moves), then walks out. Snorlax lies down for a nap. Jigglypuff sings, and every other Pokémon on screen falls asleep for a while. Now and then a wild Meowth brings Team Rocket along in their Meowth balloon, and they blast off again.
+  - Route 1: steps a little way into the tall grass, ducks down and pops back up a couple of times to look around (the grass shakes as it moves), then walks out. Snorlax lies down for a nap. Jigglypuff sings, and every other Pokémon on screen falls asleep for a while, eyes closed (flyers come down to the ground to sleep). Now and then a wild Meowth brings Team Rocket along in their Meowth balloon, and they blast off again.
   - Viridian Forest: Caterpie, Weedle and Venonat climb a tree; Caterpie, Metapod, Weedle and Kakuna hang from a branch on a silk thread.
   - Pewter City: Sandshrew, Sandslash, Diglett and Dugtrio dig into the ground, tunnel along leaving a trail of dirt, and pop up somewhere else.
   - Mt. Moon: Clefairy and Clefable dance around the Moon Stone. Zubat and Golbat roost upside down on the ceiling and swoop back down. Graveler and Golem curl up and use Rollout the way they are facing.
@@ -54,6 +54,7 @@ style.css    styles, phone layout and reduced motion
 pokemon.js   habitats, the Pokémon in each one and their Pokédex heights
 scenes.js    the drawn backgrounds for each habitat, in depth layers, in the outlined style
 scenes-pixel.js, px/  the pixel art backgrounds, made from scenes.js (see below)
+px/sleep/    sleeping sprites with closed eyes, made by tools/sleep-eyes.py
 scenes-classic.js  the original flat backgrounds, chosen in Settings
 app.js       microphone meter, timing, spawning, fleeing and the Pokédex
 ```
