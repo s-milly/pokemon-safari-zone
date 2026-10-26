@@ -578,37 +578,46 @@
         ridge(360, 40, 4, "#d7925e", 53, "", "rock") +
         `<g fill="none" stroke="#c47c4b" stroke-width="3" opacity=".6">${range(6, i => `<path d="M0 ${400 + i * 16} Q400 ${390 + i * 16} 800 ${404 + i * 16} T1600 ${398 + i * 16}"/>`)}</g>` +
         ridge(440, 30, 5, "#c47c4b", 59, "", "rock") +
-        // Fossils in the wall, as in the games: Omanyte's coiled shell (the Helix Fossil)
-        // and Kabuto's domed shell (the Dome Fossil), each set in a hollow in the rock
+        // Fossils in the wall, as in the games: the Helix Fossil (Omanyte's shell, like a
+        // nautilus on its side) and the Dome Fossil (Kabuto's smooth rounded shell)
         (() => {
-          const gold = "#d9b067", lit = "#f0d290", deep = "#a8783c", edge = "#7a4a26";
-          // Helix: a shell coiling in toward the middle, with ridges across the outer turn
-          const hx = 500, hy = 410;
+          const gold = "#bf9f44", lit = "#e4d07e", deep = "#856524", edge = "#3a2410";
+          const hollow = (x, y, rx, ry) => `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="#9a5a34" opacity=".55"/>`;
+          const slab = (x, y, w) => `<path d="M${x - w} ${y - 14} Q${x - w} ${y - 30} ${x - w + 16} ${y - 32} L${x + w - 14} ${y - 36} Q${x + w} ${y - 36} ${x + w} ${y - 20} L${x + w - 4} ${y + 30} Q${x + w - 6} ${y + 42} ${x + w - 20} ${y + 42} L${x - w + 14} ${y + 44} Q${x - w} ${y + 44} ${x - w} ${y + 30} Z" fill="#a8842e" stroke="${edge}" stroke-width="5"/>` +
+            `<g data-noink stroke="#7a5a1c" stroke-width="6" stroke-linecap="round">${range(5, i => `<path d="M${x - w + 18 + i * (w * 2 - 36) / 4} ${y + 2} v32"/>`)}</g>` +
+            `<path data-noink d="M${x - w + 6} ${y - 12} H${x + w - 6}" stroke="#d8bb5c" stroke-width="5" stroke-linecap="round"/>`;
+          // Helix: one big whorl, a small spiral of about a turn and a half up in its
+          // top right, bands sweeping round from the spiral, and the dark opening low on the left
+          const hx = 500, hy = 406, R = 52, sx = hx + 16, sy = hy - 14;
           let coil = "";
-          for (let t = 0; t <= Math.PI * 4.4; t += 0.2) {
-            const r = 6 + t * 3.4, x = hx + Math.cos(t) * r, y = hy + Math.sin(t) * r * 0.92;
+          for (let t = 0; t <= Math.PI * 3; t += 0.2) {
+            const r = 3 + t * 2.4, x = sx + Math.cos(t + 1) * r, y = sy + Math.sin(t + 1) * r;
             coil += `${coil ? " L" : "M"}${x.toFixed(1)} ${y.toFixed(1)}`;
           }
-          const ridges = range(11, i => { const t = -0.4 + i * 0.5, a = 34, b = 52;
-            return `<path d="M${(hx + Math.cos(t) * a).toFixed(1)} ${(hy + Math.sin(t) * a * 0.92).toFixed(1)} L${(hx + Math.cos(t) * b).toFixed(1)} ${(hy + Math.sin(t) * b * 0.92).toFixed(1)}"/>`; });
-          const helix = `<ellipse cx="${hx}" cy="${hy + 4}" rx="74" ry="66" fill="#9a5a34" opacity=".55"/>` +
-            `<ellipse cx="${hx}" cy="${hy}" rx="56" ry="52" fill="${gold}" stroke="${edge}" stroke-width="5"/>` +
-            `<path data-noink d="M${hx - 40} ${hy - 30} A56 52 0 0 1 ${hx + 30} ${hy - 44}" fill="none" stroke="${lit}" stroke-width="7" stroke-linecap="round"/>` +
-            `<g data-noink fill="none" stroke="${deep}" stroke-width="4" stroke-linecap="round">${ridges}</g>` +
-            `<path data-noink d="${coil}" fill="none" stroke="${edge}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>` +
-            // Tentacles curling out of the opening
-            `<g data-noink fill="none" stroke="${deep}" stroke-width="6" stroke-linecap="round"><path d="M${hx - 50} ${hy + 26} q-14 10 -8 24"/><path d="M${hx - 38} ${hy + 40} q-8 14 4 22"/><path d="M${hx - 22} ${hy + 48} q0 14 12 16"/></g>`;
-          // Dome: a rounded shell with a rim and a ridge down the middle, little legs underneath
-          const dx = 1160, dy = 474;
-          const dome = `<ellipse cx="${dx}" cy="${dy - 24}" rx="98" ry="64" fill="#9a5a34" opacity=".55"/>` +
-            `<g data-noink fill="none" stroke="${deep}" stroke-width="6" stroke-linecap="round">${range(4, i => `<path d="M${dx - 42 + i * 28} ${dy - 2} l${i < 2 ? -8 : 8} 14"/>`)}</g>` +
-            // The shell's dark underside, with Kabuto's two eyes looking out from it
-            `<path d="M${dx - 82} ${dy - 22} Q${dx} ${dy - 34} ${dx + 82} ${dy - 22} L${dx + 74} ${dy} Q${dx} ${dy + 6} ${dx - 74} ${dy} Z" fill="${deep}" stroke="${edge}" stroke-width="5"/>` +
-            `<g data-noink fill="${lit}"><ellipse cx="${dx - 24}" cy="${dy - 12}" rx="7" ry="5"/><ellipse cx="${dx + 24}" cy="${dy - 12}" rx="7" ry="5"/></g>` +
-            // The dome on top, lit on one side, with a ring of growth lines
-            `<path d="M${dx - 82} ${dy - 22} Q${dx - 78} ${dy - 98} ${dx} ${dy - 100} Q${dx + 78} ${dy - 98} ${dx + 82} ${dy - 22} Q${dx} ${dy - 34} ${dx - 82} ${dy - 22} Z" fill="${gold}" stroke="${edge}" stroke-width="5"/>` +
-            `<path data-noink d="M${dx - 60} ${dy - 50} Q${dx - 50} ${dy - 86} ${dx - 10} ${dy - 90}" fill="none" stroke="${lit}" stroke-width="8" stroke-linecap="round"/>` +
-            `<path data-noink d="M${dx - 58} ${dy - 34} Q${dx - 54} ${dy - 76} ${dx} ${dy - 78} Q${dx + 54} ${dy - 76} ${dx + 58} ${dy - 34}" fill="none" stroke="${deep}" stroke-width="4"/>`;
+          // Each band runs from the edge of the spiral out to the rim of the whorl
+          const bands = range(5, i => {
+            const ang = Math.PI * (0.62 + i * 0.2), dx = Math.cos(ang), dy = Math.sin(ang);
+            const fx = sx - hx, fy = sy - hy, bq = fx * dx + fy * dy, out = -bq + Math.sqrt(bq * bq - (fx * fx + fy * fy - R * R));
+            return `<path d="M${(sx + dx * 26).toFixed(1)} ${(sy + dy * 26).toFixed(1)} Q${(sx + dx * (out * 0.7) - dy * 8).toFixed(1)} ${(sy + dy * (out * 0.7) + dx * 8).toFixed(1)} ${(sx + dx * (out - 3)).toFixed(1)} ${(sy + dy * (out - 3)).toFixed(1)}"/>`;
+          });
+          const helix = hollow(hx, hy + 22, 96, 82) + slab(hx, hy + 50, 80) +
+            `<circle cx="${hx}" cy="${hy}" r="${R}" fill="${gold}" stroke="${edge}" stroke-width="5"/>` +
+            `<path data-noink d="M${hx - 34} ${hy - 32} Q${hx - 6} ${hy - 54} ${hx + 26} ${hy - 44}" fill="none" stroke="${lit}" stroke-width="8" stroke-linecap="round"/>` +
+            `<g data-noink fill="none" stroke="${edge}" stroke-width="4" stroke-linecap="round" opacity=".75">${bands}</g>` +
+            `<circle data-noink cx="${sx}" cy="${sy}" r="24" fill="${lit}" opacity=".5"/>` +
+            `<path data-noink d="${coil}" fill="none" stroke="${edge}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>` +
+            `<path d="M${hx - 46} ${hy + 4} Q${hx - 40} ${hy + 46} ${hx + 8} ${hy + 52} Q${hx + 4} ${hy + 22} ${hx - 22} ${hy + 6} Q${hx - 36} ${hy - 2} ${hx - 46} ${hy + 4} Z" fill="#5a3a14"/>` +
+            `<path d="M${hx - 34} ${hy - 30} Q${hx - 56} ${hy + 2} ${hx - 42} ${hy + 34}" fill="none" stroke="${edge}" stroke-width="5" stroke-linecap="round"/>`;
+          // Dome: a smooth egg-shaped shell, lit on top, with one curved line along its
+          // lower left edge and a few speckles
+          const dx = 1160, dy = 424;
+          const dome = hollow(dx, dy + 18, 118, 86) + slab(dx, dy + 50, 96) +
+            `<path d="M${dx - 84} ${dy + 34} Q${dx - 96} ${dy - 30} ${dx - 40} ${dy - 58} Q${dx + 20} ${dy - 86} ${dx + 70} ${dy - 50} Q${dx + 98} ${dy - 22} ${dx + 82} ${dy + 26} Q${dx + 74} ${dy + 42} ${dx + 54} ${dy + 42} L${dx - 70} ${dy + 44} Q${dx - 82} ${dy + 42} ${dx - 84} ${dy + 34} Z" fill="${gold}" stroke="${edge}" stroke-width="5"/>` +
+            `<path data-noink d="M${dx - 30} ${dy - 50} Q${dx + 16} ${dy - 74} ${dx + 58} ${dy - 42}" fill="none" stroke="${lit}" stroke-width="12" stroke-linecap="round"/>` +
+            // The rounded front lobe, outlined in a C, with speckles on it
+            `<path d="M${dx - 34} ${dy - 22} Q${dx - 82} ${dy - 18} ${dx - 76} ${dy + 20} Q${dx - 70} ${dy + 44} ${dx - 20} ${dy + 44} L${dx + 30} ${dy + 42} Q${dx + 34} ${dy + 6} ${dx - 34} ${dy - 22} Z" fill="#cdb05a" stroke="${edge}" stroke-width="4" stroke-linejoin="round"/>` +
+            `<path data-noink d="M${dx - 52} ${dy - 6} Q${dx - 40} ${dy - 16} ${dx - 22} ${dy - 12}" fill="none" stroke="${lit}" stroke-width="6" stroke-linecap="round"/>` +
+            `<g data-noink fill="${deep}"><circle cx="${dx - 30}" cy="${dy + 18}" r="4"/><circle cx="${dx - 12}" cy="${dy + 10}" r="3.5"/><circle cx="${dx - 6}" cy="${dy + 28}" r="4"/><circle cx="${dx - 46}" cy="${dy + 30}" r="3"/></g>`;
           return helix + dome;
         })() +
         // A cave entrance in the middle of the wall, framed in rock, its foot where the ground in front begins
