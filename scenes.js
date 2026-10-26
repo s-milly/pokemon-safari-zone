@@ -579,10 +579,11 @@
         `<g fill="none" stroke="#c47c4b" stroke-width="3" opacity=".6">${range(6, i => `<path d="M0 ${400 + i * 16} Q400 ${390 + i * 16} 800 ${404 + i * 16} T1600 ${398 + i * 16}"/>`)}</g>` +
         ridge(440, 30, 5, "#c47c4b", 59, "", "rock") +
         // Fossils in the wall, traced from the games: the Helix Fossil from its item art
-        // and the Dome Fossil from the anime (pictures in art/), each set in a hollow in the rock
+        // and the Dome Fossil from the anime, redrawn in the wall's sandstone by
+        // tools/fossil-style.py, each set in a hollow in the rock
         `<g fill="#9a5a34" opacity=".55"><ellipse cx="500" cy="424" rx="90" ry="80"/><ellipse cx="1160" cy="428" rx="90" ry="84"/></g>` +
-        `<image href="art/helix-fossil.png" x="430" y="352" width="140" height="145"/>` +
-        `<image href="art/dome-fossil.png" x="1092" y="356" width="136" height="145"/>` +
+        `<image href="art/helix-fossil-wall.png" x="430" y="352" width="140" height="145"/>` +
+        `<image href="art/dome-fossil-wall.png" x="1092" y="356" width="136" height="145"/>` +
         // A cave entrance in the middle of the wall, framed in rock, its foot where the ground in front begins
         (() => {
           const mouth = "M706 690 V612 Q708 552 800 548 Q892 552 894 612 V690 Z";
