@@ -26,8 +26,8 @@
   delete settings.spawnSeconds; // replaced by spawnMin
   // The pixel backgrounds came with the Black and White sprites: everyone starts on them once
   if (!settings.pixelSeen) { settings.bgStyle = "pixel"; settings.pixelSeen = true; save("qsz-settings", settings); }
-  const dex = load("qsz-dex", {});
-  // The Shiny Charm stays once earned
+  let dex = load("qsz-dex", {});
+  // The Shiny Charm stays once earned, even if the Pokédex is cleared later
   const dexDone = () => Object.keys(byId).every(id => dex[id]);
   const charmOn = () => settings.charmEarned && settings.charm;
 
@@ -1678,6 +1678,16 @@
     $("#practice").hidden = !settings.practice;
     if (settings.loudMode === "flee" && hushed) setHush(false);
   }
+  $("#reset-dex").addEventListener("click", () => {
+    const seen = Object.keys(dex).filter(id => byId[id]).length;
+    const shinies = Object.values(dex).filter(e => shinyCount(e)).length;
+    const lost = `${seen} Pokémon` + (shinies ? ` and ${shinies} shiny ${shinies === 1 ? "form" : "forms"}` : "");
+    if (!confirm(`Warning: this deletes everything in the Pokédex (${lost}) and the class starts again from 0. It cannot be undone.${settings.charmEarned ? " The Shiny Charm stays." : ""}\n\nClear the Pokédex?`)) return;
+    dex = {};
+    save("qsz-dex", dex);
+    updateCount();
+    renderHome();
+  });
 
   // ---------- Dialog open and close ----------
   document.addEventListener("click", e => {
