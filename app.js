@@ -310,7 +310,7 @@
     let best = null, bestGap = -1;
     for (let i = 0; i < 24; i++) {
       const x = 10 + Math.random() * 76;
-      const y = lo + Math.random() * (flyMax - lo);
+      const y = offCrest(x, lo + Math.random() * (flyMax - lo), lo, flyMax);
       if (hiddenAt(x, y) && i < 23) continue;
       const gap = Math.min(999, ...[...visitors, ...boulders].map(v => Math.hypot(v.x - x, (v.y - y) * 1.6)));
       if (gap > bestGap) { best = { x, y }; bestGap = gap; }
@@ -455,6 +455,18 @@
     }
   }
 
+  // A place to stop that is not on the top of a hill or in the dip just past
+  // it, where it is hard to tell where a Pokémon is standing. (Walking over
+  // the top is fine.) Moves y to the near or far side of the hill, inside lo to hi.
+  function offCrest(x, y, lo, hi) {
+    if (!depth.crest) return y;
+    const top = crestAt(x), a = top - 2, b = top + VALLEY + 1;
+    if (y <= a || y >= b) return y;
+    const front = a > lo, back = b < hi;
+    if (front && (!back || Math.random() < 0.5)) return rand(lo, a);
+    return back ? rand(b, hi) : y;
+  }
+
   // Would a Pokémon standing here be hidden behind something? (Spots like
   // that are skipped, so the class can always see who came out.)
   function hiddenAt(x, y) {
@@ -523,7 +535,7 @@
     let x, y, tries = 0;
     do {
       x = 8 + Math.random() * 78;
-      y = Math.max(lo, Math.min(top, v.y + (Math.random() - 0.5) * (top - lo) * 0.8));
+      y = offCrest(x, Math.max(lo, Math.min(top, v.y + (Math.random() - 0.5) * (top - lo) * 0.8)), lo, top);
     } while ((Math.abs(x - v.x) < 15 || hiddenAt(x, y)) && ++tries < 30);
     return { x, y, alt: pickAlt(v, y), zone: "ground" };
   }
@@ -975,9 +987,9 @@
 
   function roost(v, rest) {
     const x = Math.max(10, Math.min(84, v.x + rand(-10, 10)));
-    const [lo, hi] = heightRange(v), y2 = rand(lo, hi);
+    const [lo, hi] = heightRange(v), x2 = rand(10, 84), y2 = offCrest(x2, rand(lo, hi), lo, hi);
     go(v, [{ x, y: v.y, alt: rand(72, 78) - v.y, speed: 5, end: flag("is-roosting", true) }, stay(6000, 10000),
-      { x: rand(10, 84), y: y2, alt: pickAlt(v, y2), speed: 9, ease: "cubic-bezier(.6, 0, .4, 1)", start: flag("is-roosting", false) }], rest);
+      { x: x2, y: y2, alt: pickAlt(v, y2), speed: 9, ease: "cubic-bezier(.6, 0, .4, 1)", start: flag("is-roosting", false) }], rest);
   }
 
   function driftThroughGrave(v, rest) {
@@ -1009,7 +1021,7 @@
     const [lo, hi] = heightRange(v);
     let x;
     do { x = rand(8, 86); } while (Math.abs(x - v.x) < 35);
-    go(v, [{ x, y: rand(lo, hi), speed: kind === "ember" ? 14 : 12, ease: "cubic-bezier(.3, 0, .7, 1)",
+    go(v, [{ x, y: offCrest(x, rand(lo, hi), lo, hi), speed: kind === "ember" ? 14 : 12, ease: "cubic-bezier(.3, 0, .7, 1)",
       start: w => { flag("is-running", true)(w); clearInterval(w.trail); w.trail = puffs(w, kind); },
       end: w => { flag("is-running", false)(w); clearInterval(w.trail); } }], rest);
   };
@@ -1017,7 +1029,7 @@
   let bait = null;
   function eatBait(v, rest) {
     const [lo, hi] = heightRange(v);
-    const spot = { x: rand(14, 80), y: rand(lo, hi) };
+    const bx = rand(14, 80), spot = { x: bx, y: offCrest(bx, rand(lo, hi), lo, hi) };
     const el = document.createElement("div");
     el.className = "bait";
     el.innerHTML = `<svg viewBox="0 0 60 30" aria-hidden="true"><ellipse cx="30" cy="24" rx="26" ry="6" fill="#7a5a2c"/><circle cx="20" cy="18" r="7" fill="#c0392b"/><circle cx="32" cy="15" r="8" fill="#8e44ad"/><circle cx="42" cy="19" r="6" fill="#e67e22"/><circle cx="27" cy="11" r="5" fill="#d35400"/></svg>`;
