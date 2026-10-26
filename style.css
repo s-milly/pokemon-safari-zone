@@ -59,7 +59,6 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
 .btn--big { font-size: 1.4rem; padding: .6em 2.4em; }
 .btn--small { font-size: .9rem; padding: .4em .9em; }
 .btn--icon { padding: .4em .7em; }
-.btn--danger { color: var(--bad); border-color: currentColor; }
 .btn--ghost { background: transparent; }
 .link { font: inherit; background: none; border: 0; padding: 0; color: var(--blue); text-decoration: underline; cursor: pointer; }
 .pill { font-size: .8em; background: var(--gold); color: #1e2230; padding: .05em .55em; border-radius: 999px; }
@@ -776,7 +775,6 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
 .toggle--charm.is-locked .charm { filter: brightness(0); opacity: .25; }
 .toggle--charm.is-locked > span { color: var(--muted); }
 .toggle--charm input { margin-top: 0; }
-.form__danger { border-top: 2px solid var(--line); padding-top: 16px; }
 
 /* ---------- Phone ---------- */
 @media (max-width: 760px) {

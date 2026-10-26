@@ -26,8 +26,8 @@
   delete settings.spawnSeconds; // replaced by spawnMin
   // The pixel backgrounds came with the Black and White sprites: everyone starts on them once
   if (!settings.pixelSeen) { settings.bgStyle = "pixel"; settings.pixelSeen = true; save("qsz-settings", settings); }
-  let dex = load("qsz-dex", {});
-  // The Shiny Charm stays once earned, even if the Pokédex is cleared later
+  const dex = load("qsz-dex", {});
+  // The Shiny Charm stays once earned
   const dexDone = () => Object.keys(byId).every(id => dex[id]);
   const charmOn = () => settings.charmEarned && settings.charm;
 
@@ -1678,13 +1678,6 @@
     $("#practice").hidden = !settings.practice;
     if (settings.loudMode === "flee" && hushed) setHush(false);
   }
-  $("#reset-dex").addEventListener("click", () => {
-    if (!confirm("Clear every Pokémon the class has spotted? This cannot be undone.")) return;
-    dex = {};
-    save("qsz-dex", dex);
-    updateCount();
-    renderHome();
-  });
 
   // ---------- Dialog open and close ----------
   document.addEventListener("click", e => {
