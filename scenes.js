@@ -333,7 +333,7 @@
 
   window.SCENES = {
     forest: {
-      far: 640, horizon: 540,
+      far: 640, horizon: 555,
       ground: [6, 26], tint: "#2f6b3a", haze: ["#eef3c8", 560, 0.55],
       back: layered(
         sky("fs", [[0, "#8fc9b4"], [0.35, "#d4ebc4"], [0.6, "#f8f2c4"], [1, "#f8f2c4"]]) +
@@ -373,7 +373,7 @@
     },
 
     route: {
-      far: 600, horizon: 450,
+      far: 600, horizon: 515,
       ground: [6, 26], tint: "#3f8f4a", haze: ["#ffe4b8", 540, 0.6],
       back: layered(
         sky("rt", [[0, "#4f8fd8"], [0.32, "#9cc4ec"], [0.56, "#ffe0b0"], [1, "#ffe8c2"]]) +
@@ -417,7 +417,7 @@
     },
 
     safari: {
-      far: 600, horizon: 480,
+      far: 600, horizon: 515,
       ground: [6, 26], tint: "#8a6a24", haze: ["#fdd9a0", 560, 0.55],
       back: layered(
         sky("ss", [[0, "#e5845e"], [0.32, "#f4b07a"], [0.58, "#fddca5"], [1, "#fde7b5"]]),
@@ -454,6 +454,7 @@
     },
 
     sea: {
+      horizon: 470,
       ground: [8, 34], fly: 0.25, tint: "#1f6fa0",
       // Where the water is, in drawing units of a layer: here, everything below the horizon
       water: { top: 414, bottom: 900, layer: 0 }, haze: ["#fdeccc", 420, 0.4],
@@ -523,7 +524,7 @@
     },
 
     cave: {
-      far: 615, horizon: 470,
+      far: 615, horizon: 530,
       ground: [6, 24], tint: "#4b3a6b",
       // Where the Moon Stone sits on the cave floor (x and y in percent)
       moonstone: [52, 13], haze: ["#6d5a9a", 560, 0.3],
@@ -552,7 +553,7 @@
         star(262, 534, 1.2, "#ffffff", "fx-twinkle") + star(1290, 512, 1.4, "#ffffff", "fx-twinkle", "animation-delay:-2s") +
         // Glowing mushrooms by the far wall
         `<g><rect x="1004" y="590" width="7" height="18" rx="3" fill="#e9dcff"/><path d="M994 594 Q1007 572 1021 594 Z" fill="#ff8fb1"/><rect x="1024" y="596" width="6" height="12" rx="3" fill="#e9dcff"/><path d="M1016 599 Q1027 584 1038 599 Z" fill="#ff8fb1"/></g>` +
-        L + ridge(680, 20, 4, "#56486e", 47, "", "rock") +
+        L + ridge(705, 20, 4, "#56486e", 47, "", "rock") +
         // Moonlight pooling on the floor round the pond
         `<ellipse data-noink cx="800" cy="745" rx="250" ry="56" fill="#8f94d6" opacity=".4"/>` +
         `<ellipse cx="800" cy="760" rx="180" ry="28" fill="#2c2a55"/><ellipse data-noink cx="800" cy="757" rx="150" ry="18" fill="#3b4a86"/><ellipse class="fx-pulse" cx="800" cy="756" rx="120" ry="10" fill="#9ee7ff" opacity=".3"/>` +
@@ -563,7 +564,7 @@
     },
 
     fossil: {
-      far: 650, horizon: 380,
+      far: 650, horizon: 565,
       ground: [6, 24], tint: "#8a4f2a", haze: ["#fbe3c0", 520, 0.4],
       back: layered(
         sky("fo", [[0, "#eeac78"], [0.5, "#f8d2a0"], [1, "#fbe9cc"]]),
@@ -590,10 +591,10 @@
           return `<g fill="none" stroke="#9a5a34" stroke-width="16" stroke-linecap="round" opacity=".55">${bones}</g><g fill="none" stroke="#e2bb92" stroke-width="10" stroke-linecap="round">${bones}</g>`;
         })() +
         `<circle cx="1236" cy="472" r="5" fill="#9a5a34"/>` +
-        L + ridge(640, 18, 4, "#d9a777", 67, "", "sand") +
+        L + ridge(688, 18, 4, "#d9a777", 67, "", "sand") +
         `<g data-stand="690"><g stroke="#7a4a2a" stroke-width="5"><path d="M420 690 L420 640 M620 690 L620 640" fill="none"/></g><path d="M420 650 Q470 660 520 652 Q570 660 620 650" stroke="#f2c230" stroke-width="4" fill="none"/></g>` +
         `<g data-stand="660"><path d="M1250 660 L1310 600 L1370 660 Z" fill="#e8d6b0"/><path data-noink d="M1310 600 L1370 660 L1330 660 Z" fill="#cdb98f"/><path d="M1300 660 L1310 630 L1320 660 Z" fill="#8a6440"/><path d="M1310 600 L1310 560" stroke="#7a4a2a" stroke-width="4"/><path d="M1310 562 l30 8 l-30 8 Z" fill="#e3350d"/></g>` +
-        ridge(720, 12, 4, "#e2b98c", 71, "", "sand") +
+        ridge(760, 12, 4, "#e2b98c", 71, "", "sand") +
         stand(790, rock(560, 790, 0.55, "#c88a5c")) + stand(800, rock(1080, 800, 0.45, "#c88a5c", -1))
       ),
       front: svg("", corner("#a5653c") +
@@ -636,6 +637,7 @@
     },
 
     power: {
+      far: 640, horizon: 555,
       ground: [6, 26], fly: 0.15, tint: "#2c4a63", haze: ["#a9b8c9", 560, 0.3],
       back: layered(
         sky("pw", [[0, "#141f37"], [0.5, "#465e80"], [0.82, "#d49e5c"], [1, "#e9bb72"]]) + glow("pglow", "#ffe066"),
@@ -678,7 +680,7 @@
     },
 
     victory: {
-      far: 640, horizon: 520,
+      far: 640, horizon: 555,
       ground: [6, 24], tint: "#6b4a2e", haze: ["#c99a64", 560, 0.3],
       // Strength boulders that Pokémon can push (x and y in percent, see app.js)
       boulders: [[36, 12], [74, 10]],
@@ -719,6 +721,7 @@
     },
 
     snow: {
+      far: 660, horizon: 575,
       ground: [6, 24], tint: "#2f6d8f",
       haze: ["#bfe3f2", 600, 0.35],
       back: layered(
