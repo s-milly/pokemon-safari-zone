@@ -121,6 +121,9 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
 .layer--1 { --p: 14; }
 .is-classic .layer--0 { filter: blur(1.4px); }
 .is-classic .layer--1 { filter: blur(.5px); }
+/* Pixel backgrounds stay sharp: big square pixels, no blur */
+.is-pixel .layer--0 { filter: none; }
+.scene__back image, .scene__front image, .habitat__art image { image-rendering: pixelated; }
 .layer--2, .scene__stage { --p: 24; }
 .scene__front { --p: 36; inset: 0 -48px; }
 .scene__back .layer, .scene__stage, .scene__front { animation: cam 28s ease-in-out infinite alternate; }
@@ -162,17 +165,18 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
 .habitat__art * { animation: none !important; }
 .habitat__art .fx-shoot { opacity: 0; }
 
-/* A Pokémon on the stage. --k is its size from the Pokédex, --s its depth
+/* A Pokémon on the stage. --gw is its sprite's width in pixels, --px the size
+   of one pixel on screen (set from the screen size in app.js), --s its depth
    scale (smaller further back) and --f how far back it is (hazier). */
 @property --s { syntax: "<number>"; inherits: true; initial-value: 1; }
 .mon {
-  --k: 1; --s: 1; --f: 0; --dir: 1;
-  position: absolute; width: calc(min(21vh, 16vw) * var(--k) * var(--s));
+  --gw: 40; --s: 1; --f: 0; --dir: 1;
+  position: absolute; width: calc(var(--gw) * var(--px, 3) * var(--s) * 1px);
   transform: translate(-50%, 0);
 }
 .mon img {
-  display: block; width: 100%; height: auto; position: relative; z-index: 1;
-  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, .25)) saturate(calc(1 - var(--f) * .6)) brightness(calc(1 - var(--f) * .15));
+  display: block; width: 100%; height: auto; position: relative; z-index: 1; image-rendering: pixelated;
+  filter: saturate(calc(1 - var(--f) * .6)) brightness(calc(1 - var(--f) * .15));
   transform-origin: 50% 100%;
   opacity: 0; transform: translateY(18%) scale(.6);
   transition: opacity .5s ease, transform .6s cubic-bezier(.3, 1.6, .5, 1), translate 1.4s ease-in-out;
@@ -263,7 +267,11 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
 .grass--back { height: 54%; z-index: 0; }
 .grass--front { height: 46%; z-index: 2; }
 .mon.is-in-grass .grass { scale: 1 1; opacity: 1; }
-.grass svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.grass svg, .grass .px { display: block; width: 100%; height: 100%; overflow: visible; }
+/* As pixel art the clump is one picture: the whole clump sways and shakes */
+.grass .px { transform-origin: 50% 100%; animation: grass-sway 3.6s ease-in-out infinite alternate; }
+.grass--front .px { animation-delay: -1.4s; }
+.mon.is-rustling .grass .px { animation: grass-shake .1s linear 8 alternate; }
 .grass path { vector-effect: non-scaling-stroke; }
 .grass__row { transform-box: fill-box; transform-origin: 50% 100%; animation: grass-sway 3.6s ease-in-out infinite alternate; }
 .grass--front .grass__row + .grass__row { animation-delay: -1.4s; }
@@ -290,7 +298,7 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
 @keyframes sing-sway { from { transform: rotate(-6deg); } to { transform: rotate(6deg); } }
 .notes i {
   position: absolute; top: 0; left: 74%; font-style: normal; font-weight: 800; line-height: 1; opacity: 0;
-  font-size: max(26px, calc(min(21vh, 16vw) * var(--k) * var(--s) * .42)); color: #ff6fb5;
+  font-size: max(26px, calc(var(--gw) * var(--px, 3) * var(--s) * .42px)); color: #ff6fb5;
   -webkit-text-stroke: .08em #fff; paint-order: stroke fill; text-shadow: 0 2px 5px rgba(80, 20, 60, .35);
   animation: note 2.4s ease-out infinite;
 }
@@ -332,13 +340,14 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
 }
 .mon.is-under .mon__body { opacity: 0; transition: opacity .3s ease; }
 .dirt { position: absolute; transform: translate(-50%, 0); pointer-events: none; animation: dirt-fade 4s ease-in forwards; }
-.dirt svg { display: block; width: 100%; height: auto; }
+.dirt :is(svg, .px) { display: block; width: 100%; height: auto; }
+.px { image-rendering: pixelated; }
 @keyframes dirt-fade { from { opacity: .95; } to { opacity: 0; transform: translate(-50%, 0) scaleY(.4); } }
 
 /* Mt. Moon: the Moon Stone, dancing Clefairy, Zubat roosting upside down */
-.moonstone { position: absolute; width: calc(min(7vh, 5vw) * var(--s)); transform: translate(-50%, 0); }
-.moonstone svg { display: block; width: 100%; height: auto; filter: drop-shadow(0 0 6px rgba(200, 190, 255, .5)); transition: filter 1s ease; }
-.moonstone.is-glowing svg { filter: drop-shadow(0 0 18px rgba(210, 200, 255, 1)) drop-shadow(0 0 40px rgba(170, 150, 255, .8)) brightness(1.2); }
+.moonstone { position: absolute; width: calc(20px * var(--px, 3) * var(--s)); transform: translate(-50%, 0); }
+.moonstone :is(svg, .px) { display: block; width: 100%; height: auto; filter: drop-shadow(0 0 6px rgba(200, 190, 255, .5)); transition: filter 1s ease; }
+.moonstone.is-glowing :is(svg, .px) { filter: drop-shadow(0 0 18px rgba(210, 200, 255, 1)) drop-shadow(0 0 40px rgba(170, 150, 255, .8)) brightness(1.2); }
 .mon.is-dancing img { animation: dance .45s ease-in-out infinite alternate; }
 @keyframes dance { to { transform: translateY(-12%); } }
 .mon.is-roosting .mon__body { scale: 1 -1; }
@@ -395,8 +404,8 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
 @keyframes ember { from { opacity: 1; scale: 1; } to { opacity: 0; scale: .3; translate: -50% -260%; } }
 .mon.is-eating img { animation: nibble .7s ease-in-out infinite; }
 @keyframes nibble { 50% { transform: translateY(5%) rotate(-3deg); } }
-.bait { position: absolute; width: calc(min(6vh, 4.5vw) * var(--s)); transform: translate(-50%, 0); transition: opacity .8s ease, scale .8s ease; }
-.bait svg { display: block; width: 100%; height: auto; }
+.bait { position: absolute; width: calc(18px * var(--px, 3) * var(--s)); transform: translate(-50%, 0); transition: opacity .8s ease, scale .8s ease; }
+.bait :is(svg, .px) { display: block; width: 100%; height: auto; }
 .bait.is-gone { opacity: 0; scale: .4; }
 
 /* Power Plant: charging up with sparks */
@@ -422,7 +431,7 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
   left: calc(var(--hx) * 100%); bottom: calc((var(--hy) - var(--sink)) * 100%);
   animation: ball-bounce .9s infinite; transition: translate .9s ease-out, opacity .9s ease;
 }
-.ball svg { display: block; width: 100%; height: auto; animation: spin 1.8s linear infinite; filter: drop-shadow(0 3px 3px rgba(0, 0, 0, .25)); }
+.ball :is(svg, .px) { display: block; width: 100%; height: auto; animation: spin 1.8s linear infinite; filter: drop-shadow(0 3px 3px rgba(0, 0, 0, .25)); }
 .ball.is-tossed { translate: 120% -320%; opacity: 0; }
 @keyframes ball-bounce {
   0%, 100% { transform: translateY(0); animation-timing-function: cubic-bezier(.2, .7, .4, 1); }
@@ -549,9 +558,9 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
 .mon.aura--bubble.aura img { filter: drop-shadow(0 0 16px rgba(255, 170, 225, 1)) brightness(1.1); }
 
 /* Team Rocket's Meowth balloon, and the twinkle as they blast off */
-.rocket { position: absolute; width: min(22vh, 34vw); translate: -50% 0; pointer-events: none; }
+.rocket { position: absolute; width: calc(60px * var(--px, 3)); translate: -50% 0; pointer-events: none; }
 .rocket__ship { animation: balloon 3.2s ease-in-out infinite alternate; transform-origin: 50% 0; }
-.rocket svg { display: block; width: 100%; height: auto; filter: drop-shadow(0 8px 10px rgba(0, 0, 0, .3)); }
+.rocket :is(svg, .px) { display: block; width: 100%; height: auto; filter: drop-shadow(0 8px 10px rgba(0, 0, 0, .3)); }
 .rocket.is-blasting .rocket__ship { animation: tumble .5s linear infinite; transform-origin: 50% 50%; }
 @keyframes balloon { from { transform: translateY(-3%) rotate(-2deg); } to { transform: translateY(3%) rotate(2deg); } }
 @keyframes tumble { to { transform: rotate(360deg); } }
@@ -561,8 +570,8 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
 @keyframes ding { 0% { opacity: 0; transform: scale(0); } 20% { opacity: 1; transform: scale(1.3) rotate(45deg); } 50% { transform: scale(.9) rotate(45deg); } 100% { opacity: 0; transform: scale(.6) rotate(90deg); } }
 
 /* Strength boulders in Victory Road */
-.boulder { position: absolute; width: calc(min(15vh, 11vw) * var(--s)); transform: translate(-50%, 0); }
-.boulder svg { display: block; width: 100%; height: auto; position: relative; z-index: 1; filter: drop-shadow(0 4px 6px rgba(0, 0, 0, .3)) brightness(calc(1 - var(--f) * .15)); }
+.boulder { position: absolute; width: calc(40px * var(--px, 3) * var(--s)); transform: translate(-50%, 0); }
+.boulder :is(svg, .px) { display: block; width: 100%; height: auto; position: relative; z-index: 1; filter: drop-shadow(0 4px 6px rgba(0, 0, 0, .3)) brightness(calc(1 - var(--f) * .15)); }
 
 /* Shh overlay */
 .scene__hush {
@@ -667,7 +676,7 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
   border: 2px solid var(--line); border-radius: 18px; padding: 12px; text-align: center;
   display: flex; flex-direction: column; align-items: center; gap: 2px;
 }
-.dex__card img { width: 100%; max-width: 120px; aspect-ratio: 1; object-fit: contain; }
+.dex__card img { width: 100%; max-width: 120px; aspect-ratio: 1; object-fit: contain; image-rendering: pixelated; }
 .dex__card.is-unseen img { filter: brightness(0); opacity: .18; }
 .dex__card.is-unseen b { color: var(--muted); }
 .dex__num { font-size: .8rem; color: var(--muted); }
@@ -708,7 +717,7 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
 .chart__cross { stroke: var(--muted); stroke-width: 1; }
 .chart__dot { fill: var(--chart-line); stroke: var(--card); stroke-width: 2; }
 .chart__dot.is-over { fill: var(--chart-over); }
-.chart__mon { position: absolute; transform: translateX(-50%); aspect-ratio: 1; object-fit: contain; pointer-events: none; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .25)); }
+.chart__mon { position: absolute; transform: translateX(-50%); aspect-ratio: 1; object-fit: contain; pointer-events: none; image-rendering: pixelated; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .25)); }
 .chart__tip {
   position: absolute; z-index: 2; pointer-events: none; white-space: nowrap;
   background: var(--card); color: var(--ink); border: 2px solid var(--line); border-radius: 10px;
@@ -724,7 +733,7 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
 .summary__table div { overflow-x: auto; }
 .caught { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; }
 .caught__card { border: 2px solid var(--line); border-radius: 18px; padding: 10px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.caught__card img { width: 100%; max-width: 90px; aspect-ratio: 1; object-fit: contain; }
+.caught__card img { width: 100%; max-width: 90px; aspect-ratio: 1; object-fit: contain; image-rendering: pixelated; }
 .caught__card small { color: var(--muted); font-size: .85rem; }
 .caught__empty { grid-column: 1 / -1; }
 .tag { font-size: .75rem; font-weight: 700; padding: .1em .6em; border-radius: 999px; background: var(--gold); color: #1e2230; }
@@ -765,7 +774,6 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
   .dialog.is-big { font-size: 1.15rem; }
   .meter { right: 12px; width: 20px; height: 34vh; }
   .practice input { width: 100px; }
-  .mon { width: calc(min(16vh, 28vw) * var(--k) * var(--s)); }
   .scene__stage { bottom: 15vh; }
   .boulder { width: calc(min(11vh, 20vw) * var(--s)); }
   .dex { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); padding: 4px 16px 20px; gap: 10px; }

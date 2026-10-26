@@ -10,8 +10,8 @@ A classroom volume game. Put a habitat up on the board and press Start. While th
 - **Quiet time:** the microphone measures how loud the room is. While the class stays under the goal, a new Pokémon appears about every 1 to 2 minutes of quiet (the exact wait is random each time, and Settings can make it faster or slower).
 - **Too loud:** if the room stays over the goal for more than half a second, every Pokémon on screen flees and the wait starts over. In Settings you can switch this so the scene pauses instead, and the Pokémon come back once it is quiet again.
 - **Wandering:** Pokémon walk slowly around the habitat and turn to face the way they are going. Their size comes from their Pokédex height, scaled down so a 9 meter Onix still fits on screen next to a 30 centimeter Caterpie.
-- **Movement:** Pokémon take small steps as they walk, quicker for small ones and slower for big ones. A few small, bouncy ones hop and long ones slither. Now and then one glances back or gives a little hop while standing. Each picture turns to face the way it is going, based on which way its artwork faces.
-- **Perspective:** Pokémon are full size at the front of the scene and shrink steadily the further back they go. They stand on their shadows, except the ones whose artwork shows them flying (like Pidgeot, Zubat, Gastly, Magnemite and the legendary birds), which hover above theirs.
+- **Movement:** Pokémon take small steps as they walk, quicker for small ones and slower for big ones. A few small, bouncy ones hop and long ones slither. Now and then one glances back or gives a little hop while standing. Each sprite turns to face the way it is going.
+- **Perspective:** Pokémon are full size at the front of the scene and shrink steadily the further back they go. They stand on their shadows, except the ones whose sprite shows them flying (like Pidgeot, Zubat, Gastly, Magnemite and the legendary birds), which hover above theirs.
 - **Habitat activities:** now and then, instead of a walk, a Pokémon does something that fits where it lives:
   - Route 1: ducks into the tall grass, which closes over it and shakes as it moves, and peeks out to look around. Snorlax lies down for a nap. Jigglypuff sings, and every other Pokémon on screen falls asleep for a while. Now and then a wild Meowth brings Team Rocket along in their Meowth balloon, and they blast off again.
   - Viridian Forest: Caterpie, Weedle and Venonat climb a tree; Caterpie, Metapod, Weedle and Kakuna hang from a branch on a silk thread.
@@ -31,7 +31,8 @@ A classroom volume game. Put a habitat up on the board and press Start. While th
 - **Swimming:** in the Open Sea, water Pokémon swim with their lower part under the surface, sitting a little higher or lower each time they move, with the water lapping at them. Further out they get smaller and ride higher in the water so they stay easy to see.
 - **Up to 4 at a time:** when a fifth Pokémon arrives, the one that has been there longest wanders off.
 - **Depth:** each background has far, middle and near layers. Far layers are hazier and drift more slowly, like a slow camera pan.
-- **Background style:** the backgrounds are drawn to match the official Pokémon artwork, with clean coloured outlines (a darker shade of each colour, thicker on nearer layers), a lit edge along the top of each hill and clear, bright colours. The original flat drawings are kept, and Settings can switch back to them.
+- **Sprites:** every Pokémon uses its animated sprite from Pokémon Black and White 2, shiny forms included. Each sprite is drawn at its own pixel size, so bigger Pokémon are bigger.
+- **Background style:** the backgrounds are pixel art, at the same pixel size as the sprites, so the Pokémon and the scenes look like one game. Clouds, stars, glows and waves still move. The props (boulders, the Moon Stone, bait, the beach ball, the tall grass a Pokémon hides in, Team Rocket's balloon) are pixel art too. Settings can switch to the outlined drawings or the original flat ones.
 - **Rarity:** most Pokémon are common, some are uncommon and a few are rare (final evolutions, legendaries, Snorlax, Lapras, the Eevee evolutions and others). About 1 in 40 is shiny, and you can turn shinies off.
 - **Class Pokédex:** every Pokémon the class has spotted is saved, with how many times it was seen. Ones not found yet show as silhouettes. Flip the **Shiny forms** switch to see the shiny Pokédex.
 - **Session summary:** press **End session** (or **← Habitats**) and a summary shows how long the class watched, how much of that time it stayed under the goal, its longest quiet stretch, how many times it got too loud, how many Pokémon appeared and how many were new to the Pokédex. A chart shows the volume over the session, red where it went over the goal, with each Pokémon shown at the moment it appeared. Hover or tap the chart for the details at any moment, or open it as a table. **Keep watching** goes back to the same session, and **Done** returns to the habitats.
@@ -52,12 +53,15 @@ index.html   page layout: home, scene, Pokédex and Settings
 style.css    styles, phone layout and reduced motion
 pokemon.js   habitats, the Pokémon in each one and their Pokédex heights
 scenes.js    the drawn backgrounds for each habitat, in depth layers, in the outlined style
+scenes-pixel.js, px/  the pixel art backgrounds, made from scenes.js (see below)
 scenes-classic.js  the original flat backgrounds, chosen in Settings
 app.js       microphone meter, timing, spawning, fleeing and the Pokédex
 ```
 
-No build step. To run it locally, serve the folder (for example `python -m http.server`) and open `http://localhost:8000`. Browsers only allow the microphone on `https` pages or `localhost`.
+No build step. The pixel backgrounds are made from the drawings in scenes.js; after changing scenes.js, serve the folder on port 4642 and run `node tools/pixel-render.js` then `python3 tools/pixel-build.py` (needs Playwright and Pillow).
+
+To run it locally, serve the folder (for example `python -m http.server`) and open `http://localhost:8000`. Browsers only allow the microphone on `https` pages or `localhost`.
 
 ## Credits
 
-An unofficial fan project, not affiliated with Nintendo, Creatures Inc. or GAME FREAK, who own Pokémon and all related names and art. Pokémon artwork loads from [PokeAPI/sprites](https://github.com/PokeAPI/sprites), and heights come from [PokeAPI](https://pokeapi.co). Backgrounds are original SVG drawings.
+An unofficial fan project, not affiliated with Nintendo, Creatures Inc. or GAME FREAK, who own Pokémon and all related names and art. Pokémon sprites (from Pokémon Black and White 2) load from [PokeAPI/sprites](https://github.com/PokeAPI/sprites), and heights come from [PokeAPI](https://pokeapi.co). Backgrounds are original SVG drawings, also turned into pixel art.

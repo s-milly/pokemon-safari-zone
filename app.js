@@ -14,7 +14,7 @@
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
   // ---------- Saved settings and Pokédex (per browser) ----------
-  const DEFAULTS = { loudMode: "flee", goal: 45, sensitivity: 5, spawnMin: 60, shiny: true, showMeter: true, practice: false, bgStyle: "art" };
+  const DEFAULTS = { loudMode: "flee", goal: 45, sensitivity: 5, spawnMin: 60, shiny: true, showMeter: true, practice: false, bgStyle: "pixel" };
   function load(key, fallback) {
     try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; }
   }
@@ -23,11 +23,14 @@
   }
   const settings = { ...DEFAULTS, ...load("qsz-settings", {}) };
   delete settings.spawnSeconds; // replaced by spawnMin
+  // The pixel backgrounds came with the Black and White sprites: everyone starts on them once
+  if (!settings.pixelSeen) { settings.bgStyle = "pixel"; settings.pixelSeen = true; save("qsz-settings", settings); }
   let dex = load("qsz-dex", {});
 
   // The drawings for a habitat in the chosen style. Where things stand (ground,
   // water, ledge, boulders) is the same in both, so that always comes from SCENES.
-  const look = key => (settings.bgStyle === "classic" ? SCENES_CLASSIC : SCENES)[key];
+  const look = key => settings.bgStyle === "pixel" ? { tint: SCENES[key].tint, ...SCENES_PIXEL[key] }
+    : (settings.bgStyle === "classic" ? SCENES_CLASSIC : SCENES)[key];
 
   const byId = {};
   for (const h of HABITATS) for (const p of h.pokemon) byId[p.id] = { ...p, habitat: h.key };
@@ -87,10 +90,22 @@
     $("#start-btn").focus();
   }
 
+  // Size of one sprite pixel on screen. The pixel backgrounds are 480 by 270
+  // pixels, stretched to cover the screen; sprites use the same pixel size, but
+  // on a narrow phone they are kept smaller so a few fit side by side.
+  function setPixelSize() {
+    const w = scene.clientWidth || innerWidth, h = scene.clientHeight || innerHeight;
+    const px = Math.min(Math.max(w / 480, h / 270), w / 240);
+    scene.style.setProperty("--px", px.toFixed(3));
+  }
+  addEventListener("resize", setPixelSize);
+
   function drawScene(key) {
+    setPixelSize();
     $("#scene-back").innerHTML = look(key).layers.map((svg, i) => `<div class="layer layer--${i}">${svg}</div>`).join("");
     $("#scene-front").innerHTML = look(key).front;
     scene.classList.toggle("is-classic", settings.bgStyle === "classic");
+    scene.classList.toggle("is-pixel", settings.bgStyle === "pixel");
   }
 
   function closeScene() {
@@ -301,16 +316,14 @@
     const floats = FLOATERS.has(p.id);
     const gait = HOPPERS.has(p.id) ? " gait-hop" : SLITHERERS.has(p.id) ? " gait-slither" : "";
     el.className = `mon mon--${p.rarity}${shiny ? " mon--shiny" : ""}${floats ? " mon--float" : ""}${gait}`;
-    // Bigger Pokémon look bigger: Pokédex height, squashed so a 9 meter Onix
-    // still fits next to a 30 centimeter Caterpie
-    const size = Math.max(0.6, Math.min(2, Math.pow(p.height / 10, 0.45)));
     // Flyers hover a little above their shadow, everyone else stands on it
-    const pad = floats ? -0.12 : ART_PAD[p.id] || 0;
+    const pad = floats ? -0.12 : 0;
     // Small Pokémon take quick steps, big ones slow, heavy steps
     const step = SLOW.has(p.id) ? 1.1 : Math.max(0.36, Math.min(0.8, 0.3 + p.height * 0.012));
     // Ground Pokémon cast their shadow right under where their feet touch
     const foot = !floats && ART_FOOT[p.id];
-    el.style.cssText = `--k:${size.toFixed(2)};--pad:${pad};--step:${step.toFixed(2)}s` + (foot ? `;--fl:${foot[0]};--fr:${foot[1]}` : "");
+    // Sprites are drawn at their own pixel size (--gw), so bigger Pokémon are bigger
+    el.style.cssText = `--gw:${ART_SIZE[p.id][0]};--pad:${pad};--step:${step.toFixed(2)}s` + (foot ? `;--fl:${foot[0]};--fr:${foot[1]}` : "");
     place(el, x, y);
     // The body holds the picture so swimmers can be cut off at the waterline
     el.innerHTML = `<span class="mon__body"><img alt="${shiny ? "Shiny " : ""}${p.name}" src="${(shiny ? ART.shiny : ART.normal)(p.id)}" draggable="false"></span><span class="mon__shadow"></span><span class="mon__fx"></span>`;
@@ -342,14 +355,10 @@
     img.addEventListener("error", () => { quietMs = nextMs * 0.75; if (legend) clearWeather(); }, { once: true });
   }
 
-  // Turn to face the way it is going. The picture is mirrored only when its
-  // artwork faces the other way; ones looking straight out are never mirrored.
+  // Turn to face the way it is going. Every sprite faces left (or straight
+  // out), so it is mirrored to go right.
   function face(v, goingRight) {
-    let mirror = false;
-    if (FACES_FRONT.has(v.id)) mirror = false;
-    else if (FACES_RIGHT.has(v.id)) mirror = !goingRight;
-    else mirror = goingRight;
-    v.el.classList.toggle("is-flipped", mirror);
+    v.el.classList.toggle("is-flipped", goingRight);
     v.right = goingRight;
   }
 
@@ -533,7 +542,7 @@
       // Further out they are smaller, so they ride higher to stay easy to see
       const deep = DEEP_SWIMMERS.has(v.id) ? 0.05 : 0;
       const share = (Math.random() < 0.2 ? 0.06 : 0.12 + deep + Math.random() * 0.12) * Math.min(1, depthScale(v.y));
-      const sink = share * (ART_FILL[v.id] || 1);
+      const sink = share;
       v.el.classList.add("is-swimming");
       v.el.style.setProperty("--sink", sink.toFixed(2));
     } else {
@@ -555,7 +564,8 @@
   const spots = (list, layer) => list.map(([x, y]) => svgToStage(x, y, layer)).filter(onScreen);
   // Moving up or down without going further back (climbing, hanging) keeps the size the same
   const keepSize = (fromY, toY) => depthScale(fromY) / depthScale(toY);
-  const fillOf = v => ART_FILL[v.id] || 0.85;
+  // Sprites are cropped close around the body, so the body fills the picture
+  const fillOf = () => 1;
   const sinkTo = (v, amount) => v.el.style.setProperty("--sink", amount.toFixed(2));
   const flag = (name, on) => v => v.el.classList.toggle(name, on);
   function burst(v, name) {
@@ -581,6 +591,48 @@
   // Where the top of the head is, as a share of the picture from the left
   // and from the bottom (for balancing a beach ball)
   const HEAD_TOP = { 86: [0.4, 0.42], 87: [0.35, 0.77] };
+
+  // ---------- Pixel props ----------
+  // Small drawings (boulders, the Moon Stone, bait, the beach ball, the grass a
+  // Pokémon hides in...) are turned into pixel art to match the sprites: drawn
+  // w by h pixels with hard edges, then shown with square pixels. The same
+  // drawing at the same size is only made once.
+  const pixelCache = new Map();
+  function pixelArt(svg, w, h) {
+    const key = `${w}x${h}${svg}`;
+    if (!pixelCache.has(key)) pixelCache.set(key, new Promise(done => {
+      const img = new Image();
+      img.onload = () => {
+        const c = document.createElement("canvas");
+        c.width = w; c.height = h;
+        const g = c.getContext("2d");
+        g.drawImage(img, 0, 0, w, h);
+        const d = g.getImageData(0, 0, w, h);
+        for (let i = 3; i < d.data.length; i += 4) d.data[i] = d.data[i] < 110 ? 0 : 255;
+        g.putImageData(d, 0, 0);
+        done(c.toDataURL());
+      };
+      img.onerror = () => done(null);
+      const sized = svg.replace(/^<svg /, `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" shape-rendering="crispEdges" `);
+      img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(sized);
+    }));
+    return pixelCache.get(key);
+  }
+  // Swap the drawing inside an element for its pixel version, w pixels wide
+  function pixelize(el, w, h) {
+    const svg = el.querySelector("svg");
+    if (!svg) return;
+    const box = svg.viewBox.baseVal;
+    h = h || Math.max(1, Math.round(w * box.height / box.width));
+    pixelArt(svg.outerHTML, Math.max(1, Math.round(w)), h).then(url => {
+      if (!url || !svg.isConnected) return;
+      const img = new Image();
+      img.src = url; img.className = "px"; img.alt = ""; img.draggable = false;
+      img.style.cssText = svg.style.cssText;
+      svg.replaceWith(img);
+    });
+  }
+  const artOf = el => el.querySelector(".px, svg");
 
   // Route 1: the Pokémon walks into a patch of tall grass, which closes over
   // it. The grass shakes whenever it moves, like a wild Pokémon in the games,
@@ -612,6 +664,10 @@
     if (!v.el.querySelector(".grass")) {
       v.el.querySelector(".mon__body").insertAdjacentHTML("beforebegin", GRASS_ART.back);
       v.el.querySelector(".mon__body").insertAdjacentHTML("afterend", GRASS_ART.front);
+      // In pixels, the clump is 1.56 times the sprite's width, and a share of its height
+      const [w, h] = ART_SIZE[v.id];
+      pixelize(v.el.querySelector(".grass--back"), w * 1.56, Math.round(h * 0.54));
+      pixelize(v.el.querySelector(".grass--front"), w * 1.56, Math.round(h * 0.46));
     }
     requestAnimationFrame(() => flag("is-in-grass", true)(v));
   }
@@ -711,6 +767,7 @@
       ball.style.setProperty("--hx", w.el.classList.contains("is-flipped") ? 1 - hx : hx);
       ball.style.setProperty("--hy", hy);
       w.el.querySelector(".mon__fx").appendChild(ball);
+      pixelize(ball, Math.max(8, ART_SIZE[w.id][0] * 0.3));
       flag("is-juggling", true)(w);
       w.cleanup = () => ball.remove();
     }, end: w => {
@@ -778,6 +835,7 @@
         clump.style.width = `${v.el.offsetWidth * 0.45}px`;
         clump.innerHTML = `<svg viewBox="0 0 40 14" aria-hidden="true"><path d="M2 14 Q8 6 20 5 Q32 6 38 14 Z" fill="#8a6440"/><circle cx="10" cy="11" r="2" fill="#6b4a32"/><circle cx="27" cy="9" r="1.6" fill="#a98256"/></svg>`;
         stage.appendChild(clump);
+        pixelize(clump, ART_SIZE[v.id][0] * 0.45);
         setTimeout(() => clump.remove(), 4200);
       }, 280);
     };
@@ -844,6 +902,7 @@
     el.className = "bait";
     el.innerHTML = `<svg viewBox="0 0 60 30" aria-hidden="true"><ellipse cx="30" cy="24" rx="26" ry="6" fill="#7a5a2c"/><circle cx="20" cy="18" r="7" fill="#c0392b"/><circle cx="32" cy="15" r="8" fill="#8e44ad"/><circle cx="42" cy="19" r="6" fill="#e67e22"/><circle cx="27" cy="11" r="5" fill="#d35400"/></svg>`;
     stage.appendChild(el);
+    pixelize(el, 18);
     place(el, spot.x, spot.y);
     bait = el;
     const d = spot.x > v.x ? 1 : -1;
@@ -954,6 +1013,7 @@
     el.className = "moonstone";
     el.innerHTML = `<svg viewBox="0 0 60 50" aria-hidden="true"><ellipse cx="30" cy="44" rx="22" ry="5" fill="rgba(0,0,0,.3)"/><path d="M14 42 L20 16 L32 6 L44 18 L48 42 Z" fill="#c9c3e6"/><path d="M32 6 L44 18 L48 42 L34 42 Z" fill="#a69fcf"/><path d="M22 20 l4 -4 M38 22 l3 6" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/></svg>`;
     stage.appendChild(el);
+    pixelize(el, 20);
     place(el, at[0], at[1]);
     moonstone = { el, x: at[0], y: at[1] };
   }
@@ -962,7 +1022,7 @@
   function freezeAll() {
     for (const b of boulders) {
       const box = b.el.getBoundingClientRect(), area = stage.getBoundingClientRect();
-      const svg = b.el.querySelector("svg"), turn = getComputedStyle(svg).transform;
+      const svg = artOf(b.el), turn = getComputedStyle(svg).transform;
       b.el.style.transition = svg.style.transition = "none";
       if (turn !== "none") { const [a, c] = turn.slice(7).split(",").map(Number); b.turn = Math.atan2(c, a) * 180 / Math.PI; }
       svg.style.transform = `rotate(${b.turn}deg)`;
@@ -1066,6 +1126,7 @@
     const key = habitat.key, el = document.createElement("div");
     el.className = "rocket";
     el.innerHTML = `<div class="rocket__ship">${ROCKET_ART}</div>`;
+    pixelize(el, 60);
     const from = Math.random() < 0.5 ? -1 : 1, hover = rand(30, 70);
     el.style.left = `${50 + from * 80}%`;
     el.style.bottom = "56%";
@@ -1120,6 +1181,7 @@
       el.className = "boulder";
       el.innerHTML = `<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="52" r="46" fill="#8d8a84"/><circle cx="37" cy="37" r="20" fill="#a8a59e"/><path d="M24 68 q26 14 52 -4 M62 20 l8 18 M70 50 l12 6" stroke="#6f6c66" stroke-width="4" fill="none" stroke-linecap="round"/></svg><span class="mon__shadow"></span>`;
       stage.appendChild(el);
+      pixelize(el, 40);
       place(el, x, y);
       return { el, x, y, turn: 0, pusher: null };
     });
@@ -1149,7 +1211,7 @@
     v.timer = setTimeout(() => {
       if (!running || paused || hushed || b.pusher !== v) { b.pusher = null; return; }
       const secs = dist / PUSH_SPEED;
-      const svg = b.el.querySelector("svg");
+      const svg = artOf(b.el);
       face(v, d > 0);
       v.el.style.transition = b.el.style.transition = `left ${secs}s linear`;
       svg.style.transition = `transform ${secs}s linear`;
