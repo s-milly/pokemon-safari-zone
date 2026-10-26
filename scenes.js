@@ -599,13 +599,23 @@
         })() +
         L + ridge(688, 18, 4, "#d9a777", 67, "", "sand") +
         `<g data-stand="690"><g stroke="#7a4a2a" stroke-width="5"><path d="M420 690 L420 640 M620 690 L620 640" fill="none"/></g><path d="M420 650 Q470 660 520 652 Q570 660 620 650" stroke="#f2c230" stroke-width="4" fill="none"/></g>` +
-        `<g data-stand="660"><path d="M1250 660 L1310 600 L1370 660 Z" fill="#e8d6b0"/><path data-noink d="M1310 600 L1370 660 L1330 660 Z" fill="#cdb98f"/><path d="M1300 660 L1310 630 L1320 660 Z" fill="#8a6440"/><path d="M1310 600 L1310 560" stroke="#7a4a2a" stroke-width="4"/><path d="M1310 562 l30 8 l-30 8 Z" fill="#e3350d"/></g>` +
+        // A small mine being dug: a wooden frame with a pulley and a lantern, a cart of rocks on rails and a pile of planks
+        `<g data-stand="662"><g fill="none" stroke="#7a4e30" stroke-width="9" stroke-linecap="round"><path d="M1236 660 L1282 572 L1328 660"/><path d="M1250 632 H1314"/></g>` +
+        `<g fill="none" stroke="#a8724a" stroke-width="3" stroke-linecap="round"><path d="M1240 652 L1282 572"/></g>` +
+        `<circle cx="1282" cy="572" r="11" fill="#6a6f78"/><circle data-noink cx="1282" cy="572" r="4" fill="#3a3a40"/><path d="M1293 572 V640" stroke="#5a4636" stroke-width="2"/>` +
+        `<path d="M1284 640 h18 l-3 16 h-12 Z" fill="#8a5a3a"/>` +
+        `<path d="M1262 632 v8" stroke="#3a2a20" stroke-width="2"/><circle class="fx-flicker" cx="1262" cy="646" r="7" fill="#ffd27a"/>` +
+        `<g stroke="#6a6f78" stroke-width="4" stroke-linecap="round"><path d="M1330 662 H1440"/></g><g fill="#7a4e30">${range(5, i => `<rect x="${1334 + i * 24}" y="658" width="8" height="6"/>`)}</g>` +
+        `<path d="M1352 626 H1420 L1414 652 H1358 Z" fill="#6a6f78"/><path data-noink d="M1352 626 H1420 L1419 632 H1353 Z" fill="#8a9098"/>` +
+        `<g fill="#9a8a80"><ellipse cx="1370" cy="624" rx="12" ry="7"/><ellipse cx="1392" cy="620" rx="13" ry="9"/><ellipse cx="1408" cy="625" rx="9" ry="6"/></g>` +
+        `<g fill="#3a3a40"><circle cx="1366" cy="656" r="6"/><circle cx="1406" cy="656" r="6"/></g>` +
+        `<g fill="#b07a4e" stroke="#7a4e30" stroke-width="2"><rect x="1180" y="652" width="52" height="8" rx="2"/><rect x="1186" y="644" width="48" height="8" rx="2"/></g></g>` +
         ridge(760, 12, 4, "#e2b98c", 71, "", "sand") +
         stand(790, rock(560, 790, 0.55, "#c88a5c")) + stand(800, rock(1080, 800, 0.45, "#c88a5c", -1))
       ),
       front: svg("", corner("#a5653c") +
         `<g stroke="#f3dcc0" stroke-width="9" stroke-linecap="round"><path d="M1400 852 L1480 832"/><circle cx="1394" cy="854" r="9" fill="#f3dcc0"/><circle cx="1486" cy="830" r="9" fill="#f3dcc0"/></g>` +
-        `<g stroke="#6b4a32" stroke-width="7" stroke-linecap="round"><path d="M240 870 L310 800"/></g><path d="M285 800 Q315 780 345 810" stroke="#8d96a0" stroke-width="10" fill="none" stroke-linecap="round"/>`)
+        `<g stroke="#6b4a32" stroke-width="7" stroke-linecap="round"><path d="M240 870 L314 796"/></g><path d="M280 770 Q336 774 340 830" stroke="#8d96a0" stroke-width="10" fill="none" stroke-linecap="round"/>`)
     },
 
     volcano: {
