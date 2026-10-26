@@ -13,18 +13,19 @@ A classroom volume game. Put a habitat up on the board and press Start. While th
 - **Movement:** Pokémon take small steps as they walk, quicker for small ones and slower for big ones. A few small, bouncy ones hop and long ones slither. Now and then one glances back or gives a little hop while standing. Each picture turns to face the way it is going, based on which way its artwork faces.
 - **Perspective:** Pokémon are full size at the front of the scene and shrink steadily the further back they go. They stand on their shadows, except the ones whose artwork shows them flying (like Pidgeot, Zubat, Gastly, Magnemite and the legendary birds), which hover above theirs.
 - **Habitat activities:** now and then, instead of a walk, a Pokémon does something that fits where it lives:
-  - Route 1: ducks into the tall grass and peeks out. Snorlax lies down for a nap.
+  - Route 1: ducks into the tall grass, which closes over it and shakes as it moves, and peeks out to look around. Snorlax lies down for a nap. Jigglypuff sings, and every other Pokémon on screen falls asleep for a while. Now and then a wild Meowth brings Team Rocket along in their Meowth balloon, and they blast off again.
   - Viridian Forest: Caterpie, Weedle and Venonat climb a tree; Caterpie, Metapod, Weedle and Kakuna hang from a branch on a silk thread.
   - Pewter City: Sandshrew, Sandslash, Diglett and Dugtrio dig into the ground, tunnel along leaving a trail of dirt, and pop up somewhere else.
-  - Mt. Moon: Clefairy and Clefable dance around the Moon Stone. Zubat and Golbat roost upside down on the ceiling and swoop back down.
-  - Lavender Town: ghosts turn see-through and drift through the gravestones. Gastly and Haunter float into the Pokémon Tower windows.
+  - Mt. Moon: Clefairy and Clefable dance around the Moon Stone. Zubat and Golbat roost upside down on the ceiling and swoop back down. Graveler and Golem curl up and use Rollout the way they are facing.
+  - Lavender Town: ghosts turn see-through and drift through the gravestones. Gastly and Haunter float into the Pokémon Tower windows. Gastly, Haunter and Gengar flicker, and sometimes fade away and show up somewhere else.
   - Saffron City: Pokémon that can learn Teleport in Red and Blue (everyone here but Ditto) teleport in a purple flash, or go into the Pokémon Center or Poké Mart for a while.
   - Safari Zone: Tauros, Doduo and Dodrio break into a run. Pokémon eat bait that appears on the ground.
   - Power Plant: electric Pokémon charge up on the glowing circles on the ground. Voltorb and Electrode roll instead of walking.
-  - Seafoam Islands: Pokémon slide across the ice, Seel and Dewgong most of all.
-  - Cinnabar Island: fire Pokémon warm up by a lava pool.
+  - Seafoam Islands: Pokémon slide across the ice, Seel and Dewgong most of all. Seel and Dewgong bounce a beach ball on their heads. Slowpoke and Slowbro barely move, and slowly when they do.
+  - Cinnabar Island: fire Pokémon warm up by a lava pool. Arcanine, Ponyta and Rapidash run, leaving a trail of embers.
   - Open Sea: swimmers dive and come up somewhere else with a splash. Magikarp flops out of the water.
   - Add `?busy` to the address (for example `.../pokemon-safari-zone/?busy`) to see the activities much more often, for a demo.
+- **Legendary arrivals:** a legendary brings its own weather before it appears: a thunderstorm and a lightning strike for Zapdos, a blizzard for Articuno, a pillar of fire for Moltres, waves of psychic power for Mewtwo and a floating bubble that pops for Mew. With reduced motion turned on, the scene only changes color.
 - **Strength boulders:** in Victory Road, Pokémon that can learn HM04 Strength in Red and Blue now and then walk up to a boulder and push it a short way.
 - **Ladder and ledge:** in Victory Road, Pokémon sometimes climb the ladder and roam the rock ledge above, looking smaller up there because they are further back. Later they climb back down.
 - **Swimming:** in the Open Sea, water Pokémon swim with their lower part under the surface, sitting a little higher or lower each time they move, with the water lapping at them. Further out they get smaller and ride higher in the water so they stay easy to see.

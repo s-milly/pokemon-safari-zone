@@ -68,6 +68,7 @@
     $("#start-error").hidden = true;
     $("#start").hidden = false;
     stage.innerHTML = "";
+    clearWeather(true);
     visitors = [];
     setBoulders(key);
     setMoonstone(key);
@@ -94,6 +95,7 @@
 
   function closeScene() {
     running = false;
+    clearWeather(true);
     scene.hidden = true;
     $("#home").hidden = false;
     stopMic();
@@ -305,7 +307,7 @@
     // Flyers hover a little above their shadow, everyone else stands on it
     const pad = floats ? -0.12 : ART_PAD[p.id] || 0;
     // Small Pokémon take quick steps, big ones slow, heavy steps
-    const step = Math.max(0.36, Math.min(0.8, 0.3 + p.height * 0.012));
+    const step = SLOW.has(p.id) ? 1.1 : Math.max(0.36, Math.min(0.8, 0.3 + p.height * 0.012));
     // Ground Pokémon cast their shadow right under where their feet touch
     const foot = !floats && ART_FOOT[p.id];
     el.style.cssText = `--k:${size.toFixed(2)};--pad:${pad};--step:${step.toFixed(2)}s` + (foot ? `;--fl:${foot[0]};--fr:${foot[1]}` : "");
@@ -314,9 +316,12 @@
     el.innerHTML = `<span class="mon__body"><img alt="${shiny ? "Shiny " : ""}${p.name}" src="${(shiny ? ART.shiny : ART.normal)(p.id)}" draggable="false"></span><span class="mon__shadow"></span><span class="mon__fx"></span>`;
     const visitor = { ...p, shiny, el, x, y };
     const img = el.querySelector("img");
-    img.addEventListener("load", () => {
+    // A legendary brings its own weather first and appears at its peak
+    const legend = LEGENDS[p.id];
+    const revealAt = legend ? performance.now() + bringWeather(legend, x, y) : 0;
+    img.addEventListener("load", () => setTimeout(() => {
       // The room got loud (or the class left) while the picture was loading
-      if (scared || hushed || !running || habitat.key !== key) return;
+      if (scared || hushed || !running || habitat.key !== key) { if (legend) clearWeather(); return; }
       stage.appendChild(el);
       requestAnimationFrame(() => el.classList.add("is-in"));
       visitors.push(visitor);
@@ -324,9 +329,17 @@
       wander(visitor);
       record(p, shiny);
       const tag = p.rarity === "rare" ? " A rare find!" : "";
-      say(shiny ? `Whoa! A shiny ${p.name} appeared!` : `A wild ${p.name} appeared!${tag}`, p.rarity === "rare" || shiny);
-    }, { once: true });
-    img.addEventListener("error", () => { quietMs = nextMs * 0.75; }, { once: true });
+      const name = shiny ? `shiny ${p.name}` : p.name;
+      if (legend) {
+        el.classList.add("aura", `aura--${legend.kind}`);
+        setTimeout(() => el.classList.remove("aura"), 6000);
+        say(`The ${legend.title || "legendary"} ${name} appeared!`, true);
+      } else {
+        say(shiny ? `Whoa! A shiny ${p.name} appeared!` : `A wild ${p.name} appeared!${tag}`, p.rarity === "rare" || shiny);
+      }
+      if (p.id === 52 && Math.random() < (BUSY ? 1 : ROCKET_ODDS)) setTimeout(teamRocket, 3500);
+    }, Math.max(0, revealAt - performance.now())), { once: true });
+    img.addEventListener("error", () => { quietMs = nextMs * 0.75; if (legend) clearWeather(); }, { once: true });
   }
 
   // Turn to face the way it is going. The picture is mirrored only when its
@@ -337,6 +350,7 @@
     else if (FACES_RIGHT.has(v.id)) mirror = !goingRight;
     else mirror = goingRight;
     v.el.classList.toggle("is-flipped", mirror);
+    v.right = goingRight;
   }
 
   // Position on the stage, with perspective: full size at the front of the
@@ -362,8 +376,11 @@
     clearTimeout(v.timer);
     v.timer = setTimeout(function step() {
       if (!v.el.isConnected) return;
-      if (!running || paused || hushed || reduceMotion.matches) return;
-      const rest = () => { v.timer = setTimeout(step, 2000 + Math.random() * 5000); };
+      if (!running || paused || hushed || reduceMotion.matches || v.asleep) return;
+      // Slowpoke and Slowbro take long rests and often do not bother moving at all
+      const slow = SLOW.has(v.id);
+      const rest = () => { v.timer = setTimeout(step, slow ? 6000 + Math.random() * 8000 : 2000 + Math.random() * 5000); };
+      if (slow && !(v.path && v.path.length) && Math.random() < 0.55) return rest();
       // Finish a route that a pause cut short
       if (v.path && v.path.length) return follow(v, rest);
       if (v.zone === "ledge") {
@@ -381,7 +398,7 @@
   }
 
   // A small, quick fidget while standing: a glance the other way, or a hop
-  const canFidget = v => !FLOATERS.has(v.id) && !ROLLERS.has(v.id) && !v.el.classList.contains("is-swimming");
+  const canFidget = v => !FLOATERS.has(v.id) && !ROLLERS.has(v.id) && !SLOW.has(v.id) && !v.el.classList.contains("is-swimming");
   function fidget(v, rest) {
     // Slitherers never hop; they only glance
     if (Math.random() < 0.5 || SLITHERERS.has(v.id)) {
@@ -410,21 +427,24 @@
   //   wait     milliseconds to stay after arriving
   //   zone     "ground" or "ledge", set on arrival
   //   keepSink leave a swimmer's depth alone
+  //   roll     degrees to spin the body on the way (Rollout)
   // The first stop is only dropped once reached, so a pause can pick it up again.
   function follow(v, done) {
     const w = v.path[0];
     if (!w) { v.path = null; return done(); }
     const x = w.x ?? v.x, y = w.y ?? v.y;
     const dist = Math.hypot(x - v.x, (y - v.y) * 2);
-    const seconds = w.secs ?? (dist > 0.01 ? Math.max(0.3, dist / (w.speed || WALK_SPEED)) : 0);
+    const pace = w.speed || WALK_SPEED * (SLOW.has(v.id) ? 0.35 : 1);
+    const seconds = w.secs ?? (dist > 0.01 ? Math.max(0.3, dist / pace) : 0);
     if (w.start) w.start(v);
     if (dist > 0.01) {
       const ease = w.ease || "linear";
       v.el.style.transition = `left ${seconds}s ${ease}, bottom ${seconds}s ${ease}, --s ${seconds}s ${ease}`;
       if (!w.noFlip && Math.abs(x - v.x) > 0.5) face(v, x > v.x);
       if (ROLLERS.has(v.id)) roll(v, x - v.x, seconds);
+      if (w.roll) roll(v, 0, seconds, w.roll, ease);
       // A small step bounce while walking (Voltorb and Electrode roll instead)
-      if (seconds > 0.05 && !ROLLERS.has(v.id)) {
+      if (seconds > 0.05 && !ROLLERS.has(v.id) && !w.roll) {
         v.el.classList.add("is-moving");
         clearTimeout(v.moveTimer);
         v.moveTimer = setTimeout(() => v.el.classList.remove("is-moving"), seconds * 1000);
@@ -556,15 +576,165 @@
   const ELECTRIC = new Set([25, 26, 81, 82, 100, 101, 125, 135, 145]);
   const FIRE = new Set([4, 5, 6, 37, 38, 58, 59, 77, 78, 126, 136, 146]);
   const ROLLERS = new Set([100, 101]);
+  const SLOW = new Set([79, 80]); // Slowpoke and Slowbro
+  const GHOSTS = new Set([92, 93, 94]);
+  // Where the top of the head is, as a share of the picture from the left
+  // and from the bottom (for balancing a beach ball)
+  const HEAD_TOP = { 86: [0.4, 0.42], 87: [0.35, 0.77] };
+
+  // Route 1: the Pokémon walks into a patch of tall grass, which closes over
+  // it. The grass shakes whenever it moves, like a wild Pokémon in the games,
+  // and now and then it pokes its head out to look around.
+  const GRASS_ART = (() => {
+    let seed = 7;
+    const r = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+    const blade = (x, h, w, lean) => `<path d="M${(x - w).toFixed(1)} 100 Q${(x - w * 0.7 + lean * 0.3).toFixed(1)} ${(100 - h * 0.6).toFixed(1)} ${(x + lean).toFixed(1)} ${(100 - h).toFixed(1)} Q${(x + w * 0.7 + lean * 0.3).toFixed(1)} ${(100 - h * 0.6).toFixed(1)} ${(x + w).toFixed(1)} 100 Z"/>`;
+    const row = (fill, edge, vein, n, tall) => {
+      let blades = "", veins = "";
+      for (let i = 0; i < n; i++) {
+        const x = (i + 0.5) * 200 / n + (r() - 0.5) * 6, t = Math.abs(x - 100) / 100;
+        // Taller in the middle, so the clump is a soft mound
+        const h = tall * (0.62 + r() * 0.2) * (1 - t * t * 0.5), lean = (r() - 0.5) * 14 + (x - 100) * 0.06;
+        blades += blade(x - 7, h * 0.78, 6, lean - 6) + blade(x + 7, h * 0.78, 6, lean + 6) + blade(x, h, 7.5, lean);
+        veins += `<path d="M${x.toFixed(1)} 98 Q${(x + lean * 0.2).toFixed(1)} ${(100 - h * 0.5).toFixed(1)} ${(x + lean * 0.8).toFixed(1)} ${(100 - h * 0.86).toFixed(1)}"/>`;
+      }
+      return `<g class="grass__row"><g fill="${fill}" stroke="${edge}" stroke-width="3" stroke-linejoin="round">${blades}</g><g fill="${fill}">${blades}</g>` +
+        `<g fill="none" stroke="${vein}" stroke-width="1.6" stroke-linecap="round" opacity=".75">${veins}</g></g>`;
+    };
+    const svg = rows => `<svg viewBox="0 0 200 100" preserveAspectRatio="none" aria-hidden="true">${rows}</svg>`;
+    const leaf = `<i class="grass__leaf"></i><i class="grass__leaf"></i><i class="grass__leaf"></i>`;
+    return {
+      back: `<span class="grass grass--back">${svg(row("#357f37", "#1d4a21", "#5aa653", 9, 100))}</span>`,
+      front: `<span class="grass grass--front">${svg(row("#4c9f47", "#22562a", "#86cf72", 8, 92) + row("#61b654", "#2a6430", "#9fe08a", 7, 70))}${leaf}</span>`
+    };
+  })();
+  function enterGrass(v) {
+    if (!v.el.querySelector(".grass")) {
+      v.el.querySelector(".mon__body").insertAdjacentHTML("beforebegin", GRASS_ART.back);
+      v.el.querySelector(".mon__body").insertAdjacentHTML("afterend", GRASS_ART.front);
+    }
+    requestAnimationFrame(() => flag("is-in-grass", true)(v));
+  }
+  function leaveGrass(v) {
+    flag("is-in-grass", false)(v);
+    setTimeout(() => { if (!v.el.classList.contains("is-in-grass")) v.el.querySelectorAll(".grass").forEach(g => g.remove()); }, 700);
+  }
+  const rustle = v => burst(v, "is-rustling");
 
   function hideInGrass(v, rest) {
     const p = anyOf(spots(GRASS, 2)), f = fillOf(v);
     const peeks = [];
     for (let i = 0; i < 2 + Math.floor(Math.random() * 2); i++) {
-      peeks.push(stay(1500, 2200, { start: w => sinkTo(w, f * 0.35) }), stay(2000, 3500, { start: w => sinkTo(w, f * 0.8) }));
+      peeks.push(stay(1400, 2000, { start: w => { rustle(w); sinkTo(w, f * 0.38); } }),
+        stay(900, 1600, { start: w => w.el.classList.toggle("is-flipped") }),
+        stay(1200, 2600, { start: w => { rustle(w); sinkTo(w, f + 0.04); } }),
+        stay(900, 1800, { start: rustle }));
     }
-    go(v, [{ x: p.x + rand(-4, 4), y: p.y }, stay(2500, 3500, { start: w => { flag("is-in-grass", true)(w); sinkTo(w, f * 0.8); } }),
-      ...peeks, stay(1500, 1500, { start: w => sinkTo(w, 0), end: flag("is-in-grass", false) })], rest);
+    go(v, [{ x: p.x + rand(-4, 4), y: p.y, end: w => { enterGrass(w); rustle(w); } },
+      stay(2200, 3200, { start: w => sinkTo(w, f + 0.04) }), stay(1200, 1800, { start: rustle }),
+      ...peeks, stay(1300, 1300, { start: w => { rustle(w); sinkTo(w, 0); }, end: leaveGrass })], rest);
+  }
+
+  // Jigglypuff sings, and every other Pokémon on screen falls asleep where it
+  // is for a while. Flyers drift down to the ground to sleep.
+  function sing(v, rest) {
+    go(v, [stay(5200, 5200, {
+      start: w => {
+        flag("is-singing", true)(w);
+        w.el.querySelector(".mon__fx").insertAdjacentHTML("beforeend", `<span class="notes">${"<i>\u266A</i><i>\u266B</i>".repeat(2)}</span>`);
+        say(`${w.name} used Sing!`);
+      },
+      end: w => { flag("is-singing", false)(w); w.el.querySelector(".notes")?.remove(); lullaby(w); }
+    }), stay(1500, 2500)], rest);
+  }
+  function lullaby(singer) {
+    const sleepers = visitors.filter(o => o !== singer && !o.asleep && o.el.isConnected);
+    if (!sleepers.length) return say(`But nobody was there to hear ${singer.name} sing.`);
+    say(sleepers.length === 1 ? `The wild ${sleepers[0].name} fell asleep!` : "The wild Pokémon fell asleep!");
+    for (const o of sleepers) fallAsleep(o, rand(14000, 20000));
+  }
+  function fallAsleep(v, ms) {
+    stopHere(v);
+    clearInterval(v.trail);
+    v.asleep = true;
+    flag("is-asleep", true)(v);
+    const [lo, hi] = SCENES[habitat.key].ground;
+    if (FLOATERS.has(v.id) && v.y > hi && !v.el.classList.contains("is-roosting")) {
+      const y = rand(lo, hi);
+      v.el.style.transition = "left 2.6s ease-in-out, bottom 2.6s ease-in-out, --s 2.6s ease-in-out";
+      place(v.el, v.x, y);
+      v.y = y; v.far = 1;
+    }
+    v.wake = setTimeout(() => {
+      v.asleep = false;
+      flag("is-asleep", false)(v);
+      if (v.el.isConnected) wander(v, 500 + Math.random() * 1500);
+    }, ms);
+  }
+
+  // Mt. Moon: Graveler and Golem curl up and roll off the way they are facing
+  function rollout(v, rest) {
+    let right = v.right ?? Math.random() < 0.5;
+    if (Math.abs((right ? 86 : 8) - v.x) < 20) right = !right; // too close to the edge: roll back the other way
+    const x = right ? rand(78, 86) : rand(8, 16), dist = Math.abs(x - v.x);
+    // Whole turns, so it ends the right way up
+    const around = v.el.offsetWidth * fillOf(v) * Math.PI / stage.clientWidth * 100;
+    const turns = Math.max(1, Math.round(dist / around));
+    v.el.style.setProperty("--ry", (1 - fillOf(v) / 2).toFixed(2));
+    go(v, [stay(800, 800, { start: w => { face(w, right); flag("is-curling", true)(w); say(`${w.name} used Rollout!`); } }),
+      { x, y: v.y, speed: 15, ease: "cubic-bezier(.45, 0, .55, 1)", noFlip: true, roll: (right ? 1 : -1) * turns * 360,
+        start: w => { flag("is-rolling", true)(w); w.trail = puffs(w, "dust"); }, end: w => { flag("is-rolling", false)(w); clearInterval(w.trail); burst(w, "fx-thud"); } },
+      stay(900, 900, { end: w => {
+        const body = w.el.querySelector(".mon__body");
+        body.style.transition = "none"; body.style.rotate = "0deg"; w.spin = 0;
+        flag("is-curling", false)(w);
+      } })], rest);
+  }
+
+  // Lavender Town: a ghost flickers in and out, and sometimes fades away
+  // completely and shows up somewhere else
+  function flickerGhost(v, rest) {
+    const flick = (lo, hi) => stay(lo, hi, { start: flag("is-flickering", true), end: flag("is-flickering", false) });
+    const vanish = Math.random() < 0.5 ? [stay(900, 900, { start: flag("is-vanished", true) }), { ...groundSpot(v), secs: 0 },
+      stay(900, 900, { start: flag("is-vanished", false) }), flick(1200, 1600)] : [];
+    go(v, [flick(2600, 3800), ...vanish], rest);
+  }
+
+  // Seafoam Islands: Seel and Dewgong bounce a beach ball on their heads
+  const BALL = `<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46" fill="#fff"/><path d="M50 4 Q22 30 26 92 A46 46 0 0 1 8 32 Z" fill="#e8463c"/><path d="M50 4 Q78 30 74 92 A46 46 0 0 0 92 32 Z" fill="#2f7fd8"/><path d="M50 4 Q46 50 50 96 Q38 96 26 92 Q22 30 50 4 Z" fill="#ffd43b"/><circle cx="50" cy="50" r="46" fill="none" stroke="#2a2a3a" stroke-width="4"/><ellipse cx="34" cy="26" rx="10" ry="6" fill="#fff" opacity=".6"/></svg>`;
+  function beachBall(v, rest) {
+    const [hx, hy] = HEAD_TOP[v.id];
+    go(v, [stay(7000, 10000, { keepSink: true, start: w => {
+      const ball = document.createElement("span");
+      ball.className = "ball";
+      ball.innerHTML = BALL;
+      ball.style.setProperty("--hx", w.el.classList.contains("is-flipped") ? 1 - hx : hx);
+      ball.style.setProperty("--hy", hy);
+      w.el.querySelector(".mon__fx").appendChild(ball);
+      flag("is-juggling", true)(w);
+      w.cleanup = () => ball.remove();
+    }, end: w => {
+      flag("is-juggling", false)(w);
+      const ball = w.el.querySelector(".ball");
+      ball?.classList.add("is-tossed");
+      setTimeout(() => ball?.remove(), 900);
+      w.cleanup = null;
+    } })], rest);
+  }
+
+  // Puffs of dust (or embers, for a fire Pokémon) left behind while running
+  function puffs(v, kind) {
+    return setInterval(() => {
+      if (!v.el.isConnected || paused || hushed) return;
+      const box = getComputedStyle(v.el);
+      const puff = document.createElement("div");
+      puff.className = `puff puff--${kind}`;
+      puff.style.left = `${parseFloat(box.left) / stage.clientWidth * 100}%`;
+      puff.style.bottom = `${parseFloat(box.bottom) / stage.clientHeight * 100}%`;
+      puff.style.width = `${v.el.offsetWidth * (kind === "ember" ? 0.32 : 0.4)}px`;
+      stage.appendChild(puff);
+      setTimeout(() => puff.remove(), 1200);
+    }, kind === "ember" ? 90 : 130);
   }
 
   function climbTree(v, rest) {
@@ -656,12 +826,15 @@
       stay(700, 700, { start: w => { flag("tp-out", false)(w); flag("tp-in", true)(w); burst(w, "fx-flash"); }, end: flag("tp-in", false) })], rest);
   }
 
-  function run(v, rest) {
+  // Sprint across the scene, kicking up dust (or leaving a trail of fire)
+  const run = kind => (v, rest) => {
     const [lo, hi] = heightRange(v);
     let x;
     do { x = rand(8, 86); } while (Math.abs(x - v.x) < 35);
-    go(v, [{ x, y: rand(lo, hi), speed: 11, start: flag("is-running", true), end: flag("is-running", false) }], rest);
-  }
+    go(v, [{ x, y: rand(lo, hi), speed: kind === "ember" ? 14 : 12, ease: "cubic-bezier(.3, 0, .7, 1)",
+      start: w => { flag("is-running", true)(w); clearInterval(w.trail); w.trail = puffs(w, kind); },
+      end: w => { flag("is-running", false)(w); clearInterval(w.trail); } }], rest);
+  };
 
   let bait = null;
   function eatBait(v, rest) {
@@ -686,10 +859,10 @@
   }
 
   // Voltorb and Electrode roll instead of walking
-  function roll(v, dx, seconds) {
+  function roll(v, dx, seconds, turn = dx * 14, ease = "linear") {
     const body = v.el.querySelector(".mon__body");
-    v.spin = (v.spin || 0) + dx * 14;
-    body.style.transition = `rotate ${seconds}s linear`;
+    v.spin = (v.spin || 0) + turn;
+    body.style.transition = `rotate ${seconds}s ${ease}`;
     body.style.rotate = `${v.spin}deg`;
   }
 
@@ -723,8 +896,9 @@
 
   const ACTIVITIES = {
     route: [
-      { chance: 0.1, who: v => walker(v) && spots(GRASS, 2).length > 0, run: hideInGrass },
-      { chance: 0.3, who: has(143), run: (v, rest) => go(v, [stay(14000, 22000, { start: flag("is-napping", true), end: flag("is-napping", false) })], rest) }
+      { chance: 0.12, who: v => walker(v) && spots(GRASS, 2).length > 0, run: hideInGrass },
+      { chance: 0.3, who: has(143), run: (v, rest) => go(v, [stay(14000, 22000, { start: flag("is-napping", true), end: flag("is-napping", false) })], rest) },
+      { chance: 0.15, who: v => v.id === 39 && visitors.some(o => o !== v && !o.asleep), run: sing }
     ],
     forest: [
       { chance: 0.12, who: v => has(10, 13, 48)(v) && TREES.some(t => onScreen(svgToStage(t.x, t.base, 1))), run: climbTree },
@@ -733,11 +907,13 @@
     fossil: [{ chance: 0.15, who: has(27, 28, 50, 51), run: dig }],
     cave: [
       { chance: 0.15, who: v => has(35, 36)(v) && !!moonstone, run: dance },
-      { chance: 0.15, who: has(41, 42), run: roost }
+      { chance: 0.15, who: has(41, 42), run: roost },
+      { chance: 0.15, who: has(75, 76), run: rollout }
     ],
     haunted: [
       { chance: 0.12, who: v => has(92, 93, 94)(v) && spots(GRAVES, 1).length > 0, run: driftThroughGrave },
-      { chance: 0.1, who: v => has(92, 93)(v) && spots(WINDOWS, 0).length > 0, run: visit(WINDOWS, 0) }
+      { chance: 0.1, who: v => has(92, 93)(v) && spots(WINDOWS, 0).length > 0, run: visit(WINDOWS, 0) },
+      { chance: 0.2, who: v => GHOSTS.has(v.id), run: flickerGhost }
     ],
     // Saffron City: everyone here but Ditto can learn Teleport in Red and Blue
     space: [
@@ -745,15 +921,19 @@
       { chance: 0.08, who: v => v.id !== 132 && spots(DOORS, 1).length > 0, run: visit(DOORS, 1) }
     ],
     safari: [
-      { chance: 0.15, who: has(84, 85, 128), run: run },
+      { chance: 0.2, who: has(84, 85, 128), run: run("dust") },
       { chance: 0.08, who: v => walker(v) && !bait, run: eatBait }
     ],
     power: [{ chance: 0.12, who: v => ELECTRIC.has(v.id) && spots(PADS, 2).length > 0, run: charge }],
     snow: [
       { chance: 0.25, who: has(86, 87), run: slide },
-      { chance: 0.1, who: walker, run: slide }
+      { chance: 0.15, who: v => has(86, 87)(v), run: beachBall },
+      { chance: 0.1, who: v => walker(v) && !SLOW.has(v.id), run: slide }
     ],
-    volcano: [{ chance: 0.12, who: v => FIRE.has(v.id) && POOLS.some(([x, y]) => onScreen(svgToStage(x, y, 2))), run: warmUp }],
+    volcano: [
+      { chance: 0.12, who: v => FIRE.has(v.id) && POOLS.some(([x, y]) => onScreen(svgToStage(x, y, 2))), run: warmUp },
+      { chance: 0.18, who: has(59, 77, 78), run: run("ember") }
+    ],
     sea: [
       { chance: 0.12, who: v => SWIMMERS.has(v.id), run: dive },
       { chance: 0.15, who: has(129), run: flop }
@@ -790,16 +970,142 @@
       place(b.el, b.x, b.y);
       b.pusher = null;
     }
-    for (const v of visitors) {
-      clearTimeout(v.timer);
-      clearTimeout(v.moveTimer);
-      v.el.classList.remove("is-moving");
-      const box = v.el.getBoundingClientRect(), area = stage.getBoundingClientRect();
-      v.el.style.transition = "none";
-      v.x = (box.left + box.width / 2 - area.left) / area.width * 100;
-      v.y = (area.bottom - box.bottom) / area.height * 100;
-      place(v.el, v.x, v.y, v.far || 1);
+    for (const v of visitors) stopHere(v);
+  }
+  // Stop one Pokémon where it is right now, mid-walk. Its route is kept, so it
+  // can carry on later.
+  function stopHere(v) {
+    clearTimeout(v.timer);
+    clearTimeout(v.moveTimer);
+    v.el.classList.remove("is-moving");
+    const box = v.el.getBoundingClientRect(), area = stage.getBoundingClientRect();
+    v.el.style.transition = "none";
+    v.x = (box.left + box.width / 2 - area.left) / area.width * 100;
+    v.y = (area.bottom - box.bottom) / area.height * 100;
+    place(v.el, v.x, v.y, v.far || 1);
+  }
+
+  // ---------- Legendary arrivals ----------
+  // A legendary brings its own weather: a thunderstorm for Zapdos, a blizzard
+  // for Articuno, a firestorm for Moltres, a wave of psychic power for Mewtwo
+  // and a floating bubble for Mew. It appears at the peak (where the lightning
+  // strikes, the bubble pops and so on), then the sky clears.
+  const LEGENDS = {
+    145: { kind: "storm", first: "Dark clouds are rolling in. Thunder rumbles in the distance..." },
+    144: { kind: "blizzard", first: "An icy wind picks up. The snow is starting to swirl..." },
+    146: { kind: "inferno", first: "The air is getting hotter and hotter..." },
+    150: { kind: "psychic", first: "A strange, heavy power fills the air..." },
+    151: { kind: "bubble", first: "A shimmering bubble is drifting closer...", title: "mythical" }
+  };
+  const WEATHER_MS = 3400;   // from the first sign to the moment it appears
+  const RAYS = Array.from({ length: 8 }, (_, i) => `<i class="w-ray" style="--a:${i * 45}deg"></i>`).join("");
+  const WEATHER_ART = {
+    storm: `<i class="w-tint"></i><i class="w-rain w-rain--far"></i><i class="w-rain"></i><i class="w-flash"></i>
+      <svg class="w-bolt" viewBox="0 0 100 400" preserveAspectRatio="none" aria-hidden="true"><path d="M62 0 L40 120 L60 128 L30 262 L54 270 L44 400" fill="none" stroke="#9fd2ff" stroke-width="16" stroke-linejoin="round" opacity=".55" vector-effect="non-scaling-stroke"/><path d="M62 0 L40 120 L60 128 L30 262 L54 270 L44 400" fill="none" stroke="#fffbe6" stroke-width="5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg><i class="w-burst"></i>`,
+    blizzard: `<i class="w-tint"></i><i class="w-wind"></i><i class="w-snow w-snow--far"></i><i class="w-snow"></i><i class="w-burst"></i>${RAYS}`,
+    inferno: `<i class="w-tint"></i><i class="w-embers w-embers--far"></i><i class="w-embers"></i><i class="w-pillar"></i><i class="w-burst"></i>`,
+    psychic: `<i class="w-tint"></i><i class="w-ring"></i><i class="w-ring"></i><i class="w-ring"></i><i class="w-burst"></i>`,
+    bubble: `<i class="w-tint"></i><i class="w-sparkle w-sparkle--far"></i><i class="w-sparkle"></i><i class="w-bubble"></i><i class="w-burst"></i>${RAYS}`
+  };
+  let weather = null;
+  function bringWeather(legend, x, y) {
+    clearWeather(true);
+    const el = document.createElement("div");
+    el.className = `weather weather--${legend.kind}`;
+    el.setAttribute("aria-hidden", "true");
+    el.style.setProperty("--x", `${x}%`);
+    el.style.setProperty("--y", `${100 - y}%`);
+    el.innerHTML = WEATHER_ART[legend.kind];
+    scene.appendChild(el);
+    requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add("is-on")));
+    say(legend.first, true);
+    weather = el;
+    el.timer = setTimeout(() => {
+      el.classList.add("is-peak");
+      if (legend.kind === "psychic" || legend.kind === "storm") { scene.classList.add("is-quaking"); setTimeout(() => scene.classList.remove("is-quaking"), 700); }
+      el.timer = setTimeout(() => clearWeather(), 3800);
+    }, WEATHER_MS);
+    return WEATHER_MS;
+  }
+  // The sky clears (or, leaving the scene, the weather is gone at once)
+  function clearWeather(now = false) {
+    const el = weather;
+    if (!el) return;
+    weather = null;
+    clearTimeout(el.timer);
+    el.classList.remove("is-on");
+    setTimeout(() => el.remove(), now ? 0 : 1800);
+  }
+
+  // ---------- Team Rocket ----------
+  // Now and then a wild Meowth brings Team Rocket along: their Meowth balloon
+  // drifts over, they say their lines, and off they blast again.
+  const ROCKET_ODDS = 0.2;
+  const ROCKET_ART = `<svg viewBox="0 0 200 300" aria-hidden="true"><g stroke="#3a2a1e" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M74 176 L70 236 M126 176 L130 236 M92 182 L88 236 M108 182 L112 236" fill="none" stroke-width="2.5"/>
+    <path d="M26 64 L22 4 L72 30 Z" fill="#f2dfae"/><path d="M174 64 L178 4 L128 30 Z" fill="#f2dfae"/>
+    <path d="M33 50 L30 16 L58 32 Z" fill="#6b4630" stroke="none"/><path d="M167 50 L170 16 L142 32 Z" fill="#6b4630" stroke="none"/>
+    <ellipse cx="100" cy="98" rx="84" ry="82" fill="#f2dfae"/>
+    <path d="M30 140 Q100 196 170 140 Q160 176 100 182 Q40 176 30 140 Z" fill="#e3c98f" stroke="none"/>
+    <ellipse cx="100" cy="46" rx="17" ry="20" fill="#f6c94a"/><ellipse cx="100" cy="46" rx="8" ry="10" fill="#fbe39a" stroke="none"/>
+    <ellipse cx="68" cy="96" rx="15" ry="19" fill="#fff"/><ellipse cx="132" cy="96" rx="15" ry="19" fill="#fff"/>
+    <ellipse cx="72" cy="100" rx="5" ry="12" fill="#2a2a2a" stroke="none"/><ellipse cx="128" cy="100" rx="5" ry="12" fill="#2a2a2a" stroke="none"/>
+    <path d="M86 128 Q93 136 100 128 Q107 136 114 128" fill="none"/>
+    <path d="M16 112 L52 120 M14 128 L52 128 M184 112 L148 120 M186 128 L148 128" fill="none" stroke-width="2.5"/>
+    <path d="M74 214 Q66 194 84 190 Q100 192 94 214 Z" fill="#d6336c"/><path d="M78 196 Q50 200 44 226 Q62 210 80 208 Z" fill="#d6336c"/>
+    <circle cx="84" cy="212" r="10" fill="#ffe0c4"/>
+    <path d="M106 212 Q106 194 120 194 Q134 196 132 212 Q124 202 112 206 Z" fill="#8e7cc3"/>
+    <circle cx="120" cy="214" r="10" fill="#ffe0c4"/>
+    <path d="M72 226 L136 226 L134 230 L70 230 Z" fill="#f4f4f4"/>
+    <path d="M64 228 L140 228 L132 278 L72 278 Z" fill="#a8743f"/>
+    <path d="M68 244 L136 244 M70 260 L134 260" fill="none" stroke="#7a512a" stroke-width="2.5"/>
+    <circle cx="102" cy="252" r="13" fill="#fff"/></g>
+    <path d="M97 260 V244 H104 Q110 244 110 249.5 Q110 255 104 255 H99 M103 255 L109 260" fill="none" stroke="#d92d2d" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  function teamRocket() {
+    if (!running || stage.querySelector(".rocket")) return;
+    const key = habitat.key, el = document.createElement("div");
+    el.className = "rocket";
+    el.innerHTML = `<div class="rocket__ship">${ROCKET_ART}</div>`;
+    const from = Math.random() < 0.5 ? -1 : 1, hover = rand(30, 70);
+    el.style.left = `${50 + from * 80}%`;
+    el.style.bottom = "56%";
+    stage.appendChild(el);
+    const gone = () => !el.isConnected || !running || habitat.key !== key;
+    let blasted = false;
+    const blastOff = quiet => {
+      if (blasted || gone()) return;
+      blasted = true;
+      if (!quiet) say("Team Rocket is blasting off again!", true);
+      el.classList.add("is-blasting");
+      el.style.transition = "left 1.5s cubic-bezier(.5, 0, .9, .5), bottom 1.5s cubic-bezier(.5, 0, .9, .5), scale 1.5s ease-in";
+      el.style.left = `${hover - from * 22}%`;
+      el.style.bottom = "100%";
+      el.style.scale = ".15";
+      setTimeout(() => {
+        const star = document.createElement("div");
+        star.className = "rocket__star";
+        star.style.left = `${hover - from * 22}%`;
+        stage.appendChild(star);
+        setTimeout(() => star.remove(), 1600);
+        el.remove();
+      }, 1450);
+    };
+    // Each line waits its turn, but a loud room sends them off early
+    const lines = [[1800, "Prepare for trouble!"], [2800, "And make it double!"], [2800, "Meowth, that is right!"], [3200, null]];
+    let at = 0;
+    for (const [wait, line] of lines) {
+      at += wait;
+      setTimeout(() => {
+        if (gone() || blasted) return;
+        if (scared || !line) return blastOff(scared);
+        say(line, true);
+      }, at);
     }
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      el.style.transition = "left 5s cubic-bezier(.2, .6, .35, 1), bottom 5s ease-in-out";
+      el.style.left = `${hover}%`;
+      el.style.bottom = "50%";
+    }));
   }
 
   // ---------- Strength boulders (Victory Road) ----------
@@ -862,6 +1168,7 @@
     clearInterval(v.trail);
     if (v.cleanup) { v.cleanup(); v.cleanup = null; }
     clearTimeout(v.swimTimer);
+    clearTimeout(v.wake);
     for (const b of boulders) if (b.pusher === v) b.pusher = null;
     visitors = visitors.filter(o => o !== v);
     v.el.style.transition = "";
