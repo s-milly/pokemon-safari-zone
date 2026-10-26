@@ -55,6 +55,7 @@ pokemon.js   habitats, the Pokémon in each one and their Pokédex heights
 scenes.js    the drawn backgrounds for each habitat, in depth layers, in the outlined style
 scenes-pixel.js, px/  the pixel art backgrounds, made from scenes.js (see below)
 px/sleep/    sleeping sprites with closed eyes, made by tools/sleep-eyes.py
+px/anim/     sprites slowed down to play smoothly (Venomoth), made by tools/slow-sprites.py
 scenes-classic.js  the original flat backgrounds, chosen in Settings
 app.js       microphone meter, timing, spawning, fleeing and the Pokédex
 ```
