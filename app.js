@@ -736,6 +736,9 @@
     };
   })();
   function enterGrass(v) {
+    // With the pixel backgrounds the patch itself is drawn in front of the
+    // Pokémon (it stands just behind it), so no extra grass is needed
+    if (look(habitat.key).stands) return requestAnimationFrame(() => flag("is-in-grass", true)(v));
     if (!v.el.querySelector(".grass")) {
       v.el.querySelector(".mon__body").insertAdjacentHTML("afterend", GRASS_ART.front);
       // In pixels, the grass is a little wider than the sprite and covers its lower part
@@ -751,9 +754,12 @@
   const rustle = v => burst(v, "is-rustling");
 
   function hideInGrass(v, rest) {
-    const p = anyOf(spots(GRASS, 2));
+    // A spot just behind the front edge of a patch
+    const p = anyOf(spots(GRASS.map(([x]) => [x, 792]), 2));
     // How far down it sinks: a little way in, ducked down to its head, and back up to peek
-    const IN = 0.2, DUCK = 0.36, PEEK = 0.12;
+    // (the patch in the pixel backgrounds already covers its lower half, so it sinks less)
+    const patch = !!look(habitat.key).stands;
+    const IN = patch ? 0.04 : 0.2, DUCK = patch ? 0.22 : 0.36, PEEK = patch ? 0 : 0.12;
     const peeks = [];
     for (let i = 0; i < 2; i++) {
       peeks.push(stay(1000, 1500, { start: w => { rustle(w); sinkTo(w, DUCK); } }),

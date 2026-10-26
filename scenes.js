@@ -405,7 +405,7 @@
         `<g clip-path="url(#rpclip)" fill="none" stroke="#b39463" stroke-width="3" stroke-linecap="round" opacity=".8"><path d="M722 898 C762 818 822 758 792 672"/><path d="M978 898 C898 828 878 758 838 672"/></g>` +
         `<g fill="#c8ab78"><ellipse cx="828" cy="742" rx="9" ry="4"/><ellipse cx="868" cy="800" rx="12" ry="5"/><ellipse cx="820" cy="852" rx="10" ry="5"/></g>` +
         // Patches of tall grass where wild Pokémon hide
-        tallGrass(330, 792, 300, 223) + tallGrass(1270, 792, 300, 227) +
+        stand(800, tallGrass(330, 792, 300, 223)) + stand(800, tallGrass(1270, 792, 300, 227)) +
         flowers(30, 213, 712, 880, ["#ffffff", "#ffd84a", "#ff8fb1"])
       ),
       front: svg("", "")
