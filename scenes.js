@@ -569,17 +569,12 @@
       back: layered(
         sky("fo", [[0, "#eeac78"], [0.5, "#f8d2a0"], [1, "#fbe9cc"]]),
         fill("fo") +
-        sun(800, 230, 78, "#fff6dc", "#ffe6b0") +
-        rays(800, 230, [[300, 440], [640, 720], [880, 960], [1160, 1300]], "#fff2cc", 0.14) +
-        cloud(330, 150, 0.8, "#fff1dc", "fx-drift", "#f0c398") + cloud(1300, 120, 0.6, "#fff1dc", "fx-drift fx-drift--rev", "#f0c398") +
+        sun(1240, 170, 66, "#fff6dc", "#ffe6b0") +
+        rays(1240, 170, [[700, 840], [1020, 1100], [1300, 1400], [1560, 1680]], "#fff2cc", 0.14) +
+        cloud(330, 150, 0.8, "#fff1dc", "fx-drift", "#f0c398") + cloud(900, 110, 0.6, "#fff1dc", "fx-drift fx-drift--rev", "#f0c398") +
         // Grey peaks of Mt. Moon in the distance
         `<path d="M0 360 L140 250 L230 300 L330 220 L470 320 L560 280 L700 360 Z" fill="#dcb4a0"/><path data-noink d="M330 220 L470 320 L400 320 Z M140 250 L230 300 L180 300 Z" fill="#cfa792"/>`+`<path d="M1000 360 L1120 280 L1210 320 L1330 250 L1460 330 L1600 290 L1600 360 Z" fill="#e2bca4"/>` +
-        // The Pewter Museum of Science on the far cliff
-        `<g transform="translate(650 196) scale(1.5)"><rect x="0" y="30" width="200" height="80" fill="#8a5a4a"/><rect data-noink x="110" y="30" width="90" height="80" fill="#7a4d40"/>` +
-        `<path d="M50 30 A50 50 0 0 1 150 30 Z" fill="#6f5a62"/><path data-noink d="M100 -20 A50 50 0 0 1 150 30 L100 30 Z" fill="#5f4b54"/><path d="M100 -20 V-34" stroke="#5f4b54" stroke-width="3"/>` +
-        `<rect x="-10" y="24" width="220" height="10" fill="#9a6a56"/><g fill="#a87a62">${range(6, i => `<rect x="${14 + i * 32}" y="40" width="10" height="60"/>`)}</g>` +
-        `<g fill="#ffd27a">${range(5, i => `<rect${i === 2 ? ' class="fx-flicker"' : ""} x="${28 + i * 32}" y="54" width="14" height="26" rx="2"/>`)}</g></g>` +
-        glowAt(800, 330, 160, "#ffd27a", 0.22) +
+        `<path d="M600 360 L800 236 L1010 360 Z" fill="#d6ad98"/><path data-noink d="M800 236 L1010 360 L880 360 Z" fill="#c99f8a"/>` +
         ridge(360, 40, 4, "#d7925e", 53, "", "rock") +
         `<g fill="none" stroke="#c47c4b" stroke-width="3" opacity=".6">${range(6, i => `<path d="M0 ${400 + i * 16} Q400 ${390 + i * 16} 800 ${404 + i * 16} T1600 ${398 + i * 16}"/>`)}</g>` +
         ridge(440, 30, 5, "#c47c4b", 59, "", "rock") + L + ridge(520, 26, 5, "#b46c3e", 61, "", "rock") +
@@ -588,9 +583,20 @@
         (() => {
           const bones = `<path d="M300 480 a26 26 0 1 1 -26 -26 a40 40 0 1 1 40 40"/><path d="M900 470 L1180 470"/>${range(6, i => `<path d="M${940 + i * 40} 470 q-12 40 0 70"/>`)}` +
             `<path d="M1180 470 q40 -30 80 -10 q20 20 -10 30 q-30 6 -70 -20"/><path d="M900 470 q-60 -10 -110 20"/>`;
-          return `<g fill="none" stroke="#9a5a34" stroke-width="16" stroke-linecap="round" opacity=".55">${bones}</g><g fill="none" stroke="#e2bb92" stroke-width="10" stroke-linecap="round">${bones}</g>`;
+          return `<g transform="translate(200 0)"><g fill="none" stroke="#9a5a34" stroke-width="16" stroke-linecap="round" opacity=".55">${bones}</g><g fill="none" stroke="#e2bb92" stroke-width="10" stroke-linecap="round">${bones}</g>` +
+            `<circle cx="1236" cy="472" r="5" fill="#9a5a34"/></g>`;
         })() +
-        `<circle cx="1236" cy="472" r="5" fill="#9a5a34"/>` +
+        // A cave entrance in the middle of the cliff, framed in rock
+        (() => {
+          const mouth = "M706 690 V612 Q708 552 800 548 Q892 552 894 612 V690 Z";
+          return `<path d="M672 690 V606 Q676 516 800 510 Q924 516 928 606 V690 Z" fill="#9a5432"/>` +
+            `<path data-noink d="M800 510 Q924 516 928 606 V690 L894 690 V612 Q892 552 800 548 Z" fill="#8a4a2c"/>` +
+            `<path data-noink d="M680 600 Q690 528 800 520" fill="none" stroke="#c7835a" stroke-width="6" stroke-linecap="round"/>` +
+            `<path d="${mouth}" fill="#2a160e"/>` +
+            `<path data-noink d="M730 690 V626 Q734 580 800 576 Q866 580 870 626 V690 Z" fill="#1a0d08"/>` +
+            `<g data-noink fill="#4a2a1c"><path d="M736 566 l10 22 l8 -18 Z"/><path d="M790 552 l8 26 l8 -24 Z"/><path d="M850 562 l8 20 l10 -16 Z"/></g>` +
+            `<g fill="#7a5a48"><path d="M640 690 l14 -26 l22 -4 l16 30 Z"/><path d="M908 690 l18 -30 l20 6 l12 24 Z"/></g>`;
+        })() +
         L + ridge(688, 18, 4, "#d9a777", 67, "", "sand") +
         `<g data-stand="690"><g stroke="#7a4a2a" stroke-width="5"><path d="M420 690 L420 640 M620 690 L620 640" fill="none"/></g><path d="M420 650 Q470 660 520 652 Q570 660 620 650" stroke="#f2c230" stroke-width="4" fill="none"/></g>` +
         `<g data-stand="660"><path d="M1250 660 L1310 600 L1370 660 Z" fill="#e8d6b0"/><path data-noink d="M1310 600 L1370 660 L1330 660 Z" fill="#cdb98f"/><path d="M1300 660 L1310 630 L1320 660 Z" fill="#8a6440"/><path d="M1310 600 L1310 560" stroke="#7a4a2a" stroke-width="4"/><path d="M1310 562 l30 8 l-30 8 Z" fill="#e3350d"/></g>` +
