@@ -8,6 +8,8 @@
   of Pokémon that walk behind them. Sign text is left out here and
   written back in a pixel font by step 2.
 
+  Pictures a drawing uses (art/) load from that local copy too.
+
   Run from the project folder: node tools/pixel-render.js
   Needs Playwright with Chromium.
 */
@@ -32,7 +34,7 @@ const BIG = { x: -800, y: -900, w: 3200, h: 2700 };
     for (let i = 0; i < layers.length; i++) {
       const name = i === layers.length - 1 ? "front" : String(i);
       await page.setViewportSize({ width: W, height: H });
-      await page.setContent(`<style>html,body{margin:0;background:transparent}svg{display:block;width:${W}px;height:${H}px}
+      await page.setContent(`<base href="http://localhost:4642/"><style>html,body{margin:0;background:transparent}svg{display:block;width:${W}px;height:${H}px}
         *{shape-rendering:crispEdges;animation:none!important;transition:none!important}
         [data-fxi],[data-sti],text{visibility:hidden}</style>${layers[i]}`);
       // Mark each animated part (the outermost one, if they are nested) and note the signs
