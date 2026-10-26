@@ -260,24 +260,23 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
    Pokémon (a row behind it, two in front), sways in the breeze, and shakes
    with a few leaves flying whenever the Pokémon moves inside it. */
 .grass {
-  position: absolute; left: -28%; right: -28%; bottom: -3%; pointer-events: none;
+  position: absolute; left: -18%; right: -18%; bottom: -3%; pointer-events: none;
   transform-origin: 50% 100%; scale: 1 0; opacity: 0;
   transition: scale .55s cubic-bezier(.3, 1.5, .5, 1), opacity .4s ease;
 }
-.grass--back { height: 54%; z-index: 0; }
-.grass--front { height: 46%; z-index: 2; }
+.grass--front { height: 40%; z-index: 2; }
 .mon.is-in-grass .grass { scale: 1 1; opacity: 1; }
 .grass svg, .grass .px { display: block; width: 100%; height: 100%; overflow: visible; }
 /* As pixel art the clump is one picture: the whole clump sways and shakes */
 .grass .px { transform-origin: 50% 100%; animation: grass-sway 3.6s ease-in-out infinite alternate; }
 .grass--front .px { animation-delay: -1.4s; }
-.mon.is-rustling .grass .px { animation: grass-shake .1s linear 8 alternate; }
+.mon.is-rustling .grass .px { animation: grass-shake .12s linear 4 alternate; }
 .grass path { vector-effect: non-scaling-stroke; }
 .grass__row { transform-box: fill-box; transform-origin: 50% 100%; animation: grass-sway 3.6s ease-in-out infinite alternate; }
 .grass--front .grass__row + .grass__row { animation-delay: -1.4s; }
 .mon.is-rustling .grass__row { animation: grass-shake .1s linear 8 alternate; }
 @keyframes grass-sway { from { transform: skewX(-3deg); } to { transform: skewX(3deg); } }
-@keyframes grass-shake { from { transform: skewX(-8deg) scaleY(1.03); } to { transform: skewX(8deg); } }
+@keyframes grass-shake { from { transform: skewX(-5deg); } to { transform: skewX(5deg); } }
 .grass__leaf {
   position: absolute; bottom: 62%; left: 38%; width: 7%; aspect-ratio: 2 / 1; opacity: 0;
   background: linear-gradient(135deg, #8bd36f, #3f8f3d); border-radius: 0 100% 0 100%; --dx: -60%;

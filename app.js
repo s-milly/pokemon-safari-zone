@@ -634,9 +634,9 @@
   }
   const artOf = el => el.querySelector(".px, svg");
 
-  // Route 1: the Pokémon walks into a patch of tall grass, which closes over
-  // it. The grass shakes whenever it moves, like a wild Pokémon in the games,
-  // and now and then it pokes its head out to look around.
+  // Route 1: the Pokémon steps a little way into a patch of tall grass, ducks
+  // down a couple of times and pops back up to look around, then walks out.
+  // The grass in front of it shakes whenever it moves, like in the games.
   const GRASS_ART = (() => {
     let seed = 7;
     const r = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
@@ -656,18 +656,15 @@
     const svg = rows => `<svg viewBox="0 0 200 100" preserveAspectRatio="none" aria-hidden="true">${rows}</svg>`;
     const leaf = `<i class="grass__leaf"></i><i class="grass__leaf"></i><i class="grass__leaf"></i>`;
     return {
-      back: `<span class="grass grass--back">${svg(row("#357f37", "#1d4a21", "#5aa653", 9, 100))}</span>`,
       front: `<span class="grass grass--front">${svg(row("#4c9f47", "#22562a", "#86cf72", 8, 92) + row("#61b654", "#2a6430", "#9fe08a", 7, 70))}${leaf}</span>`
     };
   })();
   function enterGrass(v) {
     if (!v.el.querySelector(".grass")) {
-      v.el.querySelector(".mon__body").insertAdjacentHTML("beforebegin", GRASS_ART.back);
       v.el.querySelector(".mon__body").insertAdjacentHTML("afterend", GRASS_ART.front);
-      // In pixels, the clump is 1.56 times the sprite's width, and a share of its height
+      // In pixels, the grass is a little wider than the sprite and covers its lower part
       const [w, h] = ART_SIZE[v.id];
-      pixelize(v.el.querySelector(".grass--back"), w * 1.56, Math.round(h * 0.54));
-      pixelize(v.el.querySelector(".grass--front"), w * 1.56, Math.round(h * 0.46));
+      pixelize(v.el.querySelector(".grass--front"), w * 1.36, Math.round(h * 0.4));
     }
     requestAnimationFrame(() => flag("is-in-grass", true)(v));
   }
@@ -678,17 +675,18 @@
   const rustle = v => burst(v, "is-rustling");
 
   function hideInGrass(v, rest) {
-    const p = anyOf(spots(GRASS, 2)), f = fillOf(v);
+    const p = anyOf(spots(GRASS, 2));
+    // How far down it sinks: a little way in, ducked down to its head, and back up to peek
+    const IN = 0.2, DUCK = 0.36, PEEK = 0.12;
     const peeks = [];
-    for (let i = 0; i < 2 + Math.floor(Math.random() * 2); i++) {
-      peeks.push(stay(1400, 2000, { start: w => { rustle(w); sinkTo(w, f * 0.38); } }),
-        stay(900, 1600, { start: w => w.el.classList.toggle("is-flipped") }),
-        stay(1200, 2600, { start: w => { rustle(w); sinkTo(w, f + 0.04); } }),
-        stay(900, 1800, { start: rustle }));
+    for (let i = 0; i < 2; i++) {
+      peeks.push(stay(1000, 1500, { start: w => { rustle(w); sinkTo(w, DUCK); } }),
+        stay(1400, 2000, { start: w => { rustle(w); sinkTo(w, PEEK); } }),
+        ...(i === 0 ? [stay(900, 1300, { start: w => w.el.classList.toggle("is-flipped") })] : []));
     }
     go(v, [{ x: p.x + rand(-4, 4), y: p.y, end: w => { enterGrass(w); rustle(w); } },
-      stay(2200, 3200, { start: w => sinkTo(w, f + 0.04) }), stay(1200, 1800, { start: rustle }),
-      ...peeks, stay(1300, 1300, { start: w => { rustle(w); sinkTo(w, 0); }, end: leaveGrass })], rest);
+      stay(1600, 2200, { start: w => sinkTo(w, IN) }),
+      ...peeks, stay(900, 900, { start: w => { rustle(w); sinkTo(w, 0); }, end: leaveGrass })], rest);
   }
 
   // Jigglypuff sings, and every other Pokémon on screen falls asleep where it
