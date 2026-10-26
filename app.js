@@ -306,7 +306,9 @@
     const pad = floats ? -0.12 : ART_PAD[p.id] || 0;
     // Small Pokémon take quick steps, big ones slow, heavy steps
     const step = Math.max(0.36, Math.min(0.8, 0.3 + p.height * 0.012));
-    el.style.cssText = `--k:${size.toFixed(2)};--pad:${pad};--step:${step.toFixed(2)}s`;
+    // Ground Pokémon cast their shadow right under where their feet touch
+    const foot = !floats && ART_FOOT[p.id];
+    el.style.cssText = `--k:${size.toFixed(2)};--pad:${pad};--step:${step.toFixed(2)}s` + (foot ? `;--fl:${foot[0]};--fr:${foot[1]}` : "");
     place(el, x, y);
     // The body holds the picture so swimmers can be cut off at the waterline
     el.innerHTML = `<span class="mon__body"><img alt="${shiny ? "Shiny " : ""}${p.name}" src="${(shiny ? ART.shiny : ART.normal)(p.id)}" draggable="false"></span><span class="mon__shadow"></span><span class="mon__fx"></span>`;

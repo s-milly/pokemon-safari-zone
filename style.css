@@ -185,6 +185,21 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
   position: absolute; left: 15%; right: 15%; bottom: -4%; height: 10%;
   background: radial-gradient(rgba(0, 0, 0, .3), transparent 70%);
 }
+/* Ground Pokémon: the shadow sits under their feet, measured from the artwork
+   (--fl and --fr are the share of the picture left and right of the feet), as
+   a soft shadow with a darker spot where they touch the ground. Its height
+   follows its width, so a wide Snorlax casts a deeper shadow than a Pidgey. */
+.mon[style*="--fl"] .mon__shadow {
+  left: calc(var(--fl) * 100% - 7%); right: calc(var(--fr) * 100% - 7%);
+  bottom: -5.5%; height: clamp(8%, calc((1.14 - var(--fl) - var(--fr)) * 22%), 16%);
+  background: radial-gradient(closest-side, rgba(16, 12, 8, .5), rgba(16, 12, 8, .28) 55%, transparent);
+}
+.mon[style*="--fl"] .mon__shadow::before {
+  content: ""; position: absolute; inset: 28% 10% 34%; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(10, 8, 5, .6), rgba(10, 8, 5, .25) 70%, transparent);
+}
+/* A mirrored picture has its feet on the other side */
+.mon.is-flipped[style*="--fl"] .mon__shadow { left: calc(var(--fr) * 100% - 7%); right: calc(var(--fl) * 100% - 7%); }
 .is-nervous .mon.is-in img { animation: shiver .18s linear infinite; }
 .mon.is-leaving { opacity: 0; transition: opacity 1s ease; }
 .mon.is-fleeing img { animation: flee 1s ease-in forwards; }
