@@ -779,7 +779,7 @@
       far: 640, horizon: 580,
       ground: [6, 26], fly: 0.25, tint: "#4a3a7a", haze: ["#6c5a9e", 560, 0.3],
       back: layered(
-        sky("sc", [[0, "#100c2a"], [0.55, "#35286a"], [1, "#6a4f8f"]]) + glow("scpsy", "#c58cff") +
+        sky("sc", [[0, "#100c2a"], [0.55, "#35286a"], [1, "#6a4f8f"]]) +
         glow("sclamp", "#ffe08a") + sky("plaza", [[0, "#8a7f99"], [1, "#5a5070"]]) + sky("silph", [[0, "#4a3d86"], [1, "#2e2560"]]),
         fill("sc") +
         // A faint purple band of stars across the night
@@ -807,7 +807,6 @@
         `<g transform="translate(1160 490)"><rect x="0" y="34" width="200" height="96" fill="#f4efe4"/><rect data-noink x="120" y="34" width="80" height="96" fill="#e6dfd0"/><path d="M-12 40 L100 0 L212 40 Z" fill="#2a75bb"/><path data-noink d="M100 0 L212 40 L100 40 Z" fill="#225f98"/><rect x="76" y="70" width="48" height="60" fill="#9fd4f0"/><path data-noink d="M100 70 V130" stroke="#7fb8d8" stroke-width="3"/>` +
         `<rect x="60" y="44" width="80" height="20" rx="3" fill="#2a75bb"/><text x="100" y="60" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="14" fill="#ffffff">MART</text>` +
         `<g fill="#ffd36b"><rect x="18" y="72" width="38" height="26" rx="3"/><rect x="144" y="72" width="38" height="26" rx="3"/></g></g>` +
-        `<circle class="fx-pulse" cx="800" cy="460" r="260" fill="url(#scpsy)" opacity=".2"/>` +
         ridge(660, 12, 5, "#5a4d7a", 605) +
         L + `<path d="M0 700 Q400 690 800 696 T1600 692 L1600 900 L0 900 Z" fill="url(#plaza)"/>` +
         `<g stroke="#7a6f8c" stroke-width="3" opacity=".6">${range(9, i => `<path d="M${-200 + i * 260} 900 L${400 + i * 100} 700"/>`)}<path d="M0 760 H1600 M0 830 H1600"/></g>` +
