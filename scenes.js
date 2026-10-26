@@ -578,12 +578,38 @@
         ridge(360, 40, 4, "#d7925e", 53, "", "rock") +
         `<g fill="none" stroke="#c47c4b" stroke-width="3" opacity=".6">${range(6, i => `<path d="M0 ${400 + i * 16} Q400 ${390 + i * 16} 800 ${404 + i * 16} T1600 ${398 + i * 16}"/>`)}</g>` +
         ridge(440, 30, 5, "#c47c4b", 59, "", "rock") +
-        // Fossils in the wall: a spiral shell and a long skeleton, each with a dark edge
+        // Fossils in the wall, as in the games: Omanyte's coiled shell (the Helix Fossil)
+        // and Kabuto's domed shell (the Dome Fossil), each set in a hollow in the rock
         (() => {
-          const bones = `<path d="M300 480 a26 26 0 1 1 -26 -26 a40 40 0 1 1 40 40"/><path d="M900 470 L1180 470"/>${range(6, i => `<path d="M${940 + i * 40} 470 q-12 40 0 70"/>`)}` +
-            `<path d="M1180 470 q40 -30 80 -10 q20 20 -10 30 q-30 6 -70 -20"/><path d="M900 470 q-60 -10 -110 20"/>`;
-          return `<g transform="translate(200 -40)"><g fill="none" stroke="#9a5a34" stroke-width="16" stroke-linecap="round" opacity=".55">${bones}</g><g fill="none" stroke="#e2bb92" stroke-width="10" stroke-linecap="round">${bones}</g>` +
-            `<circle cx="1236" cy="472" r="5" fill="#9a5a34"/></g>`;
+          const gold = "#d9b067", lit = "#f0d290", deep = "#a8783c", edge = "#7a4a26";
+          // Helix: a shell coiling in toward the middle, with ridges across the outer turn
+          const hx = 500, hy = 410;
+          let coil = "";
+          for (let t = 0; t <= Math.PI * 4.4; t += 0.2) {
+            const r = 6 + t * 3.4, x = hx + Math.cos(t) * r, y = hy + Math.sin(t) * r * 0.92;
+            coil += `${coil ? " L" : "M"}${x.toFixed(1)} ${y.toFixed(1)}`;
+          }
+          const ridges = range(11, i => { const t = -0.4 + i * 0.5, a = 34, b = 52;
+            return `<path d="M${(hx + Math.cos(t) * a).toFixed(1)} ${(hy + Math.sin(t) * a * 0.92).toFixed(1)} L${(hx + Math.cos(t) * b).toFixed(1)} ${(hy + Math.sin(t) * b * 0.92).toFixed(1)}"/>`; });
+          const helix = `<ellipse cx="${hx}" cy="${hy + 4}" rx="74" ry="66" fill="#9a5a34" opacity=".55"/>` +
+            `<ellipse cx="${hx}" cy="${hy}" rx="56" ry="52" fill="${gold}" stroke="${edge}" stroke-width="5"/>` +
+            `<path data-noink d="M${hx - 40} ${hy - 30} A56 52 0 0 1 ${hx + 30} ${hy - 44}" fill="none" stroke="${lit}" stroke-width="7" stroke-linecap="round"/>` +
+            `<g data-noink fill="none" stroke="${deep}" stroke-width="4" stroke-linecap="round">${ridges}</g>` +
+            `<path data-noink d="${coil}" fill="none" stroke="${edge}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>` +
+            // Tentacles curling out of the opening
+            `<g data-noink fill="none" stroke="${deep}" stroke-width="6" stroke-linecap="round"><path d="M${hx - 50} ${hy + 26} q-14 10 -8 24"/><path d="M${hx - 38} ${hy + 40} q-8 14 4 22"/><path d="M${hx - 22} ${hy + 48} q0 14 12 16"/></g>`;
+          // Dome: a rounded shell with a rim and a ridge down the middle, little legs underneath
+          const dx = 1160, dy = 474;
+          const dome = `<ellipse cx="${dx}" cy="${dy - 24}" rx="98" ry="64" fill="#9a5a34" opacity=".55"/>` +
+            `<g data-noink fill="none" stroke="${deep}" stroke-width="6" stroke-linecap="round">${range(4, i => `<path d="M${dx - 42 + i * 28} ${dy - 2} l${i < 2 ? -8 : 8} 14"/>`)}</g>` +
+            // The shell's dark underside, with Kabuto's two eyes looking out from it
+            `<path d="M${dx - 82} ${dy - 22} Q${dx} ${dy - 34} ${dx + 82} ${dy - 22} L${dx + 74} ${dy} Q${dx} ${dy + 6} ${dx - 74} ${dy} Z" fill="${deep}" stroke="${edge}" stroke-width="5"/>` +
+            `<g data-noink fill="${lit}"><ellipse cx="${dx - 24}" cy="${dy - 12}" rx="7" ry="5"/><ellipse cx="${dx + 24}" cy="${dy - 12}" rx="7" ry="5"/></g>` +
+            // The dome on top, lit on one side, with a ring of growth lines
+            `<path d="M${dx - 82} ${dy - 22} Q${dx - 78} ${dy - 98} ${dx} ${dy - 100} Q${dx + 78} ${dy - 98} ${dx + 82} ${dy - 22} Q${dx} ${dy - 34} ${dx - 82} ${dy - 22} Z" fill="${gold}" stroke="${edge}" stroke-width="5"/>` +
+            `<path data-noink d="M${dx - 60} ${dy - 50} Q${dx - 50} ${dy - 86} ${dx - 10} ${dy - 90}" fill="none" stroke="${lit}" stroke-width="8" stroke-linecap="round"/>` +
+            `<path data-noink d="M${dx - 58} ${dy - 34} Q${dx - 54} ${dy - 76} ${dx} ${dy - 78} Q${dx + 54} ${dy - 76} ${dx + 58} ${dy - 34}" fill="none" stroke="${deep}" stroke-width="4"/>`;
+          return helix + dome;
         })() +
         // A cave entrance in the middle of the wall, framed in rock, its foot where the ground in front begins
         (() => {
