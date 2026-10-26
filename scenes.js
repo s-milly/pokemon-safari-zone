@@ -564,7 +564,7 @@
     },
 
     fossil: {
-      far: 650, horizon: 565,
+      far: 600, horizon: 515,
       ground: [6, 24], tint: "#8a4f2a", haze: ["#fbe3c0", 520, 0.4],
       back: layered(
         sky("fo", [[0, "#eeac78"], [0.5, "#f8d2a0"], [1, "#fbe9cc"]]),
@@ -577,26 +577,27 @@
         `<path d="M600 360 L800 236 L1010 360 Z" fill="#d6ad98"/><path data-noink d="M800 236 L1010 360 L880 360 Z" fill="#c99f8a"/>` +
         ridge(360, 40, 4, "#d7925e", 53, "", "rock") +
         `<g fill="none" stroke="#c47c4b" stroke-width="3" opacity=".6">${range(6, i => `<path d="M0 ${400 + i * 16} Q400 ${390 + i * 16} 800 ${404 + i * 16} T1600 ${398 + i * 16}"/>`)}</g>` +
-        ridge(440, 30, 5, "#c47c4b", 59, "", "rock") + L + ridge(520, 26, 5, "#b46c3e", 61, "", "rock") +
-        `<g fill="none" stroke="#a35f34" stroke-width="3" opacity=".6">${range(5, i => `<path d="M0 ${560 + i * 14} Q400 ${552 + i * 14} 800 ${566 + i * 14} T1600 ${558 + i * 14}"/>`)}</g>` +
-        // Fossils in the rock: a spiral shell and a long skeleton, each with a dark edge
+        ridge(440, 30, 5, "#c47c4b", 59, "", "rock") +
+        // Fossils in the wall: a spiral shell and a long skeleton, each with a dark edge
         (() => {
           const bones = `<path d="M300 480 a26 26 0 1 1 -26 -26 a40 40 0 1 1 40 40"/><path d="M900 470 L1180 470"/>${range(6, i => `<path d="M${940 + i * 40} 470 q-12 40 0 70"/>`)}` +
             `<path d="M1180 470 q40 -30 80 -10 q20 20 -10 30 q-30 6 -70 -20"/><path d="M900 470 q-60 -10 -110 20"/>`;
-          return `<g transform="translate(200 0)"><g fill="none" stroke="#9a5a34" stroke-width="16" stroke-linecap="round" opacity=".55">${bones}</g><g fill="none" stroke="#e2bb92" stroke-width="10" stroke-linecap="round">${bones}</g>` +
+          return `<g transform="translate(200 -40)"><g fill="none" stroke="#9a5a34" stroke-width="16" stroke-linecap="round" opacity=".55">${bones}</g><g fill="none" stroke="#e2bb92" stroke-width="10" stroke-linecap="round">${bones}</g>` +
             `<circle cx="1236" cy="472" r="5" fill="#9a5a34"/></g>`;
         })() +
-        // A cave entrance in the middle of the cliff, framed in rock
+        // A cave entrance in the middle of the wall, framed in rock, its foot where the ground in front begins
         (() => {
           const mouth = "M706 690 V612 Q708 552 800 548 Q892 552 894 612 V690 Z";
-          return `<path d="M672 690 V606 Q676 516 800 510 Q924 516 928 606 V690 Z" fill="#9a5432"/>` +
+          return `<g transform="translate(800 524) scale(.8) translate(-800 -690)"><path d="M672 690 V606 Q676 516 800 510 Q924 516 928 606 V690 Z" fill="#9a5432"/>` +
             `<path data-noink d="M800 510 Q924 516 928 606 V690 L894 690 V612 Q892 552 800 548 Z" fill="#8a4a2c"/>` +
             `<path data-noink d="M680 600 Q690 528 800 520" fill="none" stroke="#c7835a" stroke-width="6" stroke-linecap="round"/>` +
             `<path d="${mouth}" fill="#2a160e"/>` +
             `<path data-noink d="M730 690 V626 Q734 580 800 576 Q866 580 870 626 V690 Z" fill="#1a0d08"/>` +
             `<g data-noink fill="#4a2a1c"><path d="M736 566 l10 22 l8 -18 Z"/><path d="M790 552 l8 26 l8 -24 Z"/><path d="M850 562 l8 20 l10 -16 Z"/></g>` +
-            `<g fill="#7a5a48"><path d="M640 690 l14 -26 l22 -4 l16 30 Z"/><path d="M908 690 l18 -30 l20 6 l12 24 Z"/></g>`;
+            `<g fill="#7a5a48"><path d="M640 690 l14 -26 l22 -4 l16 30 Z"/><path d="M908 690 l18 -30 l20 6 l12 24 Z"/></g></g>`;
         })() +
+        // Open ground between the wall and the dig: sand, not rock
+        L + ridge(520, 26, 5, "#e2b386", 61, "", "sand") +
         L + ridge(688, 18, 4, "#d9a777", 67, "", "sand") +
         `<g data-stand="690"><g stroke="#7a4a2a" stroke-width="5"><path d="M420 690 L420 640 M620 690 L620 640" fill="none"/></g><path d="M420 650 Q470 660 520 652 Q570 660 620 650" stroke="#f2c230" stroke-width="4" fill="none"/></g>` +
         // A small mine being dug: a wooden frame with a pulley and a lantern, a cart of rocks on rails and a pile of planks
