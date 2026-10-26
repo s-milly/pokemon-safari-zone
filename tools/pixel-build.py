@@ -8,7 +8,7 @@ pictures to px/ and the layer markup to scenes-pixel.js.
 Run from the project folder: python3 tools/pixel-build.py
 Needs Pillow.
 """
-import base64, io, json, os
+import base64, hashlib, io, json, os
 import numpy as np
 from PIL import Image, ImageEnhance
 
@@ -120,6 +120,12 @@ def data_uri(im):
     return "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
 
 
+def versioned(path):
+    """The picture's address with a tag that changes whenever the picture does,
+    so browsers fetch the new one instead of an old saved copy."""
+    return f"{path}?v={hashlib.md5(open(path, 'rb').read()).hexdigest()[:8]}"
+
+
 def esc(s):
     return s.replace("&", "&amp;").replace('"', "&quot;")
 
@@ -146,7 +152,7 @@ def main():
                 if t.get("stand") is None:
                     write_text(still, t)
             still.save(f"{OUT}/{key}-{name}.png", optimize=True)
-            parts = [f'<image href="{OUT}/{key}-{name}.png" width="1600" height="900"/>']
+            parts = [f'<image href="{versioned(f"{OUT}/{key}-{name}.png")}" width="1600" height="900"/>']
             thumb_parts = [still]
             for f, im in zip(layer["fx"], moving):
                 im = to_palette(im, pal)
@@ -190,7 +196,7 @@ def main():
                 for p in thumb_parts:
                     thumb.alpha_composite(p)
         thumb.save(f"{OUT}/{key}-thumb.png", optimize=True)
-        out[key]["thumb"] = f'<svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg"><image href="{OUT}/{key}-thumb.png" width="1600" height="900"/></svg>'
+        out[key]["thumb"] = f'<svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg"><image href="{versioned(f"{OUT}/{key}-thumb.png")}" width="1600" height="900"/></svg>'
         print(key, "done")
     with open("scenes-pixel.js", "w") as fh:
         fh.write("/*\n  Pixel art backgrounds, made from the drawings in scenes.js by\n"

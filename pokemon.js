@@ -128,8 +128,8 @@ window.HABITATS = [
 // wings changed so fast that it flickered.
 const SLOWED = new Set([49]);
 window.ART = {
-  normal: id => SLOWED.has(id) ? `px/anim/${id}.png` : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${id}.gif`,
-  shiny: id => SLOWED.has(id) ? `px/anim/shiny/${id}.png` : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/shiny/${id}.gif`
+  normal: id => SLOWED.has(id) ? `px/anim/${id}.png?v=2` : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${id}.gif`,
+  shiny: id => SLOWED.has(id) ? `px/anim/shiny/${id}.png?v=2` : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/shiny/${id}.gif`
 };
 
 // Each sprite's width and height in pixels. Bigger Pokémon have bigger
