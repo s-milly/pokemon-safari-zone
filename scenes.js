@@ -334,21 +334,24 @@
   window.SCENES = {
     forest: {
       far: 640, horizon: 540,
-      ground: [6, 26], tint: "#2f6b3a", haze: ["#e9f3d6", 560, 0.45],
+      ground: [6, 26], tint: "#2f6b3a", haze: ["#eef3c8", 560, 0.55],
       back: layered(
-        sky("fs", [[0, "#82cbd3"], [0.38, "#c8e9d4"], [0.6, "#f3f2cf"], [1, "#f3f2cf"]]) +
+        sky("fs", [[0, "#8fc9b4"], [0.35, "#d4ebc4"], [0.6, "#f8f2c4"], [1, "#f8f2c4"]]) +
         sky("fpath", [[0, "#dcc28f"], [1, "#b48f5e"]]) + `<clipPath id="fpclip">${ridge(700, 18, 4, "#000", 13)}</clipPath>`,
         fill("fs") +
         sun(1250, 170, 62, "#fffbe0", "#fff6c4") +
-        rays(1250, 170, [[700, 860], [1020, 1130], [420, 520], [1340, 1440]], "#fffbe0", 0.16) +
+        rays(1250, 170, [[700, 860], [1020, 1130], [420, 520], [1340, 1440]], "#fffbe0", 0.22) +
         cloud(330, 140, 1, "#ffffff") + cloud(720, 92, 0.55, "#ffffff", "fx-drift fx-drift--rev") +
-        ridge(450, 50, 4, "#c3e0cb", 2) +
-        pines(505, 30, "#a2cbae", 33, 190) +
-        ridge(520, 26, 5, "#8fbf9b", 4) +
-        pines(545, 24, "#83b892", 3, 250) +
+        ridge(450, 50, 4, "#d3e6c2", 2) +
+        pines(505, 30, "#b4d3ae", 33, 190) +
+        ridge(520, 26, 5, "#9dc79b", 4) +
+        pines(545, 24, "#8abd8e", 3, 250) +
         ridge(560, 26, 6, "#73ac81", 5, "", "grass") +
         L + pines(612, 15, "#4b8f5d", 7, 320) +
-        `<g opacity=".14"><g class="fx-pulse" fill="#fffbe0"><path data-noink d="M1180 0 L1320 0 L900 680 L760 680 Z"/><path data-noink d="M1420 0 L1500 0 L1180 680 L1110 680 Z"/><path data-noink d="M820 0 L880 0 L520 680 L470 680 Z"/></g></g>` +
+        // The canopy overhead, dark against the light
+        `<g fill="#1f5233">${range(14, i => `<circle cx="${i * 125 - 20}" cy="${-30 + ((i * 37) % 60)}" r="${90 + ((i * 53) % 50)}"/>`)}</g>` +
+        `<g data-noink fill="#2c6a40">${range(14, i => `<circle cx="${i * 125 + 10}" cy="${-60 + ((i * 37) % 60)}" r="${60 + ((i * 53) % 40)}"/>`)}</g>` +
+        `<g opacity=".2"><g class="fx-pulse" fill="#fffbe0"><path data-noink d="M1180 0 L1320 0 L900 680 L760 680 Z"/><path data-noink d="M1420 0 L1500 0 L1180 680 L1110 680 Z"/><path data-noink d="M820 0 L880 0 L520 680 L470 680 Z"/></g></g>` +
         ridge(628, 24, 5, "#58a163", 11, "", "grass") +
         stand(650, bush(360, 650, 0.85, "#3f8f4f")) + stand(646, bush(1170, 646, 0.95, "#3f8f4f", "#e23b3b")) + stand(636, bush(650, 636, 0.55, "#4a9a57")) +
         stand(690, tree(180, 690, 1.2, "#2f7a45", "#4a9f5a", "#6b4a32")) + stand(680, tree(1420, 680, 1.35, "#2f7a45", "#4a9f5a", "#6b4a32")) +
@@ -362,8 +365,8 @@
         `<rect x="583" y="768" width="9" height="14" rx="3" fill="#f4ead2"/><path d="M572 771 Q588 750 603 771 Z" fill="#e23b3b"/></g>` +
         `<g data-stand="750"><rect x="648" y="690" width="10" height="60" fill="#7a5236"/><rect x="598" y="662" width="110" height="40" rx="6" fill="#a0734a"/><rect data-noink x="598" y="662" width="110" height="10" rx="5" fill="#b8895c"/>` +
         `<text x="653" y="689" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="15" fill="#fff4dc">VIRIDIAN</text></g>` +
-        flowers(26, 15, 720, 870, ["#ffffff", "#ffd84a", "#ff9ec4"]) +
-        `<g>${dots(18, 21, "#fff3a0", 420, 760, 3, "fx-float")}</g>`
+        flowers(12, 15, 720, 870, ["#ffffff", "#ffd84a", "#ff9ec4"]) +
+        `<g>${dots(26, 21, "#fff3a0", 360, 760, 3, "fx-float")}</g>`
       ),
       front: svg("", tufts(900, "#3f9a49", 60, 17, 90) + tufts(900, "#56b25a", 40, 19, 60) +
         bush(70, 905, 1.25, "#2e7f3c", "#e23b3b") + bush(1545, 910, 1.3, "#2e7f3c", "#e23b3b"))
@@ -371,31 +374,33 @@
 
     route: {
       far: 600, horizon: 450,
-      ground: [6, 26], tint: "#3f8f4a", haze: ["#e6f6ff", 540, 0.4],
+      ground: [6, 26], tint: "#3f8f4a", haze: ["#ffe4b8", 540, 0.6],
       back: layered(
-        sky("rt", [[0, "#5fb6ef"], [0.45, "#a9dcf7"], [0.7, "#e2f4fc"], [1, "#e9f7fd"]]) +
+        sky("rt", [[0, "#4f8fd8"], [0.32, "#9cc4ec"], [0.56, "#ffe0b0"], [1, "#ffe8c2"]]) +
         sky("rpath", [[0, "#ead6a4"], [1, "#cdae73"]]) + `<clipPath id="rpclip">${ridge(700, 16, 4, "#000", 211)}</clipPath>`,
         fill("rt") +
-        sun(1320, 140, 54, "#fffde8", "#fffbe0") +
+        sun(1180, 260, 66, "#fffbe6", "#fffaf0") +
         cloud(300, 130, 1.1, "#ffffff") + cloud(860, 200, 0.8, "#ffffff", "fx-drift fx-drift--rev") + cloud(1500, 290, 0.6, "#ffffff") +
         // Far blue mountains with snow on the peaks
-        `<path d="M0 470 L120 380 L210 420 L330 330 L450 410 L560 360 L680 440 L1600 440 L1600 470 Z" fill="#a8c8e4"/>` +
+        `<path d="M0 470 L120 380 L210 420 L330 330 L450 410 L560 360 L680 440 L1600 440 L1600 470 Z" fill="#d6c6d4"/>` +
         `<path data-noink d="M330 330 L362 354 L340 352 L322 362 L304 350 Z M120 380 L146 400 L128 398 L112 404 L98 397 Z" fill="#f4fbff"/>` +
-        `<path d="M1000 450 L1160 360 L1260 400 L1380 320 L1500 390 L1600 360 L1600 470 L1000 470 Z" fill="#b3d0e8"/>` +
+        `<path d="M1000 450 L1160 360 L1260 400 L1380 320 L1500 390 L1600 360 L1600 470 L1000 470 Z" fill="#e0ccd2"/>` +
         `<path data-noink d="M1380 320 L1410 342 L1390 340 L1374 350 L1358 340 Z" fill="#f4fbff"/>` +
-        ridge(470, 40, 4, "#b5dcc0", 201) +
+        ridge(470, 40, 4, "#d2dfb0", 201) +
         // Pallet Town on the far hill: little houses and Professor Oak's lab
         `<g transform="translate(980 452)">` +
-        house(0, 36, 54, 36, "#f4efe4", "#d9534a", { chimney: true, roofH: 24 }) + house(80, 36, 50, 32, "#f4efe4", "#d9534a", { roofH: 22 }) +
+        house(0, 36, 54, 36, "#f4efe4", "#d9534a", { chimney: true, roofH: 24, glow: "#ffe39a" }) + house(80, 36, 50, 32, "#f4efe4", "#d9534a", { roofH: 22, glow: "#ffe39a" }) +
         `<rect x="160" y="-8" width="96" height="44" fill="#e8ecef"/><rect data-noink x="208" y="-8" width="48" height="44" fill="#d9dfe4"/><path d="M152 -6 L208 -30 L264 -6 Z" fill="#8f9aa6"/><path data-noink d="M208 -30 L264 -6 L208 -6 Z" fill="#7c8793"/>` +
         `<g fill="#9fd4f0"><rect x="172" y="6" width="16" height="12"/><rect x="228" y="6" width="16" height="12"/></g><rect x="200" y="16" width="16" height="20" fill="#6b7a88"/>` +
         `<path d="M250 -24 L250 -50" stroke="#6b7a88" stroke-width="3"/><circle cx="250" cy="-52" r="3" fill="#d9534a"/></g>` +
-        ridge(540, 26, 6, "#93cc95", 203, "", "grass") +
+        // Morning mist lying over the far fields
+        `<g class="fx-drift" fill="#fff8e6" opacity=".45"><ellipse cx="300" cy="528" rx="360" ry="16"/><ellipse cx="1150" cy="520" rx="420" ry="18"/></g>` +
+        ridge(540, 26, 6, "#abcf7e", 203, "", "grass") +
         // Hedgerows dividing the fields
-        `<g fill="#6fb072"><path d="M60 556 q20 -14 40 0 q20 -14 40 0 q20 -14 40 0 q20 -14 40 0 Z"/><path d="M1240 552 q20 -14 40 0 q20 -14 40 0 q20 -14 40 0 q20 -14 40 0 q20 -14 40 0 Z"/></g>` +
+        `<g fill="#7cb46c"><path d="M60 556 q20 -14 40 0 q20 -14 40 0 q20 -14 40 0 q20 -14 40 0 Z"/><path d="M1240 552 q20 -14 40 0 q20 -14 40 0 q20 -14 40 0 q20 -14 40 0 q20 -14 40 0 Z"/></g>` +
         L + stand(640, tree(140, 640, 0.7, "#3b8a4a", "#58ad63", "#6b4a32", -1)) + stand(630, tree(300, 630, 0.55, "#3b8a4a", "#58ad63", "#6b4a32", -1)) +
         stand(640, tree(1460, 640, 0.75, "#3b8a4a", "#58ad63", "#6b4a32")) + stand(628, tree(1300, 628, 0.5, "#3b8a4a", "#58ad63", "#6b4a32")) +
-        ridge(620, 18, 5, "#7cc274", 207, "", "grass") +
+        ridge(620, 18, 5, "#8cc460", 207, "", "grass") +
         stand(630, bush(560, 630, 0.42, "#5aa55c")) + stand(636, bush(1180, 636, 0.5, "#5aa55c", "#ff8fb1")) +
         `<g data-stand="634"><g fill="#ffffff">${range(12, i => `<rect x="${430 + i * 24}" y="600" width="8" height="34" rx="3"/>`)}<rect x="426" y="608" width="290" height="6" rx="3"/><rect x="426" y="622" width="290" height="6" rx="3"/></g>` +
         `<g data-noink fill="#c8d6e4">${range(12, i => `<rect x="${434 + i * 24}" y="604" width="4" height="30" rx="2"/>`)}</g></g>` +
@@ -406,18 +411,19 @@
         `<g fill="#c8ab78"><ellipse cx="828" cy="742" rx="9" ry="4"/><ellipse cx="868" cy="800" rx="12" ry="5"/><ellipse cx="820" cy="852" rx="10" ry="5"/></g>` +
         // Patches of tall grass where wild Pokémon hide
         stand(800, tallGrass(330, 792, 300, 223)) + stand(800, tallGrass(1270, 792, 300, 227)) +
-        flowers(30, 213, 712, 880, ["#ffffff", "#ffd84a", "#ff8fb1"])
+        flowers(14, 213, 712, 880, ["#ffffff", "#ffd84a", "#ff8fb1"])
       ),
       front: svg("", "")
     },
 
     safari: {
       far: 600, horizon: 480,
-      ground: [6, 26], tint: "#8a6a24", haze: ["#fde3b0", 560, 0.45],
+      ground: [6, 26], tint: "#8a6a24", haze: ["#fdd9a0", 560, 0.55],
       back: layered(
         sky("ss", [[0, "#e5845e"], [0.32, "#f4b07a"], [0.58, "#fddca5"], [1, "#fde7b5"]]),
         fill("ss") +
-        sun(420, 320, 100, "#fff2c2", "#fff0b8") +
+        sun(420, 330, 110, "#fff2c2", "#ffd88a") +
+        rays(420, 330, [[60, 200], [460, 560], [760, 900], [1100, 1240]], "#fff0c0", 0.14) +
         // Long thin clouds across the evening sky
         `<g class="fx-drift" fill="#f9d2a6"><rect x="140" y="300" width="300" height="16" rx="8"/><rect x="380" y="336" width="240" height="12" rx="6"/><rect x="1180" y="250" width="320" height="16" rx="8"/><rect x="1260" y="280" width="200" height="12" rx="6"/></g>` +
         cloud(1100, 150, 0.9, "#ffe9cf", "fx-drift fx-drift--rev", "#f2b98e") +
@@ -425,24 +431,24 @@
         // Flat-topped mesas with bands of rock
         (() => {
           const m = `<path d="M880 560 L950 430 L1190 430 L1250 560 Z"/><path d="M1250 560 L1295 475 L1430 475 L1470 560 Z"/>`, c = clip(m);
-          return `<g fill="#d79e66">${m}</g>` + c.def + `<g clip-path="${c.url}">` +
-            `<g data-noink fill="none" stroke="#c88d58" stroke-width="5">${range(5, i => `<path d="M860 ${452 + i * 24} q80 ${i % 2 ? 6 : -6} 160 0 t160 0 t160 0 t160 0"/>`)}</g>` +
-            `<path data-noink d="M1190 430 L1250 560 L1150 560 Z M1430 475 L1470 560 L1400 560 Z" fill="#b97a47"/><path data-noink d="M950 430 L1190 430 L1186 440 L946 440 Z M1295 475 L1430 475 L1427 484 L1291 484 Z" fill="#f2c08a"/></g>`;
+          return `<g fill="#e4ae78">${m}</g>` + c.def + `<g clip-path="${c.url}">` +
+            `<g data-noink fill="none" stroke="#d79e6c" stroke-width="5">${range(5, i => `<path d="M860 ${452 + i * 24} q80 ${i % 2 ? 6 : -6} 160 0 t160 0 t160 0 t160 0"/>`)}</g>` +
+            `<path data-noink d="M1190 430 L1250 560 L1150 560 Z M1430 475 L1470 560 L1400 560 Z" fill="#cc8d5a"/><path data-noink d="M950 430 L1190 430 L1186 440 L946 440 Z M1295 475 L1430 475 L1427 484 L1291 484 Z" fill="#f2c08a"/></g>`;
         })() +
         L + ridge(560, 20, 6, "#d8c07a", 23, "", "grass") +
         // A watering hole between the trees
         `<ellipse cx="760" cy="600" rx="130" ry="16" fill="#79b5c4"/><ellipse data-noink cx="740" cy="597" rx="70" ry="5" fill="#d6f0f4" opacity=".8"/>` +
         `<g fill="none" stroke="#7b8a3a" stroke-width="4" stroke-linecap="round"><path d="M640 602 q-4 -20 2 -34 M650 604 q2 -16 10 -26 M876 600 q2 -18 -4 -30 M866 602 q-2 -14 -10 -22"/></g>` +
         // Acacia trees: a bent trunk under a wide flat crown
-        [[290, 610, 1], [1128, 610, 0.74]].map(([x, y, s]) => stand(y, `<path d="M${x - 6 * s} ${y} Q${x - 10 * s} ${y - 60 * s} ${x} ${y - 110 * s} L${x - 40 * s} ${y - 140 * s} M${x} ${y - 110 * s} L${x + 40 * s} ${y - 142 * s} M${x - 2 * s} ${y - 100 * s} L${x + 6 * s} ${y - 146 * s}" stroke="#6f5a35" stroke-width="${12 * s}" fill="none" stroke-linecap="round"/>` +
-          `<ellipse cx="${x}" cy="${y - 145 * s}" rx="${135 * s}" ry="${26 * s}" fill="#6f5a35"/><ellipse cx="${x + 8 * s}" cy="${y - 158 * s}" rx="${105 * s}" ry="${20 * s}" fill="#857043"/>` +
-          `<ellipse cx="${x - 70 * s}" cy="${y - 150 * s}" rx="${50 * s}" ry="${14 * s}" fill="#7b6539"/><ellipse data-noink cx="${x + 20 * s}" cy="${y - 166 * s}" rx="${60 * s}" ry="${8 * s}" fill="#a08a52"/>`)).join("") +
+        [[290, 610, 1], [1128, 610, 0.74]].map(([x, y, s]) => stand(y, `<path d="M${x - 6 * s} ${y} Q${x - 10 * s} ${y - 60 * s} ${x} ${y - 110 * s} L${x - 40 * s} ${y - 140 * s} M${x} ${y - 110 * s} L${x + 40 * s} ${y - 142 * s} M${x - 2 * s} ${y - 100 * s} L${x + 6 * s} ${y - 146 * s}" stroke="#4a3626" stroke-width="${12 * s}" fill="none" stroke-linecap="round"/>` +
+          `<ellipse cx="${x}" cy="${y - 145 * s}" rx="${135 * s}" ry="${26 * s}" fill="#4a3626"/><ellipse cx="${x + 8 * s}" cy="${y - 158 * s}" rx="${105 * s}" ry="${20 * s}" fill="#5c4630"/>` +
+          `<ellipse cx="${x - 70 * s}" cy="${y - 150 * s}" rx="${50 * s}" ry="${14 * s}" fill="#544030"/><ellipse data-noink cx="${x + 20 * s}" cy="${y - 166 * s}" rx="${60 * s}" ry="${8 * s}" fill="#a0703c"/>`)).join("") +
         ridge(640, 20, 5, "#c9b766", 29, "", "grass") +
         L + `<g data-stand="666"><g fill="#8a6440">${range(14, i => `<rect x="${560 + i * 40}" y="610" width="10" height="56" rx="3"/>`)}<rect x="555" y="622" width="540" height="8" rx="3"/><rect x="555" y="646" width="540" height="8" rx="3"/></g>` +
         `<g data-noink fill="#ad8459"><rect x="555" y="622" width="540" height="3" rx="1.5"/><rect x="555" y="646" width="540" height="3" rx="1.5"/></g></g>` +
         ridge(720, 14, 4, "#b7ad5a", 31, "", "grass") +
         stand(772, rock(300, 772, 0.9, "#a99a73")) + stand(778, rock(1300, 778, 0.7, "#a99a73", -1)) +
-        flowers(16, 33, 740, 880, ["#ffd84a", "#ffffff", "#f08a5c"], 0.9)
+        flowers(7, 33, 740, 880, ["#ffd84a", "#ffffff", "#f08a5c"], 0.9)
       ),
       front: svg("", tufts(900, "#9c8f3c", 70, 37, 70) + tufts(900, "#c2b45a", 50, 41, 50) + tufts(900, "#d9cb72", 26, 43, 32))
     },
@@ -450,15 +456,15 @@
     sea: {
       ground: [8, 34], fly: 0.25, tint: "#1f6fa0",
       // Where the water is, in drawing units of a layer: here, everything below the horizon
-      water: { top: 414, bottom: 900, layer: 0 }, haze: ["#e2f4fb", 420, 0.35],
+      water: { top: 414, bottom: 900, layer: 0 }, haze: ["#fdeccc", 420, 0.4],
       back: layered(
-        sky("se", [[0, "#5db7ec"], [0.6, "#b8e2f7"], [1, "#eaf8fd"]]) + sky("sw", [[0, "#6cc6e6"], [0.08, "#3ea6d8"], [0.45, "#2783bf"], [1, "#145290"]]),
+        sky("se", [[0, "#3f93d6"], [0.55, "#a9d6f0"], [0.85, "#fbe4bc"], [1, "#fde6bc"]]) + sky("sw", [[0, "#6cc6e6"], [0.08, "#3ea6d8"], [0.45, "#2783bf"], [1, "#145290"]]),
         `<rect width="${W}" height="420" fill="url(#se)"/><rect y="414" width="${W}" height="${H - 414}" fill="url(#sw)"/>` +
-        sun(1300, 150, 58, "#fffbe0", "#fff6cc") +
+        sun(1260, 250, 64, "#fffbe6", "#fffaf0") +
         cloud(320, 150, 1.1, "#ffffff") + cloud(880, 220, 0.8, "#ffffff", "fx-drift fx-drift--rev") + cloud(1480, 300, 0.55, "#ffffff") +
         // Far islands on the horizon
-        `<path d="M60 416 Q150 368 230 378 Q300 344 380 386 Q430 404 470 416 Z" fill="#7fb0bf"/><path data-noink d="M230 378 Q300 344 380 386 L300 380 Z" fill="#94c2cf"/>` +
-        `<path d="M1440 416 Q1500 388 1560 396 Q1600 400 1640 416 Z" fill="#8ab8c6"/>` +
+        `<path d="M60 416 Q150 368 230 378 Q300 344 380 386 Q430 404 470 416 Z" fill="#9fb8c6"/><path data-noink d="M230 378 Q300 344 380 386 L300 380 Z" fill="#b5cad4"/>` +
+        `<path d="M1440 416 Q1500 388 1560 396 Q1600 400 1640 416 Z" fill="#a8c0cc"/>` +
         // The S.S. Anne at anchor on the horizon, near the middle so phones see it too
         `<g transform="translate(-480 0)">` +
         `<g class="fx-drift" fill="#c9ced6" opacity=".7"><ellipse cx="1290" cy="200" rx="34" ry="16"/><ellipse cx="1260" cy="176" rx="42" ry="18"/><ellipse cx="1350" cy="212" rx="28" ry="13"/></g>` +
@@ -476,7 +482,18 @@
         `<path d="M1040 418 Q1280 426 1520 418" stroke="#ffffff" stroke-width="4" opacity=".7" fill="none"/>` +
         `<path data-noink d="M1074 420 L1486 420 L1460 450 L1100 450 Z" fill="#24375f" opacity=".18"/></g>` +
         `<rect y="412" width="${W}" height="4" fill="#ffffff" opacity=".55"/>` +
-        L + `<g class="fx-shimmer" fill="#fffbe0">${range(14, i => `<rect x="${1236 + ((i * 37) % 120)}" y="${426 + i * 22}" width="${44 - i * 2}" height="4" rx="2" opacity="${(0.9 - i * 0.05).toFixed(2)}"/>`)}</g>` +
+        // The sun's path on the water, widening toward the shore
+        glowAt(1260, 420, 200, "#fff1c4", 0.55, "", 40) +
+        L + (() => {
+          // Short glints scattered in a band that widens toward the shore
+          const g = rng(337);
+          let out = "";
+          for (let i = 0; i < 22; i++) {
+            const y = 424 + i * 20, half = 30 + i * 9;
+            for (let k = 0; k < 3; k++) out += `<rect x="${(1260 + (g() * 2 - 1) * half).toFixed(0)}" y="${(y + g() * 10).toFixed(0)}" width="${(10 + i * 1.6 + g() * 14).toFixed(0)}" height="${3 + Math.floor(i / 8)}" rx="2" opacity="${(0.95 - i * 0.03).toFixed(2)}"/>`;
+          }
+          return `<g class="fx-shimmer" fill="#fff4cf">${out}</g>`;
+        })() +
         // Rows of wave crests, bigger and further apart towards the front
         (() => {
           const r = rng(331);
@@ -511,7 +528,7 @@
       // Where the Moon Stone sits on the cave floor (x and y in percent)
       moonstone: [52, 13], haze: ["#6d5a9a", 560, 0.3],
       back: layered(
-        sky("cv", [[0, "#130e25"], [0.6, "#2a2140"], [1, "#3c3150"]]) + glow("cgl", "#8fe3ff") + glow("ctn", "#6d8fd6"),
+        sky("cv", [[0, "#130e25"], [0.6, "#2a2140"], [1, "#3c3150"]]) + glow("cgl", "#8fe3ff") + glow("ctn", "#6d8fd6") + sky("cvhole", [[0, "#1c2a5e"], [1, "#3a4f8f"]]),
         fill("cv") +
         // Columns of rock on the far wall
         `<g fill="#1d172f">${range(9, i => `<path data-noink d="M${i * 190 - 30} 0 Q${i * 190 + 10} 300 ${i * 190 - 20} 600 L${i * 190 + 70} 600 Q${i * 190 + 90} 300 ${i * 190 + 50} 0 Z"/>`)}</g>` +
@@ -519,7 +536,13 @@
         ridge(470, 70, 4, "#2b2342", 41, "", "rock") +
         // Icicles of rock from the roof, each with a lit edge
         `<g>` + range(16, i => { const x = i * 105 + 20, h = 60 + ((i * 53) % 150); return `<path d="M${x - 34} 0 L${x + 34} 0 L${x} ${h} Z" fill="#2a2240"/><path data-noink d="M${x + 6} 0 L${x + 34} 0 L${x + 3} ${h * 0.92} Z" fill="#3a3058"/><path data-noink d="M${x - 14} 0 L${x - 6} 0 L${x - 1} ${h * 0.7} Z" fill="#4a3f6c"/>`; }) + `</g>` +
-        L + ridge(560, 60, 5, "#3a2f52", 43, "", "rock") +
+        // A hole in the roof, with the night sky and the moon showing through
+        `<ellipse cx="800" cy="40" rx="150" ry="110" fill="url(#cvhole)"/>` +
+        star(712, 60, 0.6, "#e8f0ff", "fx-twinkle") + star(890, 100, 0.5, "#e8f0ff", "fx-twinkle", "animation-delay:-1.5s") + star(760, 118, 0.4, "#e8f0ff") +
+        sun(830, 70, 32, "#f4f2dc", "#dfe8ff", false) +
+        `<path d="M650 40 Q660 156 800 152 Q940 156 950 40" fill="none" stroke="#3e3462" stroke-width="12"/>` +
+        L + `<g opacity=".4"><path class="fx-pulse" data-noink d="M700 150 L900 150 L1000 770 L600 770 Z" fill="#8f94d6"/></g>` +
+        ridge(560, 60, 5, "#3a2f52", 43, "", "rock") +
         `<g><path d="M480 600 L505 500 L530 600 Z" fill="#2f2747"/><path data-noink d="M505 500 L530 600 L512 600 Z" fill="#40365e"/><path d="M1060 610 L1080 530 L1100 610 Z" fill="#2f2747"/><path data-noink d="M1080 530 L1100 610 L1086 610 Z" fill="#40365e"/><path d="M1110 610 L1124 560 L1138 610 Z" fill="#2f2747"/></g>` +
         `<circle class="fx-pulse" cx="280" cy="570" r="150" fill="url(#cgl)" opacity=".5"/><circle class="fx-pulse" cx="1272" cy="560" r="170" fill="url(#cgl)" opacity=".5" style="animation-delay:-2s"/>` +
         // Crystal clusters with a bright face on each crystal
@@ -530,6 +553,8 @@
         // Glowing mushrooms by the far wall
         `<g><rect x="1004" y="590" width="7" height="18" rx="3" fill="#e9dcff"/><path d="M994 594 Q1007 572 1021 594 Z" fill="#ff8fb1"/><rect x="1024" y="596" width="6" height="12" rx="3" fill="#e9dcff"/><path d="M1016 599 Q1027 584 1038 599 Z" fill="#ff8fb1"/></g>` +
         L + ridge(680, 20, 4, "#56486e", 47, "", "rock") +
+        // Moonlight pooling on the floor round the pond
+        `<ellipse data-noink cx="800" cy="745" rx="250" ry="56" fill="#8f94d6" opacity=".4"/>` +
         `<ellipse cx="800" cy="760" rx="180" ry="28" fill="#2c2a55"/><ellipse data-noink cx="800" cy="757" rx="150" ry="18" fill="#3b4a86"/><ellipse class="fx-pulse" cx="800" cy="756" rx="120" ry="10" fill="#9ee7ff" opacity=".3"/>` +
         stand(790, rock(420, 790, 0.6, "#4a3e64")) + stand(800, rock(1160, 800, 0.75, "#4a3e64", -1)) +
         dots(30, 49, "#cfe9ff", 120, 700, 1.6, "fx-float")
@@ -543,14 +568,17 @@
       back: layered(
         sky("fo", [[0, "#eeac78"], [0.5, "#f8d2a0"], [1, "#fbe9cc"]]),
         fill("fo") +
-        sun(1180, 140, 50, "#fff6dc", "#fff2cc") +
-        cloud(420, 170, 0.8, "#fff1dc", "fx-drift", "#f0c398") +
+        sun(800, 230, 78, "#fff6dc", "#ffe6b0") +
+        rays(800, 230, [[300, 440], [640, 720], [880, 960], [1160, 1300]], "#fff2cc", 0.14) +
+        cloud(330, 150, 0.8, "#fff1dc", "fx-drift", "#f0c398") + cloud(1300, 120, 0.6, "#fff1dc", "fx-drift fx-drift--rev", "#f0c398") +
         // Grey peaks of Mt. Moon in the distance
-        `<path d="M0 360 L140 250 L230 300 L330 220 L470 320 L560 280 L700 360 Z" fill="#c9a6a0"/><path data-noink d="M330 220 L470 320 L400 320 Z M140 250 L230 300 L180 300 Z" fill="#b89590"/>` +
+        `<path d="M0 360 L140 250 L230 300 L330 220 L470 320 L560 280 L700 360 Z" fill="#dcb4a0"/><path data-noink d="M330 220 L470 320 L400 320 Z M140 250 L230 300 L180 300 Z" fill="#cfa792"/>`+`<path d="M1000 360 L1120 280 L1210 320 L1330 250 L1460 330 L1600 290 L1600 360 Z" fill="#e2bca4"/>` +
         // The Pewter Museum of Science on the far cliff
-        `<g transform="translate(1240 236)"><rect x="0" y="30" width="200" height="80" fill="#efe2cc"/><rect data-noink x="110" y="30" width="90" height="80" fill="#e2d2b8"/>` +
-        `<path d="M50 30 A50 50 0 0 1 150 30 Z" fill="#9fb4bd"/><path data-noink d="M100 -20 A50 50 0 0 1 150 30 L100 30 Z" fill="#8aa0aa"/>` +
-        `<rect x="-10" y="24" width="220" height="10" fill="#d8c6aa"/><g fill="#fff7e8">${range(6, i => `<rect x="${14 + i * 32}" y="40" width="10" height="60"/>`)}</g></g>` +
+        `<g transform="translate(650 196) scale(1.5)"><rect x="0" y="30" width="200" height="80" fill="#8a5a4a"/><rect data-noink x="110" y="30" width="90" height="80" fill="#7a4d40"/>` +
+        `<path d="M50 30 A50 50 0 0 1 150 30 Z" fill="#6f5a62"/><path data-noink d="M100 -20 A50 50 0 0 1 150 30 L100 30 Z" fill="#5f4b54"/><path d="M100 -20 V-34" stroke="#5f4b54" stroke-width="3"/>` +
+        `<rect x="-10" y="24" width="220" height="10" fill="#9a6a56"/><g fill="#a87a62">${range(6, i => `<rect x="${14 + i * 32}" y="40" width="10" height="60"/>`)}</g>` +
+        `<g fill="#ffd27a">${range(5, i => `<rect${i === 2 ? ' class="fx-flicker"' : ""} x="${28 + i * 32}" y="54" width="14" height="26" rx="2"/>`)}</g></g>` +
+        glowAt(800, 330, 160, "#ffd27a", 0.22) +
         ridge(360, 40, 4, "#d7925e", 53, "", "rock") +
         `<g fill="none" stroke="#c47c4b" stroke-width="3" opacity=".6">${range(6, i => `<path d="M0 ${400 + i * 16} Q400 ${390 + i * 16} 800 ${404 + i * 16} T1600 ${398 + i * 16}"/>`)}</g>` +
         ridge(440, 30, 5, "#c47c4b", 59, "", "rock") + L + ridge(520, 26, 5, "#b46c3e", 61, "", "rock") +
@@ -559,9 +587,9 @@
         (() => {
           const bones = `<path d="M300 480 a26 26 0 1 1 -26 -26 a40 40 0 1 1 40 40"/><path d="M900 470 L1180 470"/>${range(6, i => `<path d="M${940 + i * 40} 470 q-12 40 0 70"/>`)}` +
             `<path d="M1180 470 q40 -30 80 -10 q20 20 -10 30 q-30 6 -70 -20"/><path d="M900 470 q-60 -10 -110 20"/>`;
-          return `<g fill="none" stroke="#8a4a26" stroke-width="16" stroke-linecap="round" opacity=".7">${bones}</g><g fill="none" stroke="#f3dcc0" stroke-width="10" stroke-linecap="round">${bones}</g>`;
+          return `<g fill="none" stroke="#9a5a34" stroke-width="16" stroke-linecap="round" opacity=".55">${bones}</g><g fill="none" stroke="#e2bb92" stroke-width="10" stroke-linecap="round">${bones}</g>`;
         })() +
-        `<circle cx="1236" cy="472" r="5" fill="#8a4a26"/>` +
+        `<circle cx="1236" cy="472" r="5" fill="#9a5a34"/>` +
         L + ridge(640, 18, 4, "#d9a777", 67, "", "sand") +
         `<g data-stand="690"><g stroke="#7a4a2a" stroke-width="5"><path d="M420 690 L420 640 M620 690 L620 640" fill="none"/></g><path d="M420 650 Q470 660 520 652 Q570 660 620 650" stroke="#f2c230" stroke-width="4" fill="none"/></g>` +
         `<g data-stand="660"><path d="M1250 660 L1310 600 L1370 660 Z" fill="#e8d6b0"/><path data-noink d="M1310 600 L1370 660 L1330 660 Z" fill="#cdb98f"/><path d="M1300 660 L1310 630 L1320 660 Z" fill="#8a6440"/><path d="M1310 600 L1310 560" stroke="#7a4a2a" stroke-width="4"/><path d="M1310 562 l30 8 l-30 8 Z" fill="#e3350d"/></g>` +
@@ -625,6 +653,7 @@
         `<g fill="#ffd84a">${range(16, i => `<rect${i % 5 === 2 ? ' class="fx-flicker"' : ""} x="${550 + (i % 8) * 58}" y="${380 + Math.floor(i / 8) * 70}" width="30" height="34" rx="3" opacity="${i % 3 ? 0.9 : 0.55}"/>`)}</g>` +
         `<g data-noink fill="#fff3b0" opacity=".7">${range(16, i => `<rect x="${553 + (i % 8) * 58}" y="${383 + Math.floor(i / 8) * 70}" width="10" height="12" rx="2"/>`)}</g>` +
         `<g fill="#ffd84a" opacity=".8"><rect x="1070" y="440" width="40" height="24" rx="3"/><rect x="1150" y="440" width="40" height="24" rx="3" class="fx-flicker" style="animation-delay:-1.7s"/></g>` +
+        glowAt(780, 430, 340, "#ffd84a", 0.22, "", 200) +
         // Pipes along the turbine house
         `<g fill="none" stroke="#5a6a7c" stroke-width="10" stroke-linecap="round"><path d="M1040 520 H1250 V600"/><path d="M1040 545 H1220 V600"/></g><g fill="none" stroke="#7d8ea2" stroke-width="3"><path d="M1040 516 H1246"/><path d="M1040 541 H1216"/></g>` +
         // The lightning bolt sign, up in the middle of the roof
@@ -662,9 +691,11 @@
         fill("vr") +
         `<g fill="#2b1e12">${range(8, i => `<path data-noink d="M${i * 210 - 40} 0 Q${i * 210} 260 ${i * 210 - 30} 520 L${i * 210 + 60} 520 Q${i * 210 + 90} 260 ${i * 210 + 50} 0 Z"/>`)}</g>` +
         // Daylight from the exit at the far end, toward the Pokémon League
-        `<ellipse cx="800" cy="470" rx="260" ry="200" fill="url(#vexit)" opacity=".6"/>` +
-        rays(800, 470, [[480, 600], [700, 760], [860, 930], [1040, 1160]], "#fff4d6", 0.12) +
+        `<ellipse cx="800" cy="470" rx="340" ry="260" fill="url(#vexit)" opacity=".75"/>` +
+        rays(800, 470, [[440, 600], [690, 770], [850, 940], [1040, 1200]], "#fff4d6", 0.18) +
         `<path d="M700 600 Q705 430 800 410 Q895 430 900 600 Z" fill="#fff4d6"/><path data-noink d="M730 600 Q740 500 800 480 Q860 500 870 600 Z" fill="#cfe8f4" opacity=".7"/><path data-noink d="M740 600 L780 540 L820 570 L860 600 Z" fill="#a8cf9a" opacity=".8"/>` +
+        // The Indigo Plateau on the hill beyond
+        `<g data-noink fill="#6f8aa0"><rect x="782" y="520" width="44" height="30"/><path d="M776 522 L804 500 L832 522 Z"/><rect x="800" y="488" width="6" height="14"/></g><g data-noink fill="#fff2b0"><rect x="790" y="530" width="6" height="8"/><rect x="812" y="530" width="6" height="8"/></g>` +
         `<g>` + range(14, i => { const x = i * 120 + 40, h = 50 + ((i * 47) % 120); return `<path d="M${x - 40} 0 L${x + 40} 0 L${x} ${h} Z" fill="#3a2818"/><path data-noink d="M${x - 18} 0 L${x - 8} 0 L${x - 2} ${h * 0.7} Z" fill="#54402a"/>`; }) + `</g>` +
         ridge(480, 80, 4, "#3e2b1b", 401, "", "rock") +
         L + ridge(560, 50, 5, "url(#vrock)", 403) +
@@ -691,20 +722,21 @@
       ground: [6, 24], tint: "#2f6d8f",
       haze: ["#bfe3f2", 600, 0.35],
       back: layered(
-        sky("sf", [[0, "#0e2e45"], [1, "#1d5372"]]) + sky("sfout", [[0, "#8fd0f2"], [0.55, "#e2f5fc"], [0.56, "#4aa8d4"], [1, "#236f9e"]]) +
-        glow("sflight", "#e8f8ff") + sky("ice", [[0, "#eef9fe"], [0.5, "#cde9f6"], [1, "#a2cfe6"]]) + sky("icicle", [[0, "#e9f8ff"], [1, "#9fd2ea"]]),
+        sky("sf", [[0, "#0a2236"], [1, "#16425e"]]) + sky("sfout", [[0, "#8fd0f2"], [0.55, "#e2f5fc"], [0.56, "#4aa8d4"], [1, "#236f9e"]]) +
+        glow("sflight", "#e8f8ff") + sky("ice", [[0, "#cfe7f3"], [0.5, "#a9d2e6"], [1, "#7fb6d2"]]) + sky("icicle", [[0, "#e9f8ff"], [1, "#9fd2ea"]]),
         fill("sf") +
         // The cave mouth looking out to the sea, with icebergs floating past
         `<path d="M520 640 Q520 250 800 220 Q1080 250 1080 640 Z" fill="url(#sfout)"/>` +
-        `<ellipse cx="800" cy="420" rx="320" ry="260" fill="url(#sflight)" opacity=".5"/>` +
+        sun(800, 380, 46, "#fffbe6", "#fffaf0") +
+        `<ellipse cx="800" cy="420" rx="420" ry="320" fill="url(#sflight)" opacity=".7"/>` +
         `<g fill="#ffffff" opacity=".9"><ellipse cx="700" cy="300" rx="60" ry="14"/><ellipse cx="900" cy="330" rx="44" ry="11"/></g>` +
         `<path d="M600 420 L630 396 L660 402 L690 420 Z" fill="#f4fbff"/><path data-noink d="M630 396 L660 402 L690 420 L640 420 Z" fill="#bfe2f2"/>` +
         `<path d="M900 420 L930 388 L960 380 L990 400 L1010 420 Z" fill="#f4fbff"/><path data-noink d="M960 380 L990 400 L1010 420 L950 420 Z" fill="#bfe2f2"/>` +
         `<g class="fx-wave" stroke="#ffffff" stroke-opacity=".5" stroke-width="3" fill="none" stroke-linecap="round"><path d="M600 470 q20 -8 40 0 t40 0"/><path d="M820 500 q20 -8 40 0 t40 0"/><path d="M700 560 q20 -8 40 0 t40 0"/></g>` +
-        `<path d="M0 0 H1600 V700 H1080 Q1080 250 800 220 Q520 250 520 640 V700 H0 Z" fill="#1a4a66"/>` +
+        `<path d="M0 0 H1600 V700 H1080 Q1080 250 800 220 Q520 250 520 640 V700 H0 Z" fill="#143c56"/>` +
         `<path data-noink d="M1080 640 Q1080 250 800 220 Q520 250 520 640" fill="none" stroke="#8fd0ea" stroke-width="6" opacity=".7"/>` +
-        rays(800, 260, [[560, 700], [760, 860], [920, 1060]], "#e8f8ff", 0.12) +
-        `<path d="M0 0 H1600 V120 Q1200 160 800 130 Q400 160 0 120 Z" fill="#245e80"/>` +
+        rays(800, 260, [[480, 660], [740, 870], [940, 1120]], "#e8f8ff", 0.2) +
+        `<path d="M0 0 H1600 V120 Q1200 160 800 130 Q400 160 0 120 Z" fill="#1c4c6a"/>` +
         L + ridge(560, 60, 4, "#2b6a8c", 501, "", "rock") +
         // Icicles from the roof, each with a bright streak
         `<g>` + range(15, i => { const x = i * 110 + 30, h = 50 + ((i * 61) % 130); return `<path d="M${x - 22} 118 L${x + 22} 118 L${x} ${118 + h} Z" fill="url(#icicle)" opacity=".95"/><path data-noink d="M${x - 10} 120 L${x - 4} 120 L${x - 1} ${118 + h * 0.75} Z" fill="#ffffff" opacity=".85"/>`; }) + `</g>` +
@@ -718,9 +750,11 @@
         ridge(640, 24, 5, "#3f86a8", 505, "", "rock") +
         // A frozen cave floor, with cracks and shine in the ice
         L + `<path d="M0 700 Q400 670 800 690 T1600 680 L1600 900 L0 900 Z" fill="url(#ice)"/>` +
+        // Light from the mouth across the ice
+        `<path data-noink d="M720 690 L880 690 L1000 900 L600 900 Z" fill="#f2fbff" opacity=".45"/>` +
         `<g data-noink fill="#ffffff" opacity=".6"><path d="M560 712 L700 708 L640 730 L520 734 Z"/><path d="M1000 760 L1180 754 L1110 780 L950 784 Z"/></g>` +
         `<g fill="none" stroke="#9cc8de" stroke-width="3" stroke-linecap="round" opacity=".8"><path d="M300 720 l60 14 l40 -10 l50 18"/><path d="M900 712 l-40 16 l30 14"/><path d="M1180 730 l70 -8 l30 16"/></g>` +
-        ridge(760, 16, 4, "#e9f6fc", 507) +
+        ridge(760, 16, 4, "#bcdcec", 507) +
         `<g class="fx-drift" fill="#e8f8ff" opacity=".25"><ellipse cx="500" cy="740" rx="300" ry="24"/><ellipse cx="1150" cy="760" rx="340" ry="26"/></g>`
       ),
       front: svg("", `<g fill="#ffffff"><ellipse cx="120" cy="900" rx="260" ry="90"/><ellipse cx="1500" cy="900" rx="260" ry="100"/></g>` +
