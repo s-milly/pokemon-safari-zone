@@ -627,16 +627,15 @@
         `<g fill="#ffd84a" opacity=".8"><rect x="1070" y="440" width="40" height="24" rx="3"/><rect x="1150" y="440" width="40" height="24" rx="3" class="fx-flicker" style="animation-delay:-1.7s"/></g>` +
         // Pipes along the turbine house
         `<g fill="none" stroke="#5a6a7c" stroke-width="10" stroke-linecap="round"><path d="M1040 520 H1250 V600"/><path d="M1040 545 H1220 V600"/></g><g fill="none" stroke="#7d8ea2" stroke-width="3"><path d="M1040 516 H1246"/><path d="M1040 541 H1216"/></g>` +
-        `<path d="M820 330 l-24 44 h20 l-16 40 l40 -54 h-22 l18 -30 Z" fill="#ffd84a"/>` +
-        glowAt(808, 372, 70, "#ffe066", 0.6, "fx-pulse") +
+        // The lightning bolt sign, up in the middle of the roof
+        `<path transform="translate(780 312) scale(.62) translate(-820 -372)" d="M820 330 l-24 44 h20 l-16 40 l40 -54 h-22 l18 -30 Z" fill="#ffd84a"/>` +
         L + ridge(600, 20, 5, "#46586a", 307, "", "rock") +
         // Pylons with sagging wires
         `<g fill="none" stroke="#1d2833" stroke-width="6" stroke-linejoin="round"><path d="M210 640 L250 360 L290 640 M226 520 L274 520 M236 440 L264 440 M190 380 L310 380"/><path d="M1380 640 L1416 380 L1452 640 M1394 530 L1438 530 M1402 450 L1430 450 M1360 400 L1472 400"/></g>` +
         `<g fill="none" stroke="#1d2833" stroke-width="3"><path d="M218 600 L270 520 L232 440 L262 400 M282 600 L230 520 L268 440 L238 400"/><path d="M1386 600 L1436 530 L1404 450 L1426 410 M1446 600 L1396 530 L1428 450 L1406 410"/></g>` +
         `<g fill="none" stroke="#1d2833" stroke-width="3"><path d="M190 380 Q800 480 1360 400"/><path d="M310 380 Q900 470 1472 400"/><path d="M-60 400 Q80 430 190 380"/><path d="M1472 400 Q1560 420 1680 390"/></g>` +
         `<g fill="#ffe066"><circle class="fx-flicker" cx="190" cy="380" r="5"/><circle class="fx-flicker" style="animation-delay:-1s" cx="1472" cy="400" r="5"/></g>` +
-        `<circle class="fx-pulse" cx="800" cy="440" r="160" fill="url(#pglow)" opacity=".25"/>` +
-        L + ridge(690, 16, 4, "#566a5a", 311, "", "rock") +
+                L + ridge(690, 16, 4, "#566a5a", 311, "", "rock") +
         // The charging pads: metal plates with a glowing ring
         [[420, 770, 120], [1180, 790, 150]].map(([x, y, r]) => glowAt(x, y, r * 1.2, "#ffe066", 0.5, "fx-pulse", r * 0.3) +
           `<ellipse cx="${x}" cy="${y + 4}" rx="${r}" ry="${r * 0.15}" fill="#3a4a58"/><ellipse cx="${x}" cy="${y}" rx="${r * 0.9}" ry="${r * 0.12}" fill="#5a6a78"/>` +
