@@ -530,7 +530,7 @@
   }
 
   // A small, quick fidget while standing: a glance the other way, or a hop
-  const canFidget = v => !FLOATERS.has(v.id) && !ROLLERS.has(v.id) && !SLOW.has(v.id) && !v.el.classList.contains("is-swimming");
+  const canFidget = v => !FLOATERS.has(v.id) && !SLOW.has(v.id) && !v.el.classList.contains("is-swimming");
   function fidget(v, rest) {
     // Slitherers never hop; they only glance
     if (Math.random() < 0.5 || SLITHERERS.has(v.id)) {
@@ -580,10 +580,9 @@
       const ease = w.ease || "linear";
       v.el.style.transition = moveTransition(seconds, ease);
       if (!w.noFlip && Math.abs(x - v.x) > 0.5) face(v, x > v.x);
-      if (ROLLERS.has(v.id)) roll(v, x - v.x, seconds);
-      if (w.roll) roll(v, 0, seconds, w.roll, ease);
-      // A small step bounce while walking (Voltorb and Electrode roll instead)
-      if (seconds > 0.05 && !ROLLERS.has(v.id) && !w.roll) {
+      if (w.roll) roll(v, seconds, w.roll, ease);
+      // A small step bounce while walking (not while curled up for Rollout)
+      if (seconds > 0.05 && !w.roll) {
         v.el.classList.add("is-moving");
         clearTimeout(v.moveTimer);
         v.moveTimer = setTimeout(() => v.el.classList.remove("is-moving"), seconds * 1000);
@@ -714,7 +713,6 @@
   const POOLS = [[350, 760, 110], [1250, 790, 140]];
   const ELECTRIC = new Set([25, 26, 81, 82, 100, 101, 125, 135, 145]);
   const FIRE = new Set([4, 5, 6, 37, 38, 58, 59, 77, 78, 126, 136, 146]);
-  const ROLLERS = new Set([100, 101]);
   const SLOW = new Set([79, 80]); // Slowpoke and Slowbro
   const GHOSTS = new Set([92, 93, 94]);
   // Where the top of the head is, as a share of the picture from the left
@@ -1061,8 +1059,8 @@
     go(v, [{ x: p.x + rand(-2, 2), y: p.y, end: flag("is-charged", true) }, stay(6000, 9000, { end: flag("is-charged", false) })], rest);
   }
 
-  // Voltorb and Electrode roll instead of walking
-  function roll(v, dx, seconds, turn = dx * 14, ease = "linear") {
+  // Spin the body by turn degrees (Rollout)
+  function roll(v, seconds, turn, ease) {
     const body = v.el.querySelector(".mon__body");
     v.spin = (v.spin || 0) + turn;
     body.style.transition = `rotate ${seconds}s ${ease}`;

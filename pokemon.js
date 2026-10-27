@@ -125,9 +125,8 @@ window.HABITATS = [
 // The animated sprites from Pokémon Black and White 2 (via PokeAPI). Each one
 // is cropped close around the Pokémon, so its feet are at the bottom edge.
 // A few are slowed down and kept here (see tools/slow-sprites.py): Venomoth's
-// wings changed so fast that it flickered. Voltorb keeps one still pose, since
-// its sprite lunges forward on top of the roll the game gives it.
-const SLOWED = new Set([49, 100]);
+// wings changed so fast that it flickered.
+const SLOWED = new Set([49]);
 window.ART = {
   normal: id => SLOWED.has(id) ? `px/anim/${id}.png?v=2` : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${id}.gif`,
   shiny: id => SLOWED.has(id) ? `px/anim/shiny/${id}.png?v=2` : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/shiny/${id}.gif`
