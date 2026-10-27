@@ -771,9 +771,6 @@
         // Snow and frost along the edge of the roof
         `<path d="M0 108 ${range(33, i => `Q${i * 50 + 25} ${i % 3 ? 140 : 146} ${i * 50 + 50} 128`)} L1650 100 L0 100 Z" fill="#dff3fb"/>` +
         `<path data-noink d="M0 108 ${range(33, i => `Q${i * 50 + 25} ${i % 3 ? 126 : 130} ${i * 50 + 50} 116`)} L1650 100 L0 100 Z" fill="#ffffff"/>` +
-        // Frozen falls down the cave wall
-        `<path d="M250 160 Q230 380 260 600 L330 600 Q350 380 320 160 Z" fill="#bfe6f6" opacity=".9"/><path d="M270 180 Q262 380 282 590" stroke="#ffffff" stroke-width="6" opacity=".8" fill="none"/><path d="M308 190 Q318 380 312 590" stroke="#93cde6" stroke-width="4" opacity=".8" fill="none"/>` +
-        `<path d="M1300 150 Q1280 360 1320 590 L1380 590 Q1400 360 1370 150 Z" fill="#bfe6f6" opacity=".9"/><path d="M1318 170 Q1306 360 1336 580" stroke="#ffffff" stroke-width="6" opacity=".8" fill="none"/>` +
         // Ice crystals at the foot of the walls
         [[430, 612, 1], [1170, 618, 0.9]].map(([x, y, s]) => [[-30, 40, 12, -8], [0, 70, 16, 0], [28, 46, 12, 8]].map(([dx, h, w, lean]) =>
           `<path d="M${x + (dx - w) * s} ${y} L${x + (dx + lean) * s} ${y - h * s} L${x + (dx + w) * s} ${y} Z" fill="#a9e2f7"/><path data-noink d="M${x + (dx + lean) * s} ${y - h * s} L${x + (dx + w) * s} ${y} L${x + dx * s} ${y} Z" fill="#e6f8ff"/>`).join("")).join("") +
