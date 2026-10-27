@@ -694,8 +694,7 @@
         dots(10, 313, "#ffe066", 620, 860, 2, "fx-rise")
       ),
       front: svg("", corner("#2e3a44") +
-        `<g transform="translate(1440 790)"><rect x="-4" y="0" width="8" height="70" fill="#5a6470"/><path d="M0 -44 L40 26 L-40 26 Z" fill="#ffcb05" stroke="#1e2230" stroke-width="5" stroke-linejoin="round"/><path d="M4 -18 l-10 16 h8 l-6 16 l14 -20 h-8 l6 -12 Z" fill="#1e2230"/></g>` +
-        `<rect x="260" y="850" width="260" height="30" rx="15" fill="#5a6470"/><rect x="260" y="850" width="260" height="10" rx="5" fill="#76808c"/>`)
+        `<g transform="translate(1440 790)"><rect x="-4" y="0" width="8" height="70" fill="#5a6470"/><path d="M0 -44 L40 26 L-40 26 Z" fill="#ffcb05" stroke="#1e2230" stroke-width="5" stroke-linejoin="round"/><path d="M4 -18 l-10 16 h8 l-6 16 l14 -20 h-8 l6 -12 Z" fill="#1e2230"/></g>`)
     },
 
     victory: {
