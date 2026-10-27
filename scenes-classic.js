@@ -214,12 +214,10 @@
       back: layered(
         sky("cv", [[0, "#17122a"], [1, "#3c3150"]]) + glow("cgl", "#8fe3ff") + glow("ctn", "#6d8fd6"),
         fill("cv") +
-        `<ellipse cx="800" cy="500" rx="200" ry="150" fill="url(#ctn)" opacity=".5"/><path d="M640 640 Q650 400 800 380 Q950 400 960 640 Z" fill="#0f0b1d" opacity=".6"/>` +
         ridge(470, 70, 4, "#2b2342", 41) +
         `<g fill="#2a2240">` + Array.from({ length: 16 }, (_, i) => { const x = i * 105 + 20, h = 60 + ((i * 53) % 150); return `<path d="M${x - 34} 0 L${x + 34} 0 L${x} ${h} Z"/><path d="M${x + 6} 0 L${x + 34} 0 L${x + 3} ${h * 0.92} Z" fill="#3a3058"/>`; }).join("") + `</g>` +
         L + ridge(560, 60, 5, "#3a2f52", 43) +
         `<g fill="#2f2747"><path d="M480 600 L505 500 L530 600 Z"/><path d="M1060 610 L1080 530 L1100 610 Z"/><path d="M1110 610 L1124 560 L1138 610 Z"/></g>` +
-        `<circle class="fx-pulse" cx="280" cy="570" r="140" fill="url(#cgl)" opacity=".45"/><circle class="fx-pulse" cx="1272" cy="560" r="160" fill="url(#cgl)" opacity=".45" style="animation-delay:-2s"/>` +
         `<g fill="#9ee7ff"><path d="M260 600 l20 -70 l20 70 Z"/><path d="M300 605 l14 -46 l14 46 Z"/><path d="M236 604 l12 -34 l12 34 Z"/><path d="M1250 590 l22 -80 l22 80 Z"/><path d="M1300 600 l14 -50 l14 50 Z"/><path d="M1222 598 l12 -36 l12 36 Z"/></g>` +
         `<g fill="#e4faff" opacity=".8"><path d="M270 590 l10 -50 l4 50 Z"/><path d="M1262 580 l10 -58 l4 58 Z"/></g>` +
         L + ridge(680, 20, 4, "#56486e", 47) +

@@ -1151,7 +1151,7 @@
     el.className = "moonstone";
     el.innerHTML = `<svg viewBox="0 0 60 50" aria-hidden="true"><ellipse cx="30" cy="44" rx="22" ry="5" fill="rgba(0,0,0,.3)"/><path d="M14 42 L20 16 L32 6 L44 18 L48 42 Z" fill="#c9c3e6"/><path d="M32 6 L44 18 L48 42 L34 42 Z" fill="#a69fcf"/><path d="M22 20 l4 -4 M38 22 l3 6" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/></svg>`;
     stage.appendChild(el);
-    pixelize(el, 20);
+    pixelize(el, 32);
     place(el, at[0], at[1]);
     moonstone = { el, x: at[0], y: at[1] };
   }

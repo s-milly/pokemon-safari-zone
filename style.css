@@ -358,7 +358,7 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
 @keyframes dirt-fade { from { opacity: .95; } to { opacity: 0; transform: translate(-50%, 0) scaleY(.4); } }
 
 /* Mt. Moon: the Moon Stone, dancing Clefairy, Zubat roosting upside down */
-.moonstone { position: absolute; width: calc(20px * var(--px, 3) * var(--s)); transform: translate(-50%, 0); }
+.moonstone { position: absolute; width: calc(32px * var(--px, 3) * var(--s)); transform: translate(-50%, 0); }
 .moonstone :is(svg, .px) { display: block; width: 100%; height: auto; filter: drop-shadow(0 0 6px rgba(200, 190, 255, .5)); transition: filter 1s ease; }
 .moonstone.is-glowing :is(svg, .px) { filter: drop-shadow(0 0 18px rgba(210, 200, 255, 1)) drop-shadow(0 0 40px rgba(170, 150, 255, .8)) brightness(1.2); }
 .mon.is-dancing img { animation: dance .45s ease-in-out infinite alternate; }

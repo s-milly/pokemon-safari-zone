@@ -533,19 +533,17 @@
         fill("cv") +
         // Columns of rock on the far wall
         `<g fill="#1d172f">${range(9, i => `<path data-noink d="M${i * 190 - 30} 0 Q${i * 190 + 10} 300 ${i * 190 - 20} 600 L${i * 190 + 70} 600 Q${i * 190 + 90} 300 ${i * 190 + 50} 0 Z"/>`)}</g>` +
-        `<ellipse cx="800" cy="500" rx="200" ry="150" fill="url(#ctn)" opacity=".55"/><path d="M640 640 Q650 400 800 380 Q950 400 960 640 Z" fill="#0f0b1d" opacity=".6"/>` +
         ridge(470, 70, 4, "#2b2342", 41, "", "rock") +
         // Icicles of rock from the roof, each with a lit edge
         `<g>` + range(16, i => { const x = i * 105 + 20, h = 60 + ((i * 53) % 150); return `<path d="M${x - 34} 0 L${x + 34} 0 L${x} ${h} Z" fill="#2a2240"/><path data-noink d="M${x + 6} 0 L${x + 34} 0 L${x + 3} ${h * 0.92} Z" fill="#3a3058"/><path data-noink d="M${x - 14} 0 L${x - 6} 0 L${x - 1} ${h * 0.7} Z" fill="#4a3f6c"/>`; }) + `</g>` +
         // A hole in the roof, with the night sky and the moon showing through
         `<ellipse cx="800" cy="40" rx="150" ry="110" fill="url(#cvhole)"/>` +
         star(712, 60, 0.6, "#e8f0ff", "fx-twinkle") + star(890, 100, 0.5, "#e8f0ff", "fx-twinkle", "animation-delay:-1.5s") + star(760, 118, 0.4, "#e8f0ff") +
-        sun(830, 70, 32, "#f4f2dc", "#dfe8ff", false) +
+        sun(800, 88, 32, "#f4f2dc", "#dfe8ff", false) +
         `<path d="M650 40 Q660 156 800 152 Q940 156 950 40" fill="none" stroke="#3e3462" stroke-width="12"/>` +
         L + `<g opacity=".4"><path class="fx-pulse" data-noink d="M700 150 L900 150 L1000 770 L600 770 Z" fill="#8f94d6"/></g>` +
         ridge(560, 60, 5, "#3a2f52", 43, "", "rock") +
         `<g><path d="M480 600 L505 500 L530 600 Z" fill="#2f2747"/><path data-noink d="M505 500 L530 600 L512 600 Z" fill="#40365e"/><path d="M1060 610 L1080 530 L1100 610 Z" fill="#2f2747"/><path data-noink d="M1080 530 L1100 610 L1086 610 Z" fill="#40365e"/><path d="M1110 610 L1124 560 L1138 610 Z" fill="#2f2747"/></g>` +
-        `<circle class="fx-pulse" cx="280" cy="570" r="150" fill="url(#cgl)" opacity=".5"/><circle class="fx-pulse" cx="1272" cy="560" r="170" fill="url(#cgl)" opacity=".5" style="animation-delay:-2s"/>` +
         // Crystal clusters with a bright face on each crystal
         [[280, 604, 1], [1272, 596, 1.15]].map(([x, y, s]) => [[-44, 36, 12, -6], [-20, 60, 16, 0], [6, 82, 18, 4], [30, 52, 14, 10], [50, 32, 11, 14]].map(([dx, h, w, lean]) =>
           `<path d="M${x + (dx - w) * s} ${y} L${x + (dx - w * 0.8 + lean) * s} ${y - h * 0.82 * s} L${x + (dx + lean) * s} ${y - h * s} L${x + (dx + w * 0.8 + lean) * s} ${y - h * 0.82 * s} L${x + (dx + w) * s} ${y} Z" fill="#7fd6f5"/>` +
@@ -581,9 +579,9 @@
         // Fossils in the wall, traced from the games: the Helix Fossil from its item art
         // and the Dome Fossil from the anime, redrawn in the wall's sandstone by
         // tools/fossil-style.py, each set in a hollow in the rock
-        `<g fill="#9a5a34" opacity=".55"><ellipse cx="500" cy="424" rx="90" ry="80"/><ellipse cx="1160" cy="428" rx="90" ry="84"/></g>` +
-        `<image href="art/helix-fossil-wall.png" x="430" y="352" width="140" height="145"/>` +
-        `<image href="art/dome-fossil-wall.png" x="1092" y="356" width="136" height="145"/>` +
+        `<g fill="#9a5a34" opacity=".25"><ellipse cx="500" cy="424" rx="56" ry="52"/><ellipse cx="1160" cy="428" rx="56" ry="54"/></g>` +
+        `<image href="art/helix-fossil-wall.png" x="456" y="379" width="88" height="91" opacity=".55"/>` +
+        `<image href="art/dome-fossil-wall.png" x="1117" y="382" width="86" height="92" opacity=".55"/>` +
         // A cave entrance in the middle of the wall, framed in rock, its foot where the ground in front begins
         (() => {
           const mouth = "M706 690 V612 Q708 552 800 548 Q892 552 894 612 V690 Z";
