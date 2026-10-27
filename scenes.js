@@ -526,8 +526,9 @@
     cave: {
       far: 615, horizon: 530,
       ground: [6, 24], tint: "#4b3a6b",
-      // Where the Moon Stone sits on the cave floor (x and y in percent)
-      moonstone: [52, 13], haze: ["#6d5a9a", 560, 0.3],
+      // Where the Moon Stone sits on the cave floor (x and y in percent), and
+      // in the drawing, where it stands so it is in the middle of the moonlight
+      moonstone: [50, 13], moonlight: [800, 766], haze: ["#6d5a9a", 560, 0.3],
       back: layered(
         sky("cv", [[0, "#130e25"], [0.6, "#2a2140"], [1, "#3c3150"]]) + glow("cgl", "#8fe3ff") + glow("ctn", "#6d8fd6") + sky("cvhole", [[0, "#1c2a5e"], [1, "#3a4f8f"]]),
         fill("cv") +
@@ -552,9 +553,8 @@
         // Glowing mushrooms by the far wall
         `<g><rect x="1004" y="590" width="7" height="18" rx="3" fill="#e9dcff"/><path d="M994 594 Q1007 572 1021 594 Z" fill="#ff8fb1"/><rect x="1024" y="596" width="6" height="12" rx="3" fill="#e9dcff"/><path d="M1016 599 Q1027 584 1038 599 Z" fill="#ff8fb1"/></g>` +
         L + ridge(705, 20, 4, "#56486e", 47, "", "rock") +
-        // Moonlight pooling on the floor round the pond
+        // Moonlight pooling on the floor
         `<ellipse data-noink cx="800" cy="745" rx="250" ry="56" fill="#8f94d6" opacity=".4"/>` +
-        `<ellipse cx="800" cy="760" rx="180" ry="28" fill="#2c2a55"/><ellipse data-noink cx="800" cy="757" rx="150" ry="18" fill="#3b4a86"/><ellipse class="fx-pulse" cx="800" cy="756" rx="120" ry="10" fill="#9ee7ff" opacity=".3"/>` +
         stand(790, rock(420, 790, 0.6, "#4a3e64")) + stand(800, rock(1160, 800, 0.75, "#4a3e64", -1)) +
         dots(30, 49, "#cfe9ff", 120, 700, 1.6, "fx-float")
       ),

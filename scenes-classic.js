@@ -221,7 +221,6 @@
         `<g fill="#9ee7ff"><path d="M260 600 l20 -70 l20 70 Z"/><path d="M300 605 l14 -46 l14 46 Z"/><path d="M236 604 l12 -34 l12 34 Z"/><path d="M1250 590 l22 -80 l22 80 Z"/><path d="M1300 600 l14 -50 l14 50 Z"/><path d="M1222 598 l12 -36 l12 36 Z"/></g>` +
         `<g fill="#e4faff" opacity=".8"><path d="M270 590 l10 -50 l4 50 Z"/><path d="M1262 580 l10 -58 l4 58 Z"/></g>` +
         L + ridge(680, 20, 4, "#56486e", 47) +
-        `<ellipse cx="800" cy="760" rx="170" ry="26" fill="#2c2a55"/><ellipse class="fx-pulse" cx="800" cy="756" rx="120" ry="10" fill="#9ee7ff" opacity=".25"/>` +
         dots(30, 49, "#cfe9ff", 120, 700, 1.6, "fx-float")
       ),
       front: svg("", `<g fill="#2b2340"><ellipse cx="120" cy="890" rx="230" ry="110"/><ellipse cx="1500" cy="900" rx="240" ry="120"/><ellipse cx="800" cy="930" rx="300" ry="60"/></g>` +

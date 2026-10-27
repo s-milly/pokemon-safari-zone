@@ -416,6 +416,12 @@
       Object.assign(st, { depthY: a.y, fromX: a.x, toX: b.x, topY: b.y });
       st.dataset.depth = a.y.toFixed(2);
     }
+    // The Moon Stone stands in the middle of the moonlight on the cave floor
+    if (moonstone && sc.moonlight) {
+      const at = svgToStage(sc.moonlight[0], sc.moonlight[1], 2);
+      Object.assign(moonstone, at);
+      place(moonstone.el, at.x, at.y);
+    }
   }
   addEventListener("resize", () => requestAnimationFrame(measureDepth));
 
