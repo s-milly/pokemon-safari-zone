@@ -448,8 +448,8 @@
         `<g fill="none" stroke="#7b8a3a" stroke-width="4" stroke-linecap="round"><path d="M640 602 q-4 -20 2 -34 M650 604 q2 -16 10 -26 M876 600 q2 -18 -4 -30 M866 602 q-2 -14 -10 -22"/></g>` +
         // Acacia trees: a bent trunk under a wide flat crown
         [[290, 610, 1], [1128, 610, 0.74]].map(([x, y, s]) => stand(y, `<path d="M${x - 6 * s} ${y} Q${x - 10 * s} ${y - 60 * s} ${x} ${y - 110 * s} L${x - 40 * s} ${y - 140 * s} M${x} ${y - 110 * s} L${x + 40 * s} ${y - 142 * s} M${x - 2 * s} ${y - 100 * s} L${x + 6 * s} ${y - 146 * s}" stroke="#4a3626" stroke-width="${12 * s}" fill="none" stroke-linecap="round"/>` +
-          `<ellipse cx="${x}" cy="${y - 145 * s}" rx="${135 * s}" ry="${26 * s}" fill="#4a3626"/><ellipse cx="${x + 8 * s}" cy="${y - 158 * s}" rx="${105 * s}" ry="${20 * s}" fill="#5c4630"/>` +
-          `<ellipse cx="${x - 70 * s}" cy="${y - 150 * s}" rx="${50 * s}" ry="${14 * s}" fill="#544030"/><ellipse data-noink cx="${x + 20 * s}" cy="${y - 166 * s}" rx="${60 * s}" ry="${8 * s}" fill="#a0703c"/>`)).join("") +
+          `<ellipse cx="${x}" cy="${y - 145 * s}" rx="${135 * s}" ry="${26 * s}" fill="#b04c1c"/><ellipse cx="${x + 8 * s}" cy="${y - 158 * s}" rx="${105 * s}" ry="${20 * s}" fill="#d2692a"/>` +
+          `<ellipse cx="${x - 70 * s}" cy="${y - 150 * s}" rx="${50 * s}" ry="${14 * s}" fill="#c25a22"/><ellipse data-noink cx="${x + 20 * s}" cy="${y - 166 * s}" rx="${60 * s}" ry="${8 * s}" fill="#f2a04e"/>`)).join("") +
         ridge(640, 20, 5, "#c9b766", 29, "", "grass") +
         L + ridge(720, 14, 4, "#b7ad5a", 31, "", "grass") +
         stand(772, rock(300, 772, 0.9, "#a99a73")) + stand(778, rock(1300, 778, 0.7, "#a99a73", -1)) +
