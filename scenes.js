@@ -547,8 +547,10 @@
         star(712, 60, 0.6, "#e8f0ff", "fx-twinkle") + star(890, 100, 0.5, "#e8f0ff", "fx-twinkle", "animation-delay:-1.5s") + star(760, 118, 0.4, "#e8f0ff") +
         sun(800, 88, 32, "#f4f2dc", "#dfe8ff", false) +
         `<path d="M650 40 Q660 156 800 152 Q940 156 950 40" fill="none" stroke="#3e3462" stroke-width="12"/>` +
-        L + `<g opacity=".4"><path class="fx-pulse" data-noink d="M700 150 L900 150 L1000 770 L600 770 Z" fill="#8f94d6"/></g>` +
-        ridge(560, 60, 5, "#3a2f52", 43, "", "rock") +
+        L + ridge(560, 60, 5, "#3a2f52", 43, "", "rock") +
+        // One beam of moonlight from the hole down to the floor, drawn over the
+        // rock so it does not break where each ridge starts; it ends in the pool below
+        `<g opacity=".4"><path class="fx-pulse" data-noink d="M700 150 L900 150 L1035 685 L565 685 Z" fill="#8f94d6"/></g>` +
         `<g><path d="M480 600 L505 500 L530 600 Z" fill="#2f2747"/><path data-noink d="M505 500 L530 600 L512 600 Z" fill="#40365e"/><path d="M1060 610 L1080 530 L1100 610 Z" fill="#2f2747"/><path data-noink d="M1080 530 L1100 610 L1086 610 Z" fill="#40365e"/><path d="M1110 610 L1124 560 L1138 610 Z" fill="#2f2747"/></g>` +
         // Crystal clusters with a bright face on each crystal
         [[280, 604, 1], [1272, 596, 1.15]].map(([x, y, s]) => [[-44, 36, 12, -6], [-20, 60, 16, 0], [6, 82, 18, 4], [30, 52, 14, 10], [50, 32, 11, 14]].map(([dx, h, w, lean]) =>
@@ -558,8 +560,9 @@
         // Glowing mushrooms by the far wall
         `<g><rect x="1004" y="590" width="7" height="18" rx="3" fill="#e9dcff"/><path d="M994 594 Q1007 572 1021 594 Z" fill="#ff8fb1"/><rect x="1024" y="596" width="6" height="12" rx="3" fill="#e9dcff"/><path d="M1016 599 Q1027 584 1038 599 Z" fill="#ff8fb1"/></g>` +
         L + ridge(705, 20, 4, "#56486e", 47, "", "rock") +
-        // Moonlight pooling on the floor
-        `<ellipse data-noink cx="800" cy="745" rx="250" ry="56" fill="#8f94d6" opacity=".4"/>` +
+        // The foot of the beam, carried over the near ridge and spreading into a pool
+        // on the floor; one group so the overlap is not brighter
+        `<g opacity=".4"><g class="fx-pulse" fill="#8f94d6"><path data-noink d="M565 685 L1035 685 L1050 745 L550 745 Z"/><ellipse data-noink cx="800" cy="745" rx="250" ry="56"/></g></g>` +
         stand(790, rock(420, 790, 0.6, "#4a3e64")) + stand(800, rock(1160, 800, 0.75, "#4a3e64", -1)) +
         dots(30, 49, "#cfe9ff", 120, 700, 1.6, "fx-float")
       ),
