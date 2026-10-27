@@ -428,14 +428,21 @@
         `<g class="fx-drift" fill="#f9d2a6"><rect x="140" y="300" width="300" height="16" rx="8"/><rect x="380" y="336" width="240" height="12" rx="6"/><rect x="1180" y="250" width="320" height="16" rx="8"/><rect x="1260" y="280" width="200" height="12" rx="6"/></g>` +
         cloud(1100, 150, 0.9, "#ffe9cf", "fx-drift fx-drift--rev", "#f2b98e") +
         `<g class="fx-drift" fill="none" stroke="#7a5236" stroke-width="4" stroke-linecap="round"><path d="M900 230 q12 -10 24 0 q12 -10 24 0"/><path d="M960 260 q9 -8 18 0 q9 -8 18 0"/><path d="M1010 220 q10 -9 20 0 q10 -9 20 0"/><path d="M850 270 q8 -7 16 0 q8 -7 16 0"/></g>` +
-        // Flat-topped mesas with bands of rock
-        (() => {
-          const m = `<path d="M880 560 L950 430 L1190 430 L1250 560 Z"/><path d="M1250 560 L1295 475 L1430 475 L1470 560 Z"/>`, c = clip(m);
-          return `<g fill="#e4ae78">${m}</g>` + c.def + `<g clip-path="${c.url}">` +
-            `<g data-noink fill="none" stroke="#d79e6c" stroke-width="5">${range(5, i => `<path d="M860 ${452 + i * 24} q80 ${i % 2 ? 6 : -6} 160 0 t160 0 t160 0 t160 0"/>`)}</g>` +
-            `<path data-noink d="M1190 430 L1250 560 L1150 560 Z M1430 475 L1470 560 L1400 560 Z" fill="#cc8d5a"/><path data-noink d="M950 430 L1190 430 L1186 440 L946 440 Z M1295 475 L1430 475 L1427 484 L1291 484 Z" fill="#f2c08a"/></g>`;
-        })() +
+        // The Safari Zone gate building, out past the fence: a wide red roof,
+        // the green sign over the door, and windows either side
+        `<path d="M1160 486 L1222 420 L1438 420 L1500 486 Z" fill="#b8553a"/>` +
+        `<g data-noink fill="none" stroke="#9a4430" stroke-width="4">${range(4, i => { const y = 472 - i * 14, d = (486 - y) * 62 / 66; return `<path d="M${1162 + d} ${y} H${1498 - d}"/>`; })}</g>` +
+        `<path data-noink d="M1222 420 L1438 420 L1442 428 L1218 428 Z" fill="#d9775a"/>` +
+        `<rect x="1184" y="486" width="292" height="74" fill="#f1dfb4"/><rect data-noink x="1184" y="486" width="292" height="8" fill="#d8bf8e"/><rect x="1184" y="548" width="292" height="12" fill="#b99a6a"/>` +
+        `<g fill="#8ecbe0">${[1204, 1252, 1384, 1432].map(x => `<rect x="${x}" y="504" width="28" height="24"/>`).join("")}</g>` +
+        `<g data-noink fill="#d6f0f8">${[1204, 1252, 1384, 1432].map(x => `<rect x="${x}" y="504" width="10" height="24"/>`).join("")}</g>` +
+        `<rect x="1306" y="500" width="48" height="60" fill="#5a3a26"/><rect data-noink x="1312" y="506" width="36" height="54" fill="#2e1e16"/>` +
+        `<rect x="1250" y="430" width="160" height="30" rx="3" fill="#3d7a3f"/>` +
+        `<text x="1330" y="452" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="16" letter-spacing="1" fill="#ffffff">SAFARI ZONE</text>` +
         L + ridge(560, 20, 6, "#d8c07a", 23, "", "grass") +
+        // The Safari Zone fence, right across the back
+        `<g fill="#8a6440">${range(41, i => `<rect x="${i * 40}" y="546" width="8" height="36" rx="2"/>`)}<rect x="0" y="554" width="${W}" height="6" rx="2"/><rect x="0" y="569" width="${W}" height="6" rx="2"/></g>` +
+        `<g data-noink fill="#ad8459"><rect x="0" y="554" width="${W}" height="2"/><rect x="0" y="569" width="${W}" height="2"/></g>` +
         // A watering hole between the trees
         `<ellipse cx="760" cy="600" rx="130" ry="16" fill="#79b5c4"/><ellipse data-noink cx="740" cy="597" rx="70" ry="5" fill="#d6f0f4" opacity=".8"/>` +
         `<g fill="none" stroke="#7b8a3a" stroke-width="4" stroke-linecap="round"><path d="M640 602 q-4 -20 2 -34 M650 604 q2 -16 10 -26 M876 600 q2 -18 -4 -30 M866 602 q-2 -14 -10 -22"/></g>` +
@@ -444,9 +451,7 @@
           `<ellipse cx="${x}" cy="${y - 145 * s}" rx="${135 * s}" ry="${26 * s}" fill="#4a3626"/><ellipse cx="${x + 8 * s}" cy="${y - 158 * s}" rx="${105 * s}" ry="${20 * s}" fill="#5c4630"/>` +
           `<ellipse cx="${x - 70 * s}" cy="${y - 150 * s}" rx="${50 * s}" ry="${14 * s}" fill="#544030"/><ellipse data-noink cx="${x + 20 * s}" cy="${y - 166 * s}" rx="${60 * s}" ry="${8 * s}" fill="#a0703c"/>`)).join("") +
         ridge(640, 20, 5, "#c9b766", 29, "", "grass") +
-        L + `<g data-stand="666"><g fill="#8a6440">${range(14, i => `<rect x="${560 + i * 40}" y="610" width="10" height="56" rx="3"/>`)}<rect x="555" y="622" width="540" height="8" rx="3"/><rect x="555" y="646" width="540" height="8" rx="3"/></g>` +
-        `<g data-noink fill="#ad8459"><rect x="555" y="622" width="540" height="3" rx="1.5"/><rect x="555" y="646" width="540" height="3" rx="1.5"/></g></g>` +
-        ridge(720, 14, 4, "#b7ad5a", 31, "", "grass") +
+        L + ridge(720, 14, 4, "#b7ad5a", 31, "", "grass") +
         stand(772, rock(300, 772, 0.9, "#a99a73")) + stand(778, rock(1300, 778, 0.7, "#a99a73", -1)) +
         flowers(7, 33, 740, 880, ["#ffd84a", "#ffffff", "#f08a5c"], 0.9)
       ),
@@ -627,14 +632,13 @@
         // The sea around Cinnabar Island, lit by the glow
         `<rect y="530" width="${W}" height="140" fill="url(#vsea)"/><g class="fx-shimmer" fill="#ffb24a" opacity=".6">${range(8, i => `<rect x="${730 + (i * 29) % 140}" y="${540 + i * 12}" width="${60 - i * 5}" height="3" rx="1.5"/>`)}</g>` +
         cloud(330, 170, 1, "#4e3a44", "fx-drift", "#b5513a") + cloud(1300, 130, 0.85, "#4e3a44", "fx-drift fx-drift--rev", "#b5513a") +
-        glowAt(810, 230, 260, "#ff9a3a", 0.8, "fx-pulse") +
         // Smoke rising from the crater
         `<g class="fx-drift" fill="#5e4a52" opacity=".75"><circle cx="790" cy="170" r="50"/><circle cx="840" cy="120" r="60"/><circle cx="780" cy="80" r="56"/><circle cx="880" cy="60" r="50"/></g>` +
         `<g class="fx-drift" fill="#c0603a" opacity=".5"><ellipse cx="800" cy="200" rx="50" ry="14"/><ellipse cx="850" cy="160" rx="54" ry="14"/></g>` +
         `<path d="M500 640 L740 220 L880 220 L1120 640 Z" fill="url(#vside)"/><path d="M880 220 L1120 640 L960 640 Z" fill="#241615" opacity=".5"/>` +
         `<g fill="none" stroke="#2a1918" stroke-width="5" stroke-linecap="round" opacity=".7"><path d="M720 260 Q690 400 620 560"/><path d="M760 250 Q730 420 700 620"/><path d="M870 240 Q930 420 1000 600"/></g>` +
+        `<g opacity=".35"><path d="M800 300 L780 380 L810 460 L790 560 L800 640" stroke="#ff7a2a" stroke-width="40" fill="none" stroke-linecap="round"/></g>` +
         `<path d="M740 220 L880 220 L860 260 L830 330 L800 270 L770 300 Z" fill="#ffb24a"/>` +
-        `<g opacity=".35"><path d="M800 270 L780 380 L810 460 L790 560 L800 640" stroke="#ff7a2a" stroke-width="40" fill="none" stroke-linecap="round"/></g>` +
         `<path d="M800 270 L780 380 L810 460 L790 560 L800 640" stroke="#ff7a2a" stroke-width="14" fill="none" stroke-linecap="round"/><path d="M800 270 L780 380 L810 460 L790 560" stroke="#ffd27a" stroke-width="5" fill="none" stroke-linecap="round"/>` +
         `<path d="M850 300 L880 400 L870 470" stroke="#ff7a2a" stroke-width="9" fill="none" stroke-linecap="round"/>` +
         L + ridge(620, 30, 5, "#4a2c28", 79, "", "rock") +
@@ -755,8 +759,18 @@
         rays(800, 260, [[480, 660], [740, 870], [940, 1120]], "#e8f8ff", 0.2) +
         `<path d="M0 0 H1600 V120 Q1200 160 800 130 Q400 160 0 120 Z" fill="#1c4c6a"/>` +
         L + ridge(560, 60, 4, "#2b6a8c", 501, "", "rock") +
-        // Icicles from the roof, each with a bright streak
-        `<g>` + range(15, i => { const x = i * 110 + 30, h = 50 + ((i * 61) % 130); return `<path d="M${x - 22} 118 L${x + 22} 118 L${x} ${118 + h} Z" fill="url(#icicle)" opacity=".95"/><path data-noink d="M${x - 10} 120 L${x - 4} 120 L${x - 1} ${118 + h * 0.75} Z" fill="#ffffff" opacity=".85"/>`; }) + `</g>` +
+        // Icicles from the roof: big ones with small ones between, each a little
+        // uneven, lit on the left and in shadow on the right
+        `<g>` + range(32, i => {
+          const big = i % 2 === 0, x = i * 52 + 14 + ((i * 17) % 13), w = big ? 14 + ((i * 7) % 9) : 7 + ((i * 5) % 5);
+          const h = big ? 70 + ((i * 47) % 110) : 24 + ((i * 29) % 40), t = 128, k = (i * 13) % 2 ? 1 : -1;
+          return `<path d="M${x - w} ${t} L${x + w} ${t} L${x + w * 0.55} ${t + h * 0.4} L${x + w * 0.3} ${t + h * 0.72} L${x + k * 2} ${t + h} L${x - w * 0.3} ${t + h * 0.66} L${x - w * 0.6} ${t + h * 0.3} Z" fill="#bfe6f6"/>` +
+            `<path data-noink d="M${x + w * 0.15} ${t} L${x + w} ${t} L${x + w * 0.55} ${t + h * 0.4} L${x + w * 0.3} ${t + h * 0.72} L${x + k * 2} ${t + h} Z" fill="#86c2de"/>` +
+            `<path data-noink d="M${x - w * 0.55} ${t} L${x - w * 0.25} ${t} L${x - w * 0.15} ${t + h * 0.62} Z" fill="#ffffff" opacity=".9"/>`;
+        }) + `</g>` +
+        // Snow and frost along the edge of the roof
+        `<path d="M0 108 ${range(33, i => `Q${i * 50 + 25} ${i % 3 ? 140 : 146} ${i * 50 + 50} 128`)} L1650 100 L0 100 Z" fill="#dff3fb"/>` +
+        `<path data-noink d="M0 108 ${range(33, i => `Q${i * 50 + 25} ${i % 3 ? 126 : 130} ${i * 50 + 50} 116`)} L1650 100 L0 100 Z" fill="#ffffff"/>` +
         // Frozen falls down the cave wall
         `<path d="M250 160 Q230 380 260 600 L330 600 Q350 380 320 160 Z" fill="#bfe6f6" opacity=".9"/><path d="M270 180 Q262 380 282 590" stroke="#ffffff" stroke-width="6" opacity=".8" fill="none"/><path d="M308 190 Q318 380 312 590" stroke="#93cde6" stroke-width="4" opacity=".8" fill="none"/>` +
         `<path d="M1300 150 Q1280 360 1320 590 L1380 590 Q1400 360 1370 150 Z" fill="#bfe6f6" opacity=".9"/><path d="M1318 170 Q1306 360 1336 580" stroke="#ffffff" stroke-width="6" opacity=".8" fill="none"/>` +

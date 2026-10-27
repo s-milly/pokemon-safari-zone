@@ -260,7 +260,6 @@
         sky("vside", [[0, "#4a302c"], [1, "#2e1d1c"]]),
         fill("vo") +
         `<g class="fx-drift" fill="#5e4a52" opacity=".6"><ellipse cx="800" cy="130" rx="170" ry="60"/><ellipse cx="900" cy="80" rx="130" ry="52"/><ellipse cx="700" cy="70" rx="100" ry="40"/></g>` +
-        `<circle class="fx-pulse" cx="810" cy="220" r="220" fill="url(#vgl)" opacity=".7"/>` +
         `<path d="M500 640 L740 220 L880 220 L1120 640 Z" fill="url(#vside)"/><path d="M880 220 L1120 640 L960 640 Z" fill="#241615" opacity=".5"/>` +
         `<path d="M740 220 L880 220 L860 260 L830 330 L800 270 L770 300 Z" fill="#ffb24a"/>` +
         `<path d="M800 270 L780 380 L810 460 L790 560 L800 640" stroke="#ff7a2a" stroke-width="14" fill="none" stroke-linecap="round"/><path d="M800 270 L780 380 L810 460 L790 560" stroke="#ffd27a" stroke-width="5" fill="none" stroke-linecap="round"/>` +
