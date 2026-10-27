@@ -1,5 +1,5 @@
 /*
-  Pokémon Safari Zone: the game loop.
+  Pokémon Quiet Safari: the game loop.
   The microphone level is measured every frame. While it stays under the goal,
   quiet time builds up, and each time it reaches the setting a wild Pokémon
   appears. Over the goal for a moment, the Pokémon flee (or the scene pauses).
