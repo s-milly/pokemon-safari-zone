@@ -149,6 +149,8 @@ window.DEEP_SWIMMERS = new Set([72, 73, 116, 117, 118, 119, 129, 130]);
 // Pokémon whose artwork shows them in the air. They hover over their shadow;
 // everyone else stands on the ground.
 window.FLOATERS = new Set([12, 15, 17, 22, 41, 42, 49, 74, 81, 82, 92, 93, 109, 110, 142, 144, 145, 146, 151]);
+// Floaters that cannot fly: they hover just above the ground and never go up
+window.LOW_FLOATERS = new Set([74]); // Geodude
 
 
 // Where each ground Pokémon's feet (or body, tail or coils) meet the ground

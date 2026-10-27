@@ -489,9 +489,10 @@
   }
 
   // How high a flyer goes: usually well up in the sky (its sprite stays clear
-  // of the top bar), now and then just above the ground. Everyone else: 0.
+  // of the top bar), now and then just above the ground. Everyone else
+  // (and Geodude, which hovers just over the ground): 0.
   function pickAlt(p, y) {
-    if (!FLOATERS.has(p.id)) return 0;
+    if (!FLOATERS.has(p.id) || LOW_FLOATERS.has(p.id)) return 0;
     const px = parseFloat(scene.style.getPropertyValue("--px")) || 3;
     const tall = ART_SIZE[p.id][1] * px * depthScale(y) / (stage.clientHeight || 1) * 100;
     const top = Math.max(0, 84 - y - tall);
