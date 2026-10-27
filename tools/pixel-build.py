@@ -1,7 +1,8 @@
 """
 Step 2 of making the pixel backgrounds (step 1 is pixel-render.js).
 Turns the drawings from step 1 into pixel art: each layer gets its own small
-palette (a little bolder than the originals), see-through edges are snapped to
+palette (a little bolder than the originals, with the grain of the browser's
+gradients smoothed out), see-through edges are snapped to
 solid or half, and sign text is written in a 3 by 5 pixel font. Writes the
 pictures to px/ and the layer markup to scenes-pixel.js.
 
@@ -36,8 +37,30 @@ FONT = {
 }
 
 
+def smooth(im, near=10, reach=2):
+    """Chromium dithers gradients as it draws them: neighbouring pixels flip by
+    a step or two, and once the colours are cut down to a palette that shows as
+    a grainy checkerboard. Each pixel takes the average of the pixels around it
+    that are almost the same colour, which irons the dither out but keeps every
+    real edge sharp."""
+    a = np.asarray(im.convert("RGBA")).astype(float)
+    rgb, h, w = a[..., :3], a.shape[0], a.shape[1]
+    pad = np.pad(a, ((reach, reach), (reach, reach), (0, 0)), mode="edge")
+    total, count = np.zeros_like(rgb), np.zeros((h, w, 1))
+    for dy in range(-reach, reach + 1):
+        for dx in range(-reach, reach + 1):
+            n = pad[reach + dy:reach + dy + h, reach + dx:reach + dx + w]
+            same = ((np.abs(n[..., :3] - rgb).max(-1) <= near) & (np.abs(n[..., 3] - a[..., 3]) <= near))[..., None]
+            total += n[..., :3] * same
+            count += same
+    out = a.copy()
+    out[..., :3] = total / count
+    return Image.fromarray(out.round().astype(np.uint8), "RGBA")
+
+
 def bolder(im):
     """A little more colour and contrast, like the Black and White backdrops."""
+    im = smooth(im)
     a = im.getchannel("A")
     rgb = ImageEnhance.Contrast(ImageEnhance.Color(im.convert("RGB")).enhance(1.18)).enhance(1.06)
     out = rgb.convert("RGBA")
