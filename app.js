@@ -26,10 +26,36 @@
   delete settings.spawnSeconds; // replaced by spawnMin
   // The pixel backgrounds came with the Black and White sprites: everyone starts on them once
   if (!settings.pixelSeen) { settings.bgStyle = "pixel"; settings.pixelSeen = true; save("qsz-settings", settings); }
-  let dex = load("qsz-dex", {});
+
+  // ---------- Classes ----------
+  // Each class (a period, say) has its own Pokédex and its own Shiny Charm;
+  // every other setting is shared. Saves from before classes existed become
+  // the first class and keep their Pokédex where it was.
+  const classes = load("qsz-classes", null) || { list: [{ id: "main", name: "My class", charmEarned: !!settings.charmEarned }], current: "main" };
+  delete settings.charmEarned;
+  const dexKey = id => id === "main" ? "qsz-dex" : `qsz-dex-${id}`;
+  const cls = () => classes.list.find(c => c.id === classes.current) || classes.list[0];
+  const saveClasses = () => save("qsz-classes", classes);
+  saveClasses();
+  let dex = load(dexKey(cls().id), {});
+  const seenIn = d => Object.keys(d).filter(id => byId[id]).length;
+  const esc = t => t.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   // The Shiny Charm stays once earned, even if the Pokédex is cleared later
   const dexDone = () => Object.keys(byId).every(id => dex[id]);
-  const charmOn = () => settings.charmEarned && settings.charm;
+  const charmEarned = () => !!cls().charmEarned;
+  const charmOn = () => charmEarned() && settings.charm;
+  // A class that finished the Pokédex before the charm existed gets it now
+  function checkCharm() {
+    if (!charmEarned() && dexDone()) { cls().charmEarned = true; saveClasses(); }
+  }
+  function useClass(id) {
+    classes.current = id;
+    saveClasses();
+    dex = load(dexKey(id), {});
+    checkCharm();
+    updateCount();
+    renderHome();
+  }
 
   // The drawings for a habitat in the chosen style. Where things stand (ground,
   // water, ledge, boulders) is the same in both, so that always comes from SCENES.
@@ -38,8 +64,7 @@
 
   const byId = {};
   for (const h of HABITATS) for (const p of h.pokemon) byId[p.id] = { ...p, habitat: h.key };
-  // A class that finished the Pokédex before the charm existed gets it now
-  if (!settings.charmEarned && dexDone()) { settings.charmEarned = true; save("qsz-settings", settings); }
+  checkCharm();
 
   // ---------- Home ----------
   const habitatList = $("#habitats");
@@ -52,8 +77,38 @@
         <span class="habitat__seen">${seen} of ${h.pokemon.length}</span>
       </button></li>`;
     }).join("");
-    const total = Object.keys(byId).length, seen = Object.keys(dex).filter(id => byId[id]).length;
-    $("#home-dex-count").textContent = `${seen}/${total}`;
+    const total = Object.keys(byId).length;
+    $("#home-dex-count").textContent = `${seenIn(dex)}/${total}`;
+    renderClasses();
+  }
+
+  // The class picker on the home screen: one button per class, with how many
+  // Pokémon that class has spotted
+  const picker = $("#class-picker");
+  function renderClasses() {
+    const total = Object.keys(byId).length;
+    picker.innerHTML = classes.list.map(c => {
+      const seen = c.id === cls().id ? seenIn(dex) : seenIn(load(dexKey(c.id), {}));
+      return `<button class="class-chip" type="button" data-class="${c.id}" aria-pressed="${c.id === cls().id}">${esc(c.name)} <small>${seen}/${total}</small></button>`;
+    }).join("") + `<button class="class-chip class-chip--add" type="button" data-add-class>+ Add a class</button>`;
+  }
+  picker.addEventListener("click", e => {
+    const chip = e.target.closest("[data-class]");
+    if (chip) useClass(chip.dataset.class);
+    if (e.target.closest("[data-add-class]")) {
+      addClass();
+      $("#settings").showModal();
+      fillForm();
+      const inputs = $("#class-list").querySelectorAll("input");
+      inputs[inputs.length - 1].select();
+    }
+  });
+  function addClass() {
+    let n = classes.list.length + 1;
+    while (classes.list.some(c => c.name === `Class ${n}`)) n++;
+    const id = `c${Date.now().toString(36)}`;
+    classes.list.push({ id, name: `Class ${n}`, charmEarned: false });
+    useClass(id);
   }
   habitatList.addEventListener("click", e => {
     const btn = e.target.closest("[data-habitat]");
@@ -74,6 +129,7 @@
     drawScene(key);
     $("#scene-title").textContent = habitat.name;
     $("#start-title").textContent = habitat.name;
+    $("#start-class").textContent = `Pokédex: ${cls().name}`;
     $("#start-error").hidden = true;
     $("#start").hidden = false;
     stage.innerHTML = "";
@@ -1390,11 +1446,11 @@
     if (shiny) entry.shinySeen = shinyCount(entry) + 1;
     entry.shiny = entry.shiny || shiny;
     dex[p.id] = entry;
-    save("qsz-dex", dex);
+    save(dexKey(cls().id), dex);
     updateCount();
-    if (!settings.charmEarned && dexDone()) {
-      settings.charmEarned = true;
-      save("qsz-settings", settings);
+    if (!charmEarned() && dexDone()) {
+      cls().charmEarned = true;
+      saveClasses();
       setTimeout(() => say("The Pokédex is complete! You received the Shiny Charm. Shiny Pokémon will now appear twice as often.", true), 6500);
     }
   }
@@ -1473,7 +1529,7 @@
     const s = session;
     const newOnes = s.mons.filter(m => m.isNew).length;
     const under = s.activeMs ? Math.round(s.underMs / s.activeMs * 100) : 0;
-    $("#summary-sub").textContent = `${habitat.name} · started at ${new Date(s.started).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`;
+    $("#summary-sub").textContent = `${cls().name} · ${habitat.name} · started at ${new Date(s.started).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`;
     const stats = [
       ["Time watching", duration(s.activeMs)],
       ["Under the goal", `${under}%`],
@@ -1609,9 +1665,9 @@
     const all = Object.keys(byId).length;
     const entries = Object.keys(dex).filter(id => byId[id]).map(id => dex[id]);
     const seen = entries.length, shinies = entries.filter(e => shinyCount(e)).length;
-    $("#dex-sub").textContent = dexShiny ? `${shinies} of ${all} shiny forms found` : `${seen} of ${all} spotted`;
+    $("#dex-sub").textContent = `${cls().name}: ` + (dexShiny ? `${shinies} of ${all} shiny forms found` : `${seen} of ${all} spotted`);
     $("#dex").classList.toggle("is-shiny", dexShiny);
-    $("#dex-charm").hidden = !settings.charmEarned;
+    $("#dex-charm").hidden = !charmEarned();
     tabs.innerHTML = [["all", "All"], ...HABITATS.map(h => [h.key, h.name])]
       .map(([k, n]) => `<button type="button" role="tab" aria-selected="${k === dexTab}" data-tab="${k}">${n}</button>`).join("");
     // The main view lists all 151 in Pokédex number order
@@ -1649,17 +1705,24 @@
     form.sensitivity.value = settings.sensitivity;
     form.spawnMin.value = String(settings.spawnMin);
     form.shiny.checked = settings.shiny;
-    form.charm.checked = settings.charmEarned && settings.charm;
-    form.charm.disabled = !settings.charmEarned || !settings.shiny;
-    $("#charm-note").textContent = settings.charmEarned ? "Shinies appear about 1 in 40 instead of 1 in 80." : "Complete the Pokédex to earn it.";
-    $("#charm-toggle").classList.toggle("is-locked", !settings.charmEarned);
+    form.charm.checked = charmEarned() && settings.charm;
+    form.charm.disabled = !charmEarned() || !settings.shiny;
+    $("#charm-toggle").classList.toggle("is-locked", !charmEarned());
     form.showMeter.checked = settings.showMeter;
     form.practice.checked = settings.practice;
     form.bgStyle.value = settings.bgStyle;
     $("#goal-out").textContent = settings.goal;
     $("#sens-out").textContent = settings.sensitivity;
+    classLabels();
+    renderClassList();
   }
-  form.addEventListener("input", () => {
+  // The words in Settings that name the current class
+  function classLabels() {
+    $("#charm-note").textContent = charmEarned() ? "Shinies appear about 1 in 40 instead of 1 in 80." : `Complete the Pokédex to earn it for ${cls().name}.`;
+    $("#reset-dex").textContent = `Clear the Pokédex for ${cls().name}`;
+  }
+  form.addEventListener("input", e => {
+    if (e.target.closest("#class-list")) return;
     settings.loudMode = form.loudMode.value;
     settings.goal = Number(form.goal.value);
     settings.sensitivity = Number(form.sensitivity.value);
@@ -1667,7 +1730,7 @@
     settings.spawnMin = Number(form.spawnMin.value);
     if (settings.spawnMin !== before) nextMs = Math.min(nextMs, waitFor());
     settings.shiny = form.shiny.checked;
-    if (settings.charmEarned) settings.charm = form.charm.checked;
+    if (charmEarned()) settings.charm = form.charm.checked;
     settings.showMeter = form.showMeter.checked;
     settings.practice = form.practice.checked;
     const style = settings.bgStyle;
@@ -1687,11 +1750,52 @@
     const seen = Object.keys(dex).filter(id => byId[id]).length;
     const shinies = Object.values(dex).filter(e => shinyCount(e)).length;
     const lost = `${seen} Pokémon` + (shinies ? ` and ${shinies} shiny ${shinies === 1 ? "form" : "forms"}` : "");
-    if (!confirm(`Warning: this deletes everything in the Pokédex (${lost}) and the class starts again from 0. It cannot be undone.${settings.charmEarned ? " The Shiny Charm stays." : ""}\n\nClear the Pokédex?`)) return;
+    if (!confirm(`Warning: this deletes everything in the Pokédex for ${cls().name} (${lost}) and the class starts again from 0. It cannot be undone.${charmEarned() ? " The Shiny Charm stays." : ""}\n\nClear the Pokédex?`)) return;
     dex = {};
-    save("qsz-dex", dex);
+    save(dexKey(cls().id), dex);
     updateCount();
     renderHome();
+  });
+
+  // Classes in Settings: rename, remove or add one
+  const classList = $("#class-list");
+  function renderClassList() {
+    const one = classes.list.length === 1;
+    classList.innerHTML = classes.list.map(c => `<li class="class-row${c.id === cls().id ? " is-current" : ""}">
+      <input type="text" value="${esc(c.name)}" maxlength="30" aria-label="Class name" data-name="${c.id}" required>
+      <button class="btn btn--small btn--danger" type="button" data-remove="${c.id}"${one ? " disabled title=\"There has to be at least one class\"" : ""}>Remove</button>
+    </li>`).join("");
+  }
+  classList.addEventListener("input", e => {
+    const c = classes.list.find(k => k.id === e.target.dataset.name);
+    if (!c || !e.target.value.trim()) return;
+    c.name = e.target.value.trim();
+    saveClasses();
+    renderHome();
+    classLabels();
+    if (habitat) $("#start-class").textContent = `Pokédex: ${cls().name}`;
+  });
+  // An emptied name goes back to what it was
+  classList.addEventListener("focusout", e => {
+    const c = classes.list.find(k => k.id === e.target.dataset.name);
+    if (c && !e.target.value.trim()) e.target.value = c.name;
+  });
+  classList.addEventListener("click", e => {
+    const btn = e.target.closest("[data-remove]");
+    if (!btn || classes.list.length === 1) return;
+    const c = classes.list.find(k => k.id === btn.dataset.remove);
+    const seen = seenIn(c.id === cls().id ? dex : load(dexKey(c.id), {}));
+    if (!confirm(`Warning: this removes ${c.name} and its Pokédex (${seen} Pokémon). It cannot be undone.\n\nRemove ${c.name}?`)) return;
+    classes.list = classes.list.filter(k => k !== c);
+    try { localStorage.removeItem(dexKey(c.id)); } catch { /* storage blocked */ }
+    useClass(c.id === classes.current ? classes.list[0].id : classes.current);
+    fillForm();
+  });
+  $("#add-class").addEventListener("click", () => {
+    addClass();
+    fillForm();
+    const inputs = classList.querySelectorAll("input");
+    inputs[inputs.length - 1].select();
   });
 
   // ---------- Dialog open and close ----------

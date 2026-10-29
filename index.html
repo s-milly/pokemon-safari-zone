@@ -19,6 +19,11 @@
       <p>Keep the room quiet and wild Pokémon come out one at a time. Get too loud and they run away.</p>
     </header>
 
+    <section class="classes" aria-labelledby="class-label">
+      <h2 class="home__label" id="class-label">Class</h2>
+      <div class="class-picker" id="class-picker"></div>
+    </section>
+
     <h2 class="home__label">Pick a habitat</h2>
     <ul class="habitats" id="habitats" role="list"></ul>
 
@@ -76,6 +81,7 @@
     <div class="start" id="start">
       <div class="start__card">
         <h2 id="start-title"></h2>
+        <p class="start__class" id="start-class"></p>
         <p id="start-text">Press Start, then stay quiet. While the class stays under the volume goal, a wild Pokémon comes out about every 1 to 2 minutes.</p>
         <button class="btn btn--solid btn--big" type="button" id="start-btn">Start</button>
         <p class="start__error" id="start-error" hidden></p>
@@ -174,6 +180,13 @@
       <label class="toggle toggle--charm" id="charm-toggle"><input type="checkbox" name="charm"> <img class="charm" src="px/shiny-charm.png" alt="" width="60" height="60"> <span>Shiny Charm <small id="charm-note"></small></span></label>
       <label class="toggle"><input type="checkbox" name="showMeter"> <span>Show the volume meter</span></label>
       <label class="toggle"><input type="checkbox" name="practice"> <span>Practice mode (no microphone, use a slider)</span></label>
+
+      <fieldset>
+        <legend>Classes</legend>
+        <small class="form__note">Each class has its own Pokédex and its own Shiny Charm. Pick the class on the home screen before you start. The other settings are shared.</small>
+        <ul class="class-list" id="class-list" role="list"></ul>
+        <button class="btn btn--small class-list__add" type="button" id="add-class">+ Add a class</button>
+      </fieldset>
 
       <div class="form__danger">
         <button class="btn btn--small btn--danger" type="button" id="reset-dex">Clear the Pokédex</button>

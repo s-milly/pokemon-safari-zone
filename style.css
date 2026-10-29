@@ -104,6 +104,20 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
   position: absolute; top: 12px; right: 12px; font-size: .85rem; font-weight: 600;
   background: rgba(10, 12, 24, .55); padding: .2em .7em; border-radius: 999px;
 }
+/* Class picker: one button per class, the chosen one filled in */
+.classes { margin: 0 0 28px; }
+.class-picker { display: flex; flex-wrap: wrap; gap: 10px; }
+.class-chip {
+  font: inherit; font-weight: 600; cursor: pointer; display: inline-flex; align-items: baseline; gap: .5em;
+  border: 2px solid var(--line); background: var(--card); color: var(--ink); padding: .45em 1.1em; border-radius: 999px;
+  transition: background .15s ease, border-color .15s ease;
+}
+.class-chip:hover { border-color: var(--ink); }
+.class-chip:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+.class-chip small { color: var(--muted); font-size: .85em; font-weight: 500; }
+.class-chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--card); }
+.class-chip[aria-pressed="true"] small { color: inherit; opacity: .75; }
+.class-chip--add { background: transparent; border-style: dashed; color: var(--muted); }
 .home__actions { display: flex; justify-content: center; gap: 12px; margin: 30px 0 20px; flex-wrap: wrap; }
 .fine { color: var(--muted); font-size: .85rem; text-align: center; max-width: 720px; margin: 0 auto; }
 
@@ -651,6 +665,7 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
 .start__card { background: var(--card); color: var(--ink); border-radius: 24px; padding: 34px 36px; max-width: 480px; text-align: center; box-shadow: var(--shadow); }
 .start__card h2 { font-size: 2.2rem; margin-bottom: 10px; }
 .start__card p { color: var(--muted); margin: 0 0 22px; }
+.start__card .start__class { margin: -6px 0 14px; font-weight: 600; color: var(--ink); }
 .start__error { color: var(--bad) !important; margin: 18px 0 0 !important; font-size: .95rem; }
 
 /* ---------- Sheets (Pokédex, Settings) ---------- */
@@ -776,6 +791,17 @@ h1, h2, h3 { line-height: 1.1; margin: 0; font-weight: 700; }
 .toggle--charm.is-locked .charm { filter: brightness(0); opacity: .25; }
 .toggle--charm.is-locked > span { color: var(--muted); }
 .toggle--charm input { margin-top: 0; }
+.form__note { color: var(--muted); }
+.class-list { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 8px; }
+.class-row { display: flex; gap: 8px; align-items: center; }
+.class-row input {
+  flex: 1; min-width: 0; font: inherit; padding: .35em .7em; border-radius: 10px;
+  border: 2px solid var(--line); background: var(--card); color: var(--ink);
+}
+.class-row input:focus-visible { outline: 3px solid var(--blue); outline-offset: 1px; }
+.class-row.is-current input { border-color: var(--ink); }
+.class-row .btn:disabled { opacity: .4; cursor: default; }
+.class-list__add { justify-self: start; }
 .form__danger { border-top: 2px solid var(--line); padding-top: 16px; }
 
 /* ---------- Phone ---------- */
